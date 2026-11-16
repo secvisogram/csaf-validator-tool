@@ -22,8 +22,43 @@ See [docs/spec.md](docs/spec.md) for the full specification (context and scope, 
 
 ## Tech stack
 
-- React and TypeScript
-- Vite and npm (pinned Node version, committed lockfile, `npm ci`)
-- i18next (English UI)
-- Vitest for unit tests and Playwright for browser tests in latest-stable Chrome and Firefox
-- Docker Compose for the local deployment
+- React 19 and TypeScript 7
+- Vite 8 and npm (Node 24, committed lockfile, `npm ci`)
+- i18next 27 with react-i18next 18 (English UI)
+- Vitest 5 for unit tests
+- oxlint and oxfmt for linting and formatting
+- Playwright for browser tests in latest-stable Chrome and Firefox (planned)
+- Docker Compose for the local deployment (planned)
+
+Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
+
+## Project structure
+
+- `src/main.tsx`, `src/App.tsx`: application entry and root component
+- `src/intake/`: document intake (JSON parsing, URL validation, file and URL loading, CSAF version detection) without UI
+- `src/components/`: React components
+- `src/i18n/`: i18next setup and the English dictionary
+- `docs/`: specification
+- `.github/workflows/ci.yml`: CI (install, lint, format check, typecheck, unit tests, build)
+
+## Getting started
+
+Use the Node version from `.nvmrc`.
+
+```bash
+npm ci
+npm run dev
+```
+
+| Script                 | Purpose                                      |
+| ---------------------- | -------------------------------------------- |
+| `npm run dev`          | Start the Vite dev server                    |
+| `npm run build`        | Production build into `dist/`                |
+| `npm run preview`      | Serve the production build locally           |
+| `npm run typecheck`    | Run the TypeScript compiler without emitting |
+| `npm test`             | Run the Vitest unit tests                    |
+| `npm run lint`         | Run oxlint                                   |
+| `npm run format:check` | Check formatting with oxfmt                  |
+| `npm run format`       | Format the sources with oxfmt                |
+
+The build uses relative asset URLs (`base: './'`) so it can be served from a repository project path.
