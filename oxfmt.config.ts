@@ -1,0 +1,7 @@
+export default {
+  bracketSpacing: true,
+  singleQuote: true,
+  semi: false,
+  endOfLine: process.platform === 'win32' ? 'crlf' : 'lf',
+  printWidth: 80,
+}
