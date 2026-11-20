@@ -43,6 +43,65 @@ export default {
       null: 'null',
     },
   },
+  catalogue: {
+    heading: 'Test selection',
+    version: {
+      legend: 'CSAF version',
+      document: 'Use the version declared in the document (default)',
+      '2.0': 'CSAF 2.0 (OASIS Standard)',
+      '2.1': 'CSAF 2.1 (experimental CSD04)',
+      selected: 'Selected version',
+      fromDocument: '{{title}}, as declared in the document',
+      explicit: '{{title}}, chosen explicitly',
+    },
+    problem: {
+      noDocument:
+        'No document is loaded, so there is no declared version. Load a document, or choose CSAF 2.0 or 2.1 explicitly.',
+      missing:
+        'The document does not declare a CSAF version, so no catalogue is shown. Choose CSAF 2.0 or 2.1 explicitly.',
+      unsupported:
+        'The declared CSAF version “{{version}}” is not supported, so no catalogue is shown. Choose CSAF 2.0 or 2.1 explicitly.',
+    },
+    experimental:
+      'CSAF 2.1 is identified as CSD04, an experimental committee specification draft. It is not a final OASIS Standard.',
+    specification: 'Specification',
+    initial: {
+      specification:
+        'Initially checked: the external-request-free tests, as defined by the specification (full excluding the non-external-request-free tests).',
+      tool: 'Initially checked: the external-request-free tests. The CSAF 2.0 standard does not define this set, so it is tool-defined here (full excluding the tests that access external resources).',
+      note: 'The set only fills in the checkboxes. Every run uses exactly the tests that are checked.',
+      reset: 'Reset to the initial selection',
+    },
+    summary: '{{selected}} of {{total}} tests selected, {{schema}}',
+    schema: {
+      heading: 'Schema validation',
+      label: 'Validate against the CSAF JSON schema',
+      note: 'Separate from the numbered tests.',
+      formatValidation: 'Includes format validation.',
+      selected: 'schema check selected',
+      notSelected: 'schema check not selected',
+    },
+    table: {
+      select: 'Select',
+      section: 'Section',
+      title: 'Title',
+      presets: 'Preset memberships',
+      selectTest: 'Select {{section}} {{title}}',
+      groupCount: '{{selected}} of {{total}} selected',
+    },
+    link: {
+      open: 'Specification',
+      openLabel:
+        'Specification section {{section}} (opens the pinned document)',
+      missing: 'No verified link. The mapping needs maintenance.',
+    },
+    groups: {
+      mandatory: 'Mandatory tests',
+      optional: 'Optional tests',
+      recommended: 'Recommended tests',
+      informative: 'Informative tests',
+    },
+  },
   document: {
     heading: 'Document',
     source: {
