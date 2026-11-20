@@ -1,0 +1,1492 @@
+{
+  "snapshot": "csaf-2.1-csd04",
+  "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.1/csd04/csaf-v2.1-csd04.html",
+  "retrieved": "2026-11-20",
+  "headings": [
+    {
+      "section": "6.1.1",
+      "title": "Missing Definition of Product ID",
+      "fragment": "missing-definition-of-product-id",
+      "ids": ["missing-definition-of-product-id"]
+    },
+    {
+      "section": "6.1.2",
+      "title": "Multiple Definition of Product ID",
+      "fragment": "multiple-definition-of-product-id",
+      "ids": ["multiple-definition-of-product-id"]
+    },
+    {
+      "section": "6.1.3",
+      "title": "Circular Definition of Product ID",
+      "fragment": "circular-definition-of-product-id",
+      "ids": ["circular-definition-of-product-id"]
+    },
+    {
+      "section": "6.1.4",
+      "title": "Missing Definition of Product Group ID",
+      "fragment": "missing-definition-of-product-group-id",
+      "ids": ["missing-definition-of-product-group-id"]
+    },
+    {
+      "section": "6.1.5",
+      "title": "Multiple Definition of Product Group ID",
+      "fragment": "multiple-definition-of-product-group-id",
+      "ids": ["multiple-definition-of-product-group-id"]
+    },
+    {
+      "section": "6.1.6",
+      "title": "Contradicting Product Status",
+      "fragment": "contradicting-product-status",
+      "ids": ["contradicting-product-status"]
+    },
+    {
+      "section": "6.1.7",
+      "title": "Multiple Scores with Same Version per Product",
+      "fragment": "multiple-scores-with-same-version-per-product",
+      "ids": ["multiple-scores-with-same-version-per-product"]
+    },
+    {
+      "section": "6.1.8",
+      "title": "Invalid CVSS",
+      "fragment": "invalid-cvss",
+      "ids": ["invalid-cvss"]
+    },
+    {
+      "section": "6.1.9",
+      "title": "Invalid CVSS Computation",
+      "fragment": "invalid-cvss-computation",
+      "ids": ["invalid-cvss-computation"]
+    },
+    {
+      "section": "6.1.10",
+      "title": "Inconsistent CVSS",
+      "fragment": "inconsistent-cvss",
+      "ids": ["inconsistent-cvss"]
+    },
+    {
+      "section": "6.1.11",
+      "title": "CWE",
+      "fragment": "mandatory-tests--cwe",
+      "ids": ["cwe", "mandatory-tests--cwe"]
+    },
+    {
+      "section": "6.1.12",
+      "title": "Language",
+      "fragment": "language",
+      "ids": ["language"]
+    },
+    {
+      "section": "6.1.13",
+      "title": "PURL",
+      "fragment": "mandatory--purl",
+      "ids": ["purl", "mandatory--purl"]
+    },
+    {
+      "section": "6.1.14",
+      "title": "Sorted Revision History",
+      "fragment": "sorted-revision-history",
+      "ids": ["sorted-revision-history"]
+    },
+    {
+      "section": "6.1.15",
+      "title": "Translator",
+      "fragment": "translator",
+      "ids": ["translator"]
+    },
+    {
+      "section": "6.1.16",
+      "title": "Latest Document Version",
+      "fragment": "latest-document-version",
+      "ids": ["latest-document-version"]
+    },
+    {
+      "section": "6.1.17",
+      "title": "Document Status Draft",
+      "fragment": "document-status-draft",
+      "ids": ["document-status-draft"]
+    },
+    {
+      "section": "6.1.18",
+      "title": "Released Revision History",
+      "fragment": "released-revision-history",
+      "ids": ["released-revision-history"]
+    },
+    {
+      "section": "6.1.19",
+      "title": "Revision History Entries for Pre-release Versions",
+      "fragment": "revision-history-entries-for-pre-release-versions",
+      "ids": ["revision-history-entries-for-pre-release-versions"]
+    },
+    {
+      "section": "6.1.20",
+      "title": "Non-Draft Document Version",
+      "fragment": "non-draft-document-version",
+      "ids": ["non-draft-document-version"]
+    },
+    {
+      "section": "6.1.21",
+      "title": "Missing Item in Revision History",
+      "fragment": "missing-item-in-revision-history",
+      "ids": ["missing-item-in-revision-history"]
+    },
+    {
+      "section": "6.1.22",
+      "title": "Multiple Definition in Revision History",
+      "fragment": "multiple-definition-in-revision-history",
+      "ids": ["multiple-definition-in-revision-history"]
+    },
+    {
+      "section": "6.1.23",
+      "title": "Multiple Use of Same CVE",
+      "fragment": "multiple-use-of-same-cve",
+      "ids": ["multiple-use-of-same-cve"]
+    },
+    {
+      "section": "6.1.24",
+      "title": "Multiple Definition in Actions",
+      "fragment": "multiple-definition-in-actions",
+      "ids": ["multiple-definition-in-actions"]
+    },
+    {
+      "section": "6.1.25",
+      "title": "Multiple Use of Same Hash Algorithm",
+      "fragment": "multiple-use-of-same-hash-algorithm",
+      "ids": ["multiple-use-of-same-hash-algorithm"]
+    },
+    {
+      "section": "6.1.26",
+      "title": "Prohibited Document Category Name",
+      "fragment": "prohibited-document-category-name",
+      "ids": ["prohibited-document-category-name"]
+    },
+    {
+      "section": "6.1.27",
+      "title": "Profile Tests",
+      "fragment": "mandatory--profile-tests",
+      "ids": ["profile-tests", "mandatory--profile-tests"]
+    },
+    {
+      "section": "6.1.27.1",
+      "title": "Document Notes",
+      "fragment": "document-notes-for-informational-advisory-and-security-incident-response",
+      "ids": [
+        "document-notes",
+        "document-notes-for-informational-advisory-and-security-incident-response"
+      ]
+    },
+    {
+      "section": "6.1.27.2",
+      "title": "Document References",
+      "fragment": "document-references-for-informational-advisory-and-security-incident-response",
+      "ids": [
+        "document-references",
+        "document-references-for-informational-advisory-and-security-incident-response"
+      ]
+    },
+    {
+      "section": "6.1.27.3",
+      "title": "Vulnerabilities",
+      "fragment": "vulnerabilities-for-informational-advisory",
+      "ids": ["vulnerabilities", "vulnerabilities-for-informational-advisory"]
+    },
+    {
+      "section": "6.1.27.4",
+      "title": "Product Tree",
+      "fragment": "product-tree-for-security-advisory-vex-deprecated-security-advisory",
+      "ids": [
+        "product-tree",
+        "product-tree-for-security-advisory-vex-deprecated-security-advisory"
+      ]
+    },
+    {
+      "section": "6.1.27.5",
+      "title": "Vulnerability Notes",
+      "fragment": "vulnerability-notes",
+      "ids": ["vulnerability-notes"]
+    },
+    {
+      "section": "6.1.27.6",
+      "title": "Product Status",
+      "fragment": "product-status",
+      "ids": ["product-status"]
+    },
+    {
+      "section": "6.1.27.7",
+      "title": "VEX Product Status",
+      "fragment": "vex-product-status",
+      "ids": ["vex-product-status"]
+    },
+    {
+      "section": "6.1.27.8",
+      "title": "Vulnerability ID",
+      "fragment": "vulnerability-id",
+      "ids": ["vulnerability-id"]
+    },
+    {
+      "section": "6.1.27.9",
+      "title": "Impact Statement",
+      "fragment": "impact-statement",
+      "ids": ["impact-statement"]
+    },
+    {
+      "section": "6.1.27.10",
+      "title": "Action Statement",
+      "fragment": "action-statement",
+      "ids": ["action-statement"]
+    },
+    {
+      "section": "6.1.27.11",
+      "title": "Vulnerabilities",
+      "fragment": "vulnerabilities-for-security-advisory-or-vex",
+      "ids": [
+        "vulnerabilities-1",
+        "vulnerabilities-for-security-advisory-or-vex"
+      ]
+    },
+    {
+      "section": "6.1.27.12",
+      "title": "Affected Products",
+      "fragment": "affected-products",
+      "ids": ["affected-products"]
+    },
+    {
+      "section": "6.1.27.13",
+      "title": "Corresponding Affected Products",
+      "fragment": "corresponding-affected-products",
+      "ids": ["corresponding-affected-products"]
+    },
+    {
+      "section": "6.1.27.14",
+      "title": "Document Notes",
+      "fragment": "document-notes-for-withdrawn-and-superseded",
+      "ids": ["document-notes-1", "document-notes-for-withdrawn-and-superseded"]
+    },
+    {
+      "section": "6.1.27.15",
+      "title": "Product Tree",
+      "fragment": "product-tree-for-withdrawn-and-superseded",
+      "ids": ["product-tree-1", "product-tree-for-withdrawn-and-superseded"]
+    },
+    {
+      "section": "6.1.27.16",
+      "title": "Revision History",
+      "fragment": "revision-history-for-withdrawn-and-superseded",
+      "ids": [
+        "revision-history",
+        "revision-history-for-withdrawn-and-superseded"
+      ]
+    },
+    {
+      "section": "6.1.27.17",
+      "title": "Reasoning for Withdrawal",
+      "fragment": "reasoning-for-withdrawal",
+      "ids": ["reasoning-for-withdrawal"]
+    },
+    {
+      "section": "6.1.27.18",
+      "title": "Reasoning for Supersession",
+      "fragment": "reasoning-for-supersession",
+      "ids": ["reasoning-for-supersession"]
+    },
+    {
+      "section": "6.1.27.19",
+      "title": "Reference to Superseding Document",
+      "fragment": "reference-to-superseding-document",
+      "ids": ["reference-to-superseding-document"]
+    },
+    {
+      "section": "6.1.27.20",
+      "title": "Vulnerability Notes",
+      "fragment": "vulnerability-notes-for-vulnerability-report",
+      "ids": [
+        "vulnerability-notes-1",
+        "vulnerability-notes-for-vulnerability-report"
+      ]
+    },
+    {
+      "section": "6.1.28",
+      "title": "Translation",
+      "fragment": "translation",
+      "ids": ["translation"]
+    },
+    {
+      "section": "6.1.29",
+      "title": "Remediation without Product Reference",
+      "fragment": "remediation-without-product-reference",
+      "ids": ["remediation-without-product-reference"]
+    },
+    {
+      "section": "6.1.30",
+      "title": "Mixed Integer and Semantic Versioning",
+      "fragment": "mixed-integer-and-semantic-versioning",
+      "ids": ["mixed-integer-and-semantic-versioning"]
+    },
+    {
+      "section": "6.1.31",
+      "title": "Version Range in Product Version",
+      "fragment": "version-range-in-product-version",
+      "ids": ["version-range-in-product-version"]
+    },
+    {
+      "section": "6.1.32",
+      "title": "Flag without Product Reference",
+      "fragment": "flag-without-product-reference",
+      "ids": ["flag-without-product-reference"]
+    },
+    {
+      "section": "6.1.33",
+      "title": "Multiple Flags with VEX Justification Codes per Product",
+      "fragment": "multiple-flags-with-vex-justification-codes-per-product",
+      "ids": ["multiple-flags-with-vex-justification-codes-per-product"]
+    },
+    {
+      "section": "6.1.34",
+      "title": "Branches Recursion Depth",
+      "fragment": "mandatory-tests--branches-recursion-depth",
+      "ids": [
+        "branches-recursion-depth",
+        "mandatory-tests--branches-recursion-depth"
+      ]
+    },
+    {
+      "section": "6.1.35",
+      "title": "Contradicting Remediations",
+      "fragment": "contradicting-remediations",
+      "ids": ["contradicting-remediations"]
+    },
+    {
+      "section": "6.1.36",
+      "title": "Contradicting Product Status Remediation Combination",
+      "fragment": "contradicting-product-status-remediation-combination",
+      "ids": ["contradicting-product-status-remediation-combination"]
+    },
+    {
+      "section": "6.1.37",
+      "title": "Date and Time",
+      "fragment": "mandatory-tests--date-and-time",
+      "ids": ["date-and-time-1", "mandatory-tests--date-and-time"]
+    },
+    {
+      "section": "6.1.38",
+      "title": "Non-Public Sharing Group with Max UUID",
+      "fragment": "non-public-sharing-group-with-max-uuid",
+      "ids": ["non-public-sharing-group-with-max-uuid"]
+    },
+    {
+      "section": "6.1.39",
+      "title": "Public Sharing Group with No Max UUID",
+      "fragment": "public-sharing-group-with-no-max-uuid",
+      "ids": ["public-sharing-group-with-no-max-uuid"]
+    },
+    {
+      "section": "6.1.40",
+      "title": "Invalid Sharing Group Name",
+      "fragment": "invalid-sharing-group-name",
+      "ids": ["invalid-sharing-group-name"]
+    },
+    {
+      "section": "6.1.41",
+      "title": "Missing Sharing Group Name",
+      "fragment": "missing-sharing-group-name",
+      "ids": ["missing-sharing-group-name"]
+    },
+    {
+      "section": "6.1.42",
+      "title": "PURL Qualifiers",
+      "fragment": "purl-qualifiers",
+      "ids": ["purl-qualifiers"]
+    },
+    {
+      "section": "6.1.43",
+      "title": "Use of Multiple Stars in Model Number",
+      "fragment": "use-of-multiple-stars-in-model-number",
+      "ids": ["use-of-multiple-stars-in-model-number"]
+    },
+    {
+      "section": "6.1.44",
+      "title": "Use of Multiple Stars in Serial Number",
+      "fragment": "use-of-multiple-stars-in-serial-number",
+      "ids": ["use-of-multiple-stars-in-serial-number"]
+    },
+    {
+      "section": "6.1.45",
+      "title": "Inconsistent Disclosure Date",
+      "fragment": "inconsistent-disclosure-date",
+      "ids": ["inconsistent-disclosure-date"]
+    },
+    {
+      "section": "6.1.46",
+      "title": "Invalid SSVC",
+      "fragment": "invalid-ssvc",
+      "ids": ["invalid-ssvc"]
+    },
+    {
+      "section": "6.1.47",
+      "title": "Inconsistent SSVC Target IDs",
+      "fragment": "inconsistent-ssvc-target-ids",
+      "ids": ["inconsistent-ssvc-target-ids"]
+    },
+    {
+      "section": "6.1.48",
+      "title": "SSVC Decision Points",
+      "fragment": "ssvc-decision-points",
+      "ids": ["ssvc-decision-points"]
+    },
+    {
+      "section": "6.1.49",
+      "title": "Inconsistent SSVC Timestamp",
+      "fragment": "inconsistent-ssvc-timestamp",
+      "ids": ["inconsistent-ssvc-timestamp"]
+    },
+    {
+      "section": "6.1.50",
+      "title": "Product Version Range Rules",
+      "fragment": "product-version-range-rules",
+      "ids": ["product-version-range-rules"]
+    },
+    {
+      "section": "6.1.51",
+      "title": "Inconsistent EPSS Timestamp",
+      "fragment": "inconsistent-epss-timestamp",
+      "ids": ["inconsistent-epss-timestamp"]
+    },
+    {
+      "section": "6.1.52",
+      "title": "Inconsistent First Known Exploitation Dates",
+      "fragment": "inconsistent-first-known-exploitation-dates",
+      "ids": ["inconsistent-first-known-exploitation-dates"]
+    },
+    {
+      "section": "6.1.53",
+      "title": "Inconsistent Exploitation Date",
+      "fragment": "inconsistent-exploitation-date",
+      "ids": ["inconsistent-exploitation-date"]
+    },
+    {
+      "section": "6.1.54",
+      "title": "License Expression",
+      "fragment": "license-expression",
+      "ids": ["license-expression"]
+    },
+    {
+      "section": "6.1.55",
+      "title": "License Text",
+      "fragment": "license-text",
+      "ids": ["license-text"]
+    },
+    {
+      "section": "6.1.56",
+      "title": "Use of CVSS and Qualitative Severity Rating",
+      "fragment": "use-of-cvss-and-qualitative-severity-rating",
+      "ids": ["use-of-cvss-and-qualitative-severity-rating"]
+    },
+    {
+      "section": "6.1.57",
+      "title": "Stacked Branch Categories",
+      "fragment": "stacked-branch-categories",
+      "ids": ["stacked-branch-categories"]
+    },
+    {
+      "section": "6.1.58",
+      "title": "Use of product_version in one Path with product_version_range",
+      "fragment": "use-of-product-version-in-one-path-with-product-version-range",
+      "ids": [
+        "use-of-product_version-in-one-path-with-product_version_range",
+        "use-of-product-version-in-one-path-with-product-version-range"
+      ]
+    },
+    {
+      "section": "6.1.59",
+      "title": "Single Version as Product Version Range",
+      "fragment": "single-version-as-product-version-range",
+      "ids": ["single-version-as-product-version-range"]
+    },
+    {
+      "section": "6.1.60",
+      "title": "Extension Tests",
+      "fragment": "mandatory-tests--extension-tests",
+      "ids": ["extension-tests", "mandatory-tests--extension-tests"]
+    },
+    {
+      "section": "6.1.60.1",
+      "title": "Content Schema",
+      "fragment": "mandatory-tests--extension-tests-content-schema",
+      "ids": [
+        "content-schema-1",
+        "mandatory-tests--extension-tests-content-schema"
+      ]
+    },
+    {
+      "section": "6.1.60.2",
+      "title": "Extension Schema",
+      "fragment": "mandatory-tests--extension-tests-extension-schema",
+      "ids": [
+        "extension-schema",
+        "mandatory-tests--extension-tests-extension-schema"
+      ]
+    },
+    {
+      "section": "6.1.60.3",
+      "title": "Extension Metadata",
+      "fragment": "mandatory-tests--extension-tests-metadata",
+      "ids": ["extension-metadata", "mandatory-tests--extension-tests-metadata"]
+    },
+    {
+      "section": "6.1.61",
+      "title": "Use of Multiple Stars in SKU",
+      "fragment": "use-of-multiple-stars-in-sku",
+      "ids": ["use-of-multiple-stars-in-sku"]
+    },
+    {
+      "section": "6.1.62",
+      "title": "Inconsistent Discovery Date",
+      "fragment": "inconsistent-discovery-date",
+      "ids": ["inconsistent-discovery-date"]
+    },
+    {
+      "section": "6.1.63",
+      "title": "Inconsistent Hash Value Length",
+      "fragment": "inconsistent-hash-value-length",
+      "ids": ["inconsistent-hash-value-length"]
+    },
+    {
+      "section": "6.1.64",
+      "title": "Involvement Tests",
+      "fragment": "mandatory--involvement-tests",
+      "ids": ["involvement-tests", "mandatory--involvement-tests"]
+    },
+    {
+      "section": "6.1.64.1",
+      "title": "Missing Receiving Entity Refs",
+      "fragment": "missing-receiving-entity-refs",
+      "ids": ["missing-receiving-entity-refs"]
+    },
+    {
+      "section": "6.1.64.2",
+      "title": "Contradicting Definition in Actions",
+      "fragment": "contradicting-definition-in-actions",
+      "ids": ["contradicting-definition-in-actions"]
+    },
+    {
+      "section": "6.1.64.3",
+      "title": "Missing Recipient on Attempt",
+      "fragment": "missing-recipient-on-attempt",
+      "ids": ["missing-recipient-on-attempt"]
+    },
+    {
+      "section": "6.1.64.4",
+      "title": "Actor and Recipient",
+      "fragment": "actor-and-recipient",
+      "ids": ["actor-and-recipient"]
+    },
+    {
+      "section": "6.1.64.5",
+      "title": "Missing Definition of Entity ID",
+      "fragment": "missing-definition-of-entity-id",
+      "ids": ["missing-definition-of-entity-id"]
+    },
+    {
+      "section": "6.1.64.6",
+      "title": "Multiple Definition of Entity ID",
+      "fragment": "multiple-definition-of-entity-id",
+      "ids": ["multiple-definition-of-entity-id"]
+    },
+    {
+      "section": "6.1.64.7",
+      "title": "Missing Definition of Entity Group ID",
+      "fragment": "missing-definition-of-entity-group-id",
+      "ids": ["missing-definition-of-entity-group-id"]
+    },
+    {
+      "section": "6.1.64.8",
+      "title": "Multiple Definition of Entity Group ID",
+      "fragment": "multiple-definition-of-entity-group-id",
+      "ids": ["multiple-definition-of-entity-group-id"]
+    },
+    {
+      "section": "6.1.64.9",
+      "title": "Missing Definition of Action ID",
+      "fragment": "missing-definition-of-action-id",
+      "ids": ["missing-definition-of-action-id"]
+    },
+    {
+      "section": "6.1.64.10",
+      "title": "Multiple Definition of Action ID",
+      "fragment": "multiple-definition-of-action-id",
+      "ids": ["multiple-definition-of-action-id"]
+    },
+    {
+      "section": "6.1.64.11",
+      "title": "Circular Reference of Action ID",
+      "fragment": "circular-reference-of-action-id",
+      "ids": ["circular-reference-of-action-id"]
+    },
+    {
+      "section": "6.1.64.12",
+      "title": "Confirmation from Unmentioned Entity",
+      "fragment": "confirmation-from-unmentioned-entity",
+      "ids": ["confirmation-from-unmentioned-entity"]
+    },
+    {
+      "section": "6.1.64.13",
+      "title": "Missing Referenced Action IDs",
+      "fragment": "missing-referenced-action-ids",
+      "ids": ["missing-referenced-action-ids"]
+    },
+    {
+      "section": "6.1.65",
+      "title": "Document-local Vuln ID Tests",
+      "fragment": "mandatory--document-local-vuln-id-tests",
+      "ids": [
+        "document-local-vuln-id-tests",
+        "mandatory--document-local-vuln-id-tests"
+      ]
+    },
+    {
+      "section": "6.1.65.1",
+      "title": "Missing Definition of Document-local Vuln ID",
+      "fragment": "missing-definition-of-document-local-vuln-id",
+      "ids": ["missing-definition-of-document-local-vuln-id"]
+    },
+    {
+      "section": "6.1.65.2",
+      "title": "Multiple Definition of Document-local Vuln ID",
+      "fragment": "multiple-definition-of-document-local-vuln-id",
+      "ids": ["multiple-definition-of-document-local-vuln-id"]
+    },
+    {
+      "section": "6.1.66",
+      "title": "Non-Draft Initial Release Date",
+      "fragment": "non-draft-initial-release-date",
+      "ids": ["non-draft-initial-release-date"]
+    },
+    {
+      "section": "6.2.1",
+      "title": "Unused Definition of Product ID",
+      "fragment": "unused-definition-of-product-id",
+      "ids": ["unused-definition-of-product-id"]
+    },
+    {
+      "section": "6.2.2",
+      "title": "Missing Remediation",
+      "fragment": "missing-remediation",
+      "ids": ["missing-remediation"]
+    },
+    {
+      "section": "6.2.3",
+      "title": "Missing Metric",
+      "fragment": "missing-metric",
+      "ids": ["missing-metric"]
+    },
+    {
+      "section": "6.2.4",
+      "title": "Build Metadata in Revision History",
+      "fragment": "build-metadata-in-revision-history",
+      "ids": ["build-metadata-in-revision-history"]
+    },
+    {
+      "section": "6.2.5",
+      "title": "Older Initial Release Date than Revision History",
+      "fragment": "older-initial-release-date-than-revision-history",
+      "ids": ["older-initial-release-date-than-revision-history"]
+    },
+    {
+      "section": "6.2.6",
+      "title": "Older Current Release Date than Revision History",
+      "fragment": "older-current-release-date-than-revision-history",
+      "ids": ["older-current-release-date-than-revision-history"]
+    },
+    {
+      "section": "6.2.7",
+      "title": "Missing Date of the Action (Obsolete)",
+      "fragment": "missing-date-of-the-action",
+      "ids": [
+        "missing-date-of-the-action-obsolete",
+        "missing-date-of-the-action"
+      ]
+    },
+    {
+      "section": "6.2.8",
+      "title": "Use of MD5 As the Only Hash Algorithm",
+      "fragment": "use-of-md5-as-the-only-hash-algorithm",
+      "ids": ["use-of-md5-as-the-only-hash-algorithm"]
+    },
+    {
+      "section": "6.2.9",
+      "title": "Use of SHA-1 As the Only Hash Algorithm",
+      "fragment": "use-of-sha-1-as-the-only-hash-algorithm",
+      "ids": ["use-of-sha-1-as-the-only-hash-algorithm"]
+    },
+    {
+      "section": "6.2.10",
+      "title": "Missing TLP Label (Obsolete)",
+      "fragment": "missing-tlp-label",
+      "ids": ["missing-tlp-label-obsolete", "missing-tlp-label"]
+    },
+    {
+      "section": "6.2.11",
+      "title": "Missing Canonical URL",
+      "fragment": "missing-canonical-url",
+      "ids": ["missing-canonical-url"]
+    },
+    {
+      "section": "6.2.12",
+      "title": "Missing Document Language",
+      "fragment": "missing-document-language",
+      "ids": ["missing-document-language"]
+    },
+    {
+      "section": "6.2.13",
+      "title": "Sorting",
+      "fragment": "recommended-tests--sorting",
+      "ids": ["sorting-1", "recommended-tests--sorting"]
+    },
+    {
+      "section": "6.2.14",
+      "title": "Use of Private Language",
+      "fragment": "use-of-private-language",
+      "ids": ["use-of-private-language"]
+    },
+    {
+      "section": "6.2.15",
+      "title": "Use of Default Language",
+      "fragment": "use-of-default-language",
+      "ids": ["use-of-default-language"]
+    },
+    {
+      "section": "6.2.16",
+      "title": "Missing Product Identification Helper",
+      "fragment": "missing-product-identification-helper",
+      "ids": ["missing-product-identification-helper"]
+    },
+    {
+      "section": "6.2.17",
+      "title": "CVE in Field IDs",
+      "fragment": "cve-in-field-ids",
+      "ids": ["cve-in-field-ids"]
+    },
+    {
+      "section": "6.2.18",
+      "title": "Product Version Range without VERS",
+      "fragment": "product-version-range-without-vers",
+      "ids": ["product-version-range-without-vers"]
+    },
+    {
+      "section": "6.2.19",
+      "title": "CVSS for Fixed Products",
+      "fragment": "cvss-for-fixed-products",
+      "ids": ["cvss-for-fixed-products"]
+    },
+    {
+      "section": "6.2.20",
+      "title": "Additional Properties",
+      "fragment": "additional-properties",
+      "ids": ["additional-properties"]
+    },
+    {
+      "section": "6.2.21",
+      "title": "Same Timestamps in Revision History",
+      "fragment": "same-timestamps-in-revision-history",
+      "ids": ["same-timestamps-in-revision-history"]
+    },
+    {
+      "section": "6.2.22",
+      "title": "Document Tracking ID in Title",
+      "fragment": "document-tracking-id-in-title",
+      "ids": ["document-tracking-id-in-title"]
+    },
+    {
+      "section": "6.2.23",
+      "title": "Usage of Deprecated CWE",
+      "fragment": "usage-of-deprecated-cwe",
+      "ids": ["usage-of-deprecated-cwe"]
+    },
+    {
+      "section": "6.2.24",
+      "title": "Usage of Non-Latest CWE Version",
+      "fragment": "usage-of-non-latest-cwe-version",
+      "ids": ["usage-of-non-latest-cwe-version"]
+    },
+    {
+      "section": "6.2.25",
+      "title": "Usage of CWE Not Allowed for Vulnerability Mapping",
+      "fragment": "usage-of-cwe-not-allowed-for-vulnerability-mapping",
+      "ids": ["usage-of-cwe-not-allowed-for-vulnerability-mapping"]
+    },
+    {
+      "section": "6.2.26",
+      "title": "Usage of CWE Allowed with Review for Vulnerability Mapping",
+      "fragment": "usage-of-cwe-allowed-with-review-for-vulnerability-mapping",
+      "ids": ["usage-of-cwe-allowed-with-review-for-vulnerability-mapping"]
+    },
+    {
+      "section": "6.2.27",
+      "title": "Discouraged Product Status Remediation Combination",
+      "fragment": "discouraged-product-status-remediation-combination",
+      "ids": ["discouraged-product-status-remediation-combination"]
+    },
+    {
+      "section": "6.2.28",
+      "title": "Usage of Max UUID",
+      "fragment": "usage-of-max-uuid",
+      "ids": ["usage-of-max-uuid"]
+    },
+    {
+      "section": "6.2.29",
+      "title": "Usage of Nil UUID",
+      "fragment": "usage-of-nil-uuid",
+      "ids": ["usage-of-nil-uuid"]
+    },
+    {
+      "section": "6.2.30",
+      "title": "Usage of Sharing Group on TLP:CLEAR",
+      "fragment": "usage-of-sharing-group-on-tlp-clear",
+      "ids": [
+        "usage-of-sharing-group-on-tlpclear",
+        "usage-of-sharing-group-on-tlp-clear"
+      ]
+    },
+    {
+      "section": "6.2.31",
+      "title": "Hardware and Software",
+      "fragment": "hardware-and-software",
+      "ids": ["hardware-and-software"]
+    },
+    {
+      "section": "6.2.32",
+      "title": "Use of Same Product Identification Helper for Different Products",
+      "fragment": "use-of-same-product-identification-helper-for-different-products",
+      "ids": [
+        "use-of-same-product-identification-helper-for-different-products"
+      ]
+    },
+    {
+      "section": "6.2.33",
+      "title": "Disclosure Date Newer than Revision History",
+      "fragment": "disclosure-date-newer-than-revision-history",
+      "ids": ["disclosure-date-newer-than-revision-history"]
+    },
+    {
+      "section": "6.2.34",
+      "title": "Usage of Unknown SSVC Decision Point Base Namespace",
+      "fragment": "usage-of-unknown-ssvc-decision-point-base-namespace",
+      "ids": ["usage-of-unknown-ssvc-decision-point-base-namespace"]
+    },
+    {
+      "section": "6.2.35",
+      "title": "Usage of Unregistered SSVC Decision Point Base Namespace in TLP:CLEAR Document",
+      "fragment": "usage-of-unregistered-ssvc-decision-point-base-namespace-in-tlp-clear-document",
+      "ids": [
+        "usage-of-unregistered-ssvc-decision-point-base-namespace-in-tlpclear-document",
+        "usage-of-unregistered-ssvc-decision-point-base-namespace-in-tlp-clear-document"
+      ]
+    },
+    {
+      "section": "6.2.36",
+      "title": "Usage of SSVC Decision Point Namespace with Extension in TLP:CLEAR Document",
+      "fragment": "usage-of-ssvc-decision-point-namespace-with-extension-in-tlp-clear-document",
+      "ids": [
+        "usage-of-ssvc-decision-point-namespace-with-extension-in-tlpclear-document",
+        "usage-of-ssvc-decision-point-namespace-with-extension-in-tlp-clear-document"
+      ]
+    },
+    {
+      "section": "6.2.37",
+      "title": "Usage of Unknown SSVC Decision Point Namespace without Resource",
+      "fragment": "usage-of-unknown-ssvc-decision-point-namespace-without-resource",
+      "ids": ["usage-of-unknown-ssvc-decision-point-namespace-without-resource"]
+    },
+    {
+      "section": "6.2.38",
+      "title": "Usage of Deprecated Profile",
+      "fragment": "usage-of-deprecated-profile",
+      "ids": ["usage-of-deprecated-profile"]
+    },
+    {
+      "section": "6.2.39",
+      "title": "Profile Tests",
+      "fragment": "recommended--profile-tests",
+      "ids": ["profile-tests-1", "recommended--profile-tests"]
+    },
+    {
+      "section": "6.2.39.1",
+      "title": "Missing Fixed Product",
+      "fragment": "missing-fixed-product",
+      "ids": ["missing-fixed-product"]
+    },
+    {
+      "section": "6.2.39.2",
+      "title": "Language Specific Reasoning for Withdrawal",
+      "fragment": "language-specific-reasoning-for-withdrawal",
+      "ids": ["language-specific-reasoning-for-withdrawal"]
+    },
+    {
+      "section": "6.2.39.3",
+      "title": "Language Specific Reasoning for Supersession",
+      "fragment": "language-specific-reasoning-for-supersession",
+      "ids": ["language-specific-reasoning-for-supersession"]
+    },
+    {
+      "section": "6.2.39.4",
+      "title": "Language Specific Superseding Document",
+      "fragment": "language-specific-superseding-document",
+      "ids": ["language-specific-superseding-document"]
+    },
+    {
+      "section": "6.2.39.5",
+      "title": "Extension in Superseded or Withdrawn Document",
+      "fragment": "extension-in-superseded-or-withdrawn-document",
+      "ids": ["extension-in-superseded-or-withdrawn-document"]
+    },
+    {
+      "section": "6.2.39.6",
+      "title": "Language Specific Vulnerability Notes",
+      "fragment": "language-specific-vulnerability-notes",
+      "ids": ["language-specific-vulnerability-notes"]
+    },
+    {
+      "section": "6.2.39.7",
+      "title": "Document Acknowledgments",
+      "fragment": "document-acknowledgments-for-vulnerability-report",
+      "ids": [
+        "document-acknowledgments",
+        "document-acknowledgments-for-vulnerability-report"
+      ]
+    },
+    {
+      "section": "6.2.39.8",
+      "title": "Aggregate Severity",
+      "fragment": "aggregate-severity",
+      "ids": ["aggregate-severity"]
+    },
+    {
+      "section": "6.2.39.9",
+      "title": "TLP-Label for Vulnerability Report",
+      "fragment": "tlp-label-for-vulnerability-report",
+      "ids": ["tlp-label-for-vulnerability-report"]
+    },
+    {
+      "section": "6.2.39.10",
+      "title": "Vulnerability Metrics",
+      "fragment": "vulnerability-metrics",
+      "ids": ["vulnerability-metrics"]
+    },
+    {
+      "section": "6.2.39.11",
+      "title": "Vulnerability References",
+      "fragment": "vulnerability-references",
+      "ids": ["vulnerability-references"]
+    },
+    {
+      "section": "6.2.39.12",
+      "title": "Vulnerability Threats",
+      "fragment": "vulnerability-threats",
+      "ids": ["vulnerability-threats"]
+    },
+    {
+      "section": "6.2.39.13",
+      "title": "Vulnerability Title",
+      "fragment": "vulnerability-title",
+      "ids": ["vulnerability-title"]
+    },
+    {
+      "section": "6.2.40",
+      "title": "Product Description without Product Reference",
+      "fragment": "product-description-without-product-reference",
+      "ids": ["product-description-without-product-reference"]
+    },
+    {
+      "section": "6.2.41",
+      "title": "Old EPSS Timestamp",
+      "fragment": "old-epss-timestamp",
+      "ids": ["old-epss-timestamp"]
+    },
+    {
+      "section": "6.2.42",
+      "title": "Inconsistent Product Identification Helper",
+      "fragment": "inconsistent-product-identification-helper",
+      "ids": ["inconsistent-product-identification-helper"]
+    },
+    {
+      "section": "6.2.43",
+      "title": "Missing License Expression",
+      "fragment": "missing-license-expression",
+      "ids": ["missing-license-expression"]
+    },
+    {
+      "section": "6.2.44",
+      "title": "Deprecated License Identifier",
+      "fragment": "deprecated-license-identifier",
+      "ids": ["deprecated-license-identifier"]
+    },
+    {
+      "section": "6.2.45",
+      "title": "Non-Existing License Identifier",
+      "fragment": "non-existing-license-identifier",
+      "ids": ["non-existing-license-identifier"]
+    },
+    {
+      "section": "6.2.46",
+      "title": "Language Specific License Text",
+      "fragment": "language-specific-license-text",
+      "ids": ["language-specific-license-text"]
+    },
+    {
+      "section": "6.2.47",
+      "title": "Use of Qualitative Severity Rating by Issuing Party",
+      "fragment": "use-of-qualitative-severity-rating-by-issuing-party",
+      "ids": ["use-of-qualitative-severity-rating-by-issuing-party"]
+    },
+    {
+      "section": "6.2.48",
+      "title": "Misuse at Vendor Name",
+      "fragment": "misuse-at-vendor-name",
+      "ids": ["misuse-at-vendor-name"]
+    },
+    {
+      "section": "6.2.49",
+      "title": "Upper Open Ended Product Version Range",
+      "fragment": "upper-open-ended-product-version-range",
+      "ids": ["upper-open-ended-product-version-range"]
+    },
+    {
+      "section": "6.2.50",
+      "title": "Overlapping Product Version Range",
+      "fragment": "overlapping-product-version-range",
+      "ids": ["overlapping-product-version-range"]
+    },
+    {
+      "section": "6.2.50.1",
+      "title": "Overlapping Product Version Range with VERS in Contradicting Product Status Group",
+      "fragment": "overlapping-product-version-range-with-vers-in-contradicting-product-status-group",
+      "ids": [
+        "overlapping-product-version-range-with-vers-in-contradicting-product-status-group"
+      ]
+    },
+    {
+      "section": "6.2.50.2",
+      "title": "Overlapping Product Version Range with vls in Contradicting Product Status Group",
+      "fragment": "overlapping-product-version-range-with-vls-in-contradicting-product-status-group",
+      "ids": [
+        "overlapping-product-version-range-with-vls-in-contradicting-product-status-group"
+      ]
+    },
+    {
+      "section": "6.2.50.3",
+      "title": "Overlapping Product Version Range with Product Version in Contradicting Product Status Group",
+      "fragment": "overlapping-product-version-range-with-product-version-in-contradicting-product-status-group",
+      "ids": [
+        "overlapping-product-version-range-with-product-version-in-contradicting-product-status-group"
+      ]
+    },
+    {
+      "section": "6.2.51",
+      "title": "Unknown VERS Type",
+      "fragment": "unknown-vers-type",
+      "ids": ["unknown-vers-type"]
+    },
+    {
+      "section": "6.2.52",
+      "title": "Unknown Hash Algorithm",
+      "fragment": "unknown-hash-algorithm",
+      "ids": ["unknown-hash-algorithm"]
+    },
+    {
+      "section": "6.2.53",
+      "title": "Matching Text for Registered ID System",
+      "fragment": "matching-text-for-registered-id-system",
+      "ids": ["matching-text-for-registered-id-system"]
+    },
+    {
+      "section": "6.2.54",
+      "title": "Extension Tests",
+      "fragment": "recommended-tests--extension-tests",
+      "ids": ["extension-tests-1", "recommended-tests--extension-tests"]
+    },
+    {
+      "section": "6.2.54.1",
+      "title": "Registered Extension",
+      "fragment": "registered-extension",
+      "ids": ["registered-extension"]
+    },
+    {
+      "section": "6.2.54.2",
+      "title": "Official Extension",
+      "fragment": "official-extension",
+      "ids": ["official-extension"]
+    },
+    {
+      "section": "6.2.54.3",
+      "title": "Critical Extension",
+      "fragment": "critical-extension",
+      "ids": ["critical-extension"]
+    },
+    {
+      "section": "6.2.54.4",
+      "title": "Usage of Experimental Extension in TLP:CLEAR Document",
+      "fragment": "usage-of-experimental-extension-in-tlp-clear-document",
+      "ids": [
+        "usage-of-experimental-extension-in-tlpclear-document",
+        "usage-of-experimental-extension-in-tlp-clear-document"
+      ]
+    },
+    {
+      "section": "6.2.55",
+      "title": "Public OpenPGP Key URL",
+      "fragment": "public-openpgp-key-url",
+      "ids": ["public-openpgp-key-url"]
+    },
+    {
+      "section": "6.2.56",
+      "title": "Involvement Tests",
+      "fragment": "recommended--involvement-tests",
+      "ids": ["involvement-tests-1", "recommended--involvement-tests"]
+    },
+    {
+      "section": "6.2.56.1",
+      "title": "Confirmation before Action",
+      "fragment": "confirmation-before-action",
+      "ids": ["confirmation-before-action"]
+    },
+    {
+      "section": "6.2.56.2",
+      "title": "Unused Definition of Entity Group ID without Summary",
+      "fragment": "unused-definition-of-entity-group-id-without-summary",
+      "ids": ["unused-definition-of-entity-group-id-without-summary"]
+    },
+    {
+      "section": "6.2.56.3",
+      "title": "Unused Definition of Entity ID",
+      "fragment": "unused-definition-of-entity-id",
+      "ids": ["unused-definition-of-entity-id"]
+    },
+    {
+      "section": "6.2.56.4",
+      "title": "Explicit Reference to all Vulnerabilities",
+      "fragment": "explicit-reference-to-all-vulnerabilities",
+      "ids": ["explicit-reference-to-all-vulnerabilities"]
+    },
+    {
+      "section": "6.2.56.5",
+      "title": "Inconsistent Future Action Date",
+      "fragment": "inconsistent-future-action-date",
+      "ids": ["inconsistent-future-action-date"]
+    },
+    {
+      "section": "6.2.57",
+      "title": "Unused Definition of Document-local Vuln ID",
+      "fragment": "unused-definition-of-document-local-vuln-id",
+      "ids": ["unused-definition-of-document-local-vuln-id"]
+    },
+    {
+      "section": "6.3.1",
+      "title": "Use of CVSS v2 As the Only Scoring System",
+      "fragment": "use-of-cvss-v2-as-the-only-scoring-system",
+      "ids": ["use-of-cvss-v2-as-the-only-scoring-system"]
+    },
+    {
+      "section": "6.3.2",
+      "title": "Use of CVSS v3.0",
+      "fragment": "use-of-cvss-v3-0",
+      "ids": ["use-of-cvss-v3.0", "use-of-cvss-v3-0"]
+    },
+    {
+      "section": "6.3.3",
+      "title": "Missing CVE",
+      "fragment": "missing-cve",
+      "ids": ["missing-cve"]
+    },
+    {
+      "section": "6.3.4",
+      "title": "Missing CWE",
+      "fragment": "missing-cwe",
+      "ids": ["missing-cwe"]
+    },
+    {
+      "section": "6.3.5",
+      "title": "Use of Short Hash",
+      "fragment": "use-of-short-hash",
+      "ids": ["use-of-short-hash"]
+    },
+    {
+      "section": "6.3.6",
+      "title": "Use of Non-Self Referencing URLs Failing to Resolve",
+      "fragment": "use-of-non-self-referencing-urls-failing-to-resolve",
+      "ids": ["use-of-non-self-referencing-urls-failing-to-resolve"]
+    },
+    {
+      "section": "6.3.7",
+      "title": "Use of Self Referencing URLs Failing to Resolve",
+      "fragment": "use-of-self-referencing-urls-failing-to-resolve",
+      "ids": ["use-of-self-referencing-urls-failing-to-resolve"]
+    },
+    {
+      "section": "6.3.8",
+      "title": "Spell Check",
+      "fragment": "spell-check",
+      "ids": ["spell-check"]
+    },
+    {
+      "section": "6.3.9",
+      "title": "Branch Categories",
+      "fragment": "branch-categories",
+      "ids": ["branch-categories"]
+    },
+    {
+      "section": "6.3.10",
+      "title": "Usage of Product Version Range",
+      "fragment": "usage-of-product-version-range",
+      "ids": ["usage-of-product-version-range"]
+    },
+    {
+      "section": "6.3.11",
+      "title": "Usage of V as Version Indicator",
+      "fragment": "usage-of-v-as-version-indicator",
+      "ids": ["usage-of-v-as-version-indicator"]
+    },
+    {
+      "section": "6.3.12",
+      "title": "Missing CVSS v4.0",
+      "fragment": "missing-cvss-v4-0",
+      "ids": ["missing-cvss-v4.0", "missing-cvss-v4-0"]
+    },
+    {
+      "section": "6.3.13",
+      "title": "Usage of Non-Latest SSVC Decision Point Version",
+      "fragment": "usage-of-non-latest-ssvc-decision-point-version",
+      "ids": ["usage-of-non-latest-ssvc-decision-point-version"]
+    },
+    {
+      "section": "6.3.14",
+      "title": "Usage of Unregistered SSVC Decision Point Base Namespace in Non-TLP:CLEAR Document",
+      "fragment": "usage-of-unregistered-ssvc-decision-point-base-namespace-in-non-tlp-clear-document",
+      "ids": [
+        "usage-of-unregistered-ssvc-decision-point-base-namespace-in-non-tlpclear-document",
+        "usage-of-unregistered-ssvc-decision-point-base-namespace-in-non-tlp-clear-document"
+      ]
+    },
+    {
+      "section": "6.3.15",
+      "title": "Usage of SSVC Decision Point Namespace with Extension in Non-TLP:CLEAR Document",
+      "fragment": "usage-of-ssvc-decision-point-namespace-with-extension-in-non-tlp-clear-document",
+      "ids": [
+        "usage-of-ssvc-decision-point-namespace-with-extension-in-non-tlpclear-document",
+        "usage-of-ssvc-decision-point-namespace-with-extension-in-non-tlp-clear-document"
+      ]
+    },
+    {
+      "section": "6.3.16",
+      "title": "Grammar Check",
+      "fragment": "grammar-check",
+      "ids": ["grammar-check"]
+    },
+    {
+      "section": "6.3.17",
+      "title": "Use of Unregistered License",
+      "fragment": "use-of-unregistered-license",
+      "ids": ["use-of-unregistered-license"]
+    },
+    {
+      "section": "6.3.18",
+      "title": "Use of Qualitative Severity Rating",
+      "fragment": "use-of-qualitative-severity-rating",
+      "ids": ["use-of-qualitative-severity-rating"]
+    },
+    {
+      "section": "6.3.19",
+      "title": "Overlapping Product Version Range",
+      "fragment": "informative-tests--overlapping-product-version-range",
+      "ids": [
+        "overlapping-product-version-range-1",
+        "informative-tests--overlapping-product-version-range"
+      ]
+    },
+    {
+      "section": "6.3.19.1",
+      "title": "Overlapping Product Version Range with VERS in Same Product Status Group",
+      "fragment": "overlapping-product-version-range-with-vers-in-same-product-status-group",
+      "ids": [
+        "overlapping-product-version-range-with-vers-in-same-product-status-group"
+      ]
+    },
+    {
+      "section": "6.3.19.2",
+      "title": "Overlapping Product Version Range with vls in Same Product Status Group",
+      "fragment": "overlapping-product-version-range-with-vls-in-same-product-status-group",
+      "ids": [
+        "overlapping-product-version-range-with-vls-in-same-product-status-group"
+      ]
+    },
+    {
+      "section": "6.3.19.3",
+      "title": "Overlapping Product Version Range with Product Version in Same Product Status Group",
+      "fragment": "overlapping-product-version-range-with-product-version-in-same-product-status-group",
+      "ids": [
+        "overlapping-product-version-range-with-product-version-in-same-product-status-group"
+      ]
+    },
+    {
+      "section": "6.3.19.4",
+      "title": "Overlapping Product Version Range with Product Version Range in Branch",
+      "fragment": "overlapping-product-version-range-with-product-version-range-in-branch",
+      "ids": [
+        "overlapping-product-version-range-with-product-version-range-in-branch"
+      ]
+    },
+    {
+      "section": "6.3.19.5",
+      "title": "Overlapping Product Version Range with Product Version in Branch",
+      "fragment": "overlapping-product-version-range-with-product-version-in-branch",
+      "ids": [
+        "overlapping-product-version-range-with-product-version-in-branch"
+      ]
+    },
+    {
+      "section": "6.3.20",
+      "title": "Use of Unregistered ID System",
+      "fragment": "use-of-unregistered-id-system",
+      "ids": ["use-of-unregistered-id-system"]
+    },
+    {
+      "section": "6.3.21",
+      "title": "Extension Tests",
+      "fragment": "informative-tests--extension-tests",
+      "ids": ["extension-tests-2", "informative-tests--extension-tests"]
+    },
+    {
+      "section": "6.3.21.1",
+      "title": "Extension Category Essential",
+      "fragment": "extension-category-essential",
+      "ids": ["extension-category-essential"]
+    },
+    {
+      "section": "6.3.21.2",
+      "title": "Usage of Experimental Extension in Non-TLP:CLEAR Document",
+      "fragment": "usage-of-experimental-extension-in-non-tlp-clear-document",
+      "ids": [
+        "usage-of-experimental-extension-in-non-tlpclear-document",
+        "usage-of-experimental-extension-in-non-tlp-clear-document"
+      ]
+    },
+    {
+      "section": "6.3.21.3",
+      "title": "Usage of Extension at Document Level",
+      "fragment": "usage-of-extension-at-document-level",
+      "ids": ["usage-of-extension-at-document-level"]
+    },
+    {
+      "section": "6.3.21.4",
+      "title": "Usage of Extension in Product Tree Branch Path",
+      "fragment": "usage-of-extension-in-product-tree-branch-path",
+      "ids": ["usage-of-extension-in-product-tree-branch-path"]
+    },
+    {
+      "section": "6.3.21.5",
+      "title": "Usage of Extension in Product Tree Full Product Names Path",
+      "fragment": "usage-of-extension-in-product-tree-full-product-names-path",
+      "ids": ["usage-of-extension-in-product-tree-full-product-names-path"]
+    },
+    {
+      "section": "6.3.21.6",
+      "title": "Usage of Extension in Product Tree Product Paths Path",
+      "fragment": "usage-of-extension-in-product-tree-product-paths-path",
+      "ids": ["usage-of-extension-in-product-tree-product-paths-path"]
+    },
+    {
+      "section": "6.3.21.7",
+      "title": "Usage of Extension in Vulnerabilities Metrics Path",
+      "fragment": "usage-of-extension-in-vulnerabilities-metrics-path",
+      "ids": ["usage-of-extension-in-vulnerabilities-metrics-path"]
+    },
+    {
+      "section": "6.3.21.8",
+      "title": "Usage of Extension at Vulnerabilities Level",
+      "fragment": "usage-of-extension-at-vulnerabilities-level",
+      "ids": ["usage-of-extension-at-vulnerabilities-level"]
+    },
+    {
+      "section": "6.3.21.9",
+      "title": "Usage of Extension at Root Level",
+      "fragment": "usage-of-extension-at-root-level",
+      "ids": ["usage-of-extension-at-root-level"]
+    },
+    {
+      "section": "6.3.22",
+      "title": "Nested Product Path",
+      "fragment": "nested-product-path",
+      "ids": ["nested-product-path"]
+    },
+    {
+      "section": "6.3.23",
+      "title": "Profile Tests",
+      "fragment": "informative--profile-tests",
+      "ids": ["profile-tests-2", "informative--profile-tests"]
+    },
+    {
+      "section": "6.3.23.1",
+      "title": "Involvement",
+      "fragment": "involvement",
+      "ids": ["involvement"]
+    },
+    {
+      "section": "6.3.23.2",
+      "title": "Disclosure Date",
+      "fragment": "disclosure-date",
+      "ids": ["disclosure-date"]
+    },
+    {
+      "section": "6.3.24",
+      "title": "Public OpenPGP Key URL User ID",
+      "fragment": "public-openpgp-key-url-user-id",
+      "ids": ["public-openpgp-key-url-user-id"]
+    },
+    {
+      "section": "6.3.25",
+      "title": "Non-Latest SSVC Decision Point Version at Validation Time",
+      "fragment": "non-latest-ssvc-decision-point-version-at-validation-time",
+      "ids": ["non-latest-ssvc-decision-point-version-at-validation-time"]
+    },
+    {
+      "section": "6.3.26",
+      "title": "Involvement Tests",
+      "fragment": "informative--involvement-tests",
+      "ids": ["involvement-tests-2", "informative--involvement-tests"]
+    },
+    {
+      "section": "6.3.26.1",
+      "title": "Vulnerability Not Covered by Involvement",
+      "fragment": "vulnerability-not-covered-by-involvement",
+      "ids": ["vulnerability-not-covered-by-involvement"]
+    },
+    {
+      "section": "6.3.26.2",
+      "title": "Unused Definition of Entity Group ID",
+      "fragment": "unused-definition-of-entity-group-id",
+      "ids": ["unused-definition-of-entity-group-id"]
+    },
+    {
+      "section": "6.3.26.3",
+      "title": "Multiple Use of Same Entity Group Name",
+      "fragment": "multiple-use-of-same-entity-group-name",
+      "ids": ["multiple-use-of-same-entity-group-name"]
+    },
+    {
+      "section": "6.3.26.4",
+      "title": "Multiple Use of Same Entity Name",
+      "fragment": "multiple-use-of-same-entity-name",
+      "ids": ["multiple-use-of-same-entity-name"]
+    },
+    {
+      "section": "2.2",
+      "title": "Format Validation",
+      "fragment": "format-validation",
+      "ids": ["format-validation"]
+    },
+    {
+      "section": "9.1.14",
+      "title": "Conformance Clause 14: CSAF Basic Validator",
+      "fragment": "conformance-clause-14-csaf-basic-validator",
+      "ids": ["conformance-clause-14-csaf-basic-validator"]
+    }
+  ]
+}

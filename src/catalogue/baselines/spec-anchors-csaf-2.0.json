@@ -1,0 +1,463 @@
+{
+  "snapshot": "csaf-2.0",
+  "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html",
+  "retrieved": "2026-11-20",
+  "headings": [
+    {
+      "section": "6.1.1",
+      "title": "Missing Definition of Product ID",
+      "fragment": "611-missing-definition-of-product-id",
+      "ids": ["611-missing-definition-of-product-id"]
+    },
+    {
+      "section": "6.1.2",
+      "title": "Multiple Definition of Product ID",
+      "fragment": "612-multiple-definition-of-product-id",
+      "ids": ["612-multiple-definition-of-product-id"]
+    },
+    {
+      "section": "6.1.3",
+      "title": "Circular Definition of Product ID",
+      "fragment": "613-circular-definition-of-product-id",
+      "ids": ["613-circular-definition-of-product-id"]
+    },
+    {
+      "section": "6.1.4",
+      "title": "Missing Definition of Product Group ID",
+      "fragment": "614-missing-definition-of-product-group-id",
+      "ids": ["614-missing-definition-of-product-group-id"]
+    },
+    {
+      "section": "6.1.5",
+      "title": "Multiple Definition of Product Group ID",
+      "fragment": "615-multiple-definition-of-product-group-id",
+      "ids": ["615-multiple-definition-of-product-group-id"]
+    },
+    {
+      "section": "6.1.6",
+      "title": "Contradicting Product Status",
+      "fragment": "616-contradicting-product-status",
+      "ids": ["616-contradicting-product-status"]
+    },
+    {
+      "section": "6.1.7",
+      "title": "Multiple Scores with same Version per Product",
+      "fragment": "617-multiple-scores-with-same-version-per-product",
+      "ids": ["617-multiple-scores-with-same-version-per-product"]
+    },
+    {
+      "section": "6.1.8",
+      "title": "Invalid CVSS",
+      "fragment": "618-invalid-cvss",
+      "ids": ["618-invalid-cvss"]
+    },
+    {
+      "section": "6.1.9",
+      "title": "Invalid CVSS computation",
+      "fragment": "619-invalid-cvss-computation",
+      "ids": ["619-invalid-cvss-computation"]
+    },
+    {
+      "section": "6.1.10",
+      "title": "Inconsistent CVSS",
+      "fragment": "6110-inconsistent-cvss",
+      "ids": ["6110-inconsistent-cvss"]
+    },
+    {
+      "section": "6.1.11",
+      "title": "CWE",
+      "fragment": "6111-cwe",
+      "ids": ["6111-cwe"]
+    },
+    {
+      "section": "6.1.12",
+      "title": "Language",
+      "fragment": "6112-language",
+      "ids": ["6112-language"]
+    },
+    {
+      "section": "6.1.13",
+      "title": "PURL",
+      "fragment": "6113-purl",
+      "ids": ["6113-purl"]
+    },
+    {
+      "section": "6.1.14",
+      "title": "Sorted Revision History",
+      "fragment": "6114-sorted-revision-history",
+      "ids": ["6114-sorted-revision-history"]
+    },
+    {
+      "section": "6.1.15",
+      "title": "Translator",
+      "fragment": "6115-translator",
+      "ids": ["6115-translator"]
+    },
+    {
+      "section": "6.1.16",
+      "title": "Latest Document Version",
+      "fragment": "6116-latest-document-version",
+      "ids": ["6116-latest-document-version"]
+    },
+    {
+      "section": "6.1.17",
+      "title": "Document Status Draft",
+      "fragment": "6117-document-status-draft",
+      "ids": ["6117-document-status-draft"]
+    },
+    {
+      "section": "6.1.18",
+      "title": "Released Revision History",
+      "fragment": "6118-released-revision-history",
+      "ids": ["6118-released-revision-history"]
+    },
+    {
+      "section": "6.1.19",
+      "title": "Revision History Entries for Pre-release Versions",
+      "fragment": "6119-revision-history-entries-for-pre-release-versions",
+      "ids": ["6119-revision-history-entries-for-pre-release-versions"]
+    },
+    {
+      "section": "6.1.20",
+      "title": "Non-draft Document Version",
+      "fragment": "6120-non-draft-document-version",
+      "ids": ["6120-non-draft-document-version"]
+    },
+    {
+      "section": "6.1.21",
+      "title": "Missing Item in Revision History",
+      "fragment": "6121-missing-item-in-revision-history",
+      "ids": ["6121-missing-item-in-revision-history"]
+    },
+    {
+      "section": "6.1.22",
+      "title": "Multiple Definition in Revision History",
+      "fragment": "6122-multiple-definition-in-revision-history",
+      "ids": ["6122-multiple-definition-in-revision-history"]
+    },
+    {
+      "section": "6.1.23",
+      "title": "Multiple Use of Same CVE",
+      "fragment": "6123-multiple-use-of-same-cve",
+      "ids": ["6123-multiple-use-of-same-cve"]
+    },
+    {
+      "section": "6.1.24",
+      "title": "Multiple Definition in Involvements",
+      "fragment": "6124-multiple-definition-in-involvements",
+      "ids": ["6124-multiple-definition-in-involvements"]
+    },
+    {
+      "section": "6.1.25",
+      "title": "Multiple Use of Same Hash Algorithm",
+      "fragment": "6125-multiple-use-of-same-hash-algorithm",
+      "ids": ["6125-multiple-use-of-same-hash-algorithm"]
+    },
+    {
+      "section": "6.1.26",
+      "title": "Prohibited Document Category Name",
+      "fragment": "6126-prohibited-document-category-name",
+      "ids": ["6126-prohibited-document-category-name"]
+    },
+    {
+      "section": "6.1.27",
+      "title": "Profile Tests",
+      "fragment": "6127-profile-tests",
+      "ids": ["6127-profile-tests"]
+    },
+    {
+      "section": "6.1.27.1",
+      "title": "Document Notes",
+      "fragment": "61271-document-notes",
+      "ids": ["61271-document-notes"]
+    },
+    {
+      "section": "6.1.27.2",
+      "title": "Document References",
+      "fragment": "61272-document-references",
+      "ids": ["61272-document-references"]
+    },
+    {
+      "section": "6.1.27.3",
+      "title": "Vulnerabilities",
+      "fragment": "61273-vulnerabilities",
+      "ids": ["61273-vulnerabilities"]
+    },
+    {
+      "section": "6.1.27.4",
+      "title": "Product Tree",
+      "fragment": "61274-product-tree",
+      "ids": ["61274-product-tree"]
+    },
+    {
+      "section": "6.1.27.5",
+      "title": "Vulnerability Notes",
+      "fragment": "61275-vulnerability-notes",
+      "ids": ["61275-vulnerability-notes"]
+    },
+    {
+      "section": "6.1.27.6",
+      "title": "Product Status",
+      "fragment": "61276-product-status",
+      "ids": ["61276-product-status"]
+    },
+    {
+      "section": "6.1.27.7",
+      "title": "VEX Product Status",
+      "fragment": "61277-vex-product-status",
+      "ids": ["61277-vex-product-status"]
+    },
+    {
+      "section": "6.1.27.8",
+      "title": "Vulnerability ID",
+      "fragment": "61278-vulnerability-id",
+      "ids": ["61278-vulnerability-id"]
+    },
+    {
+      "section": "6.1.27.9",
+      "title": "Impact Statement",
+      "fragment": "61279-impact-statement",
+      "ids": ["61279-impact-statement"]
+    },
+    {
+      "section": "6.1.27.10",
+      "title": "Action Statement",
+      "fragment": "612710-action-statement",
+      "ids": ["612710-action-statement"]
+    },
+    {
+      "section": "6.1.27.11",
+      "title": "Vulnerabilities",
+      "fragment": "612711-vulnerabilities",
+      "ids": ["612711-vulnerabilities"]
+    },
+    {
+      "section": "6.1.28",
+      "title": "Translation",
+      "fragment": "6128-translation",
+      "ids": ["6128-translation"]
+    },
+    {
+      "section": "6.1.29",
+      "title": "Remediation without Product Reference",
+      "fragment": "6129-remediation-without-product-reference",
+      "ids": ["6129-remediation-without-product-reference"]
+    },
+    {
+      "section": "6.1.30",
+      "title": "Mixed Integer and Semantic Versioning",
+      "fragment": "6130-mixed-integer-and-semantic-versioning",
+      "ids": ["6130-mixed-integer-and-semantic-versioning"]
+    },
+    {
+      "section": "6.1.31",
+      "title": "Version Range in Product Version",
+      "fragment": "6131-version-range-in-product-version",
+      "ids": ["6131-version-range-in-product-version"]
+    },
+    {
+      "section": "6.1.32",
+      "title": "Flag without Product Reference",
+      "fragment": "6132-flag-without-product-reference",
+      "ids": ["6132-flag-without-product-reference"]
+    },
+    {
+      "section": "6.1.33",
+      "title": "Multiple Flags with VEX Justification Codes per Product",
+      "fragment": "6133-multiple-flags-with-vex-justification-codes-per-product",
+      "ids": ["6133-multiple-flags-with-vex-justification-codes-per-product"]
+    },
+    {
+      "section": "6.2.1",
+      "title": "Unused Definition of Product ID",
+      "fragment": "621-unused-definition-of-product-id",
+      "ids": ["621-unused-definition-of-product-id"]
+    },
+    {
+      "section": "6.2.2",
+      "title": "Missing Remediation",
+      "fragment": "622-missing-remediation",
+      "ids": ["622-missing-remediation"]
+    },
+    {
+      "section": "6.2.3",
+      "title": "Missing Score",
+      "fragment": "623-missing-score",
+      "ids": ["623-missing-score"]
+    },
+    {
+      "section": "6.2.4",
+      "title": "Build Metadata in Revision History",
+      "fragment": "624-build-metadata-in-revision-history",
+      "ids": ["624-build-metadata-in-revision-history"]
+    },
+    {
+      "section": "6.2.5",
+      "title": "Older Initial Release Date than Revision History",
+      "fragment": "625-older-initial-release-date-than-revision-history",
+      "ids": ["625-older-initial-release-date-than-revision-history"]
+    },
+    {
+      "section": "6.2.6",
+      "title": "Older Current Release Date than Revision History",
+      "fragment": "626-older-current-release-date-than-revision-history",
+      "ids": ["626-older-current-release-date-than-revision-history"]
+    },
+    {
+      "section": "6.2.7",
+      "title": "Missing Date in Involvements",
+      "fragment": "627-missing-date-in-involvements",
+      "ids": ["627-missing-date-in-involvements"]
+    },
+    {
+      "section": "6.2.8",
+      "title": "Use of MD5 as the only Hash Algorithm",
+      "fragment": "628-use-of-md5-as-the-only-hash-algorithm",
+      "ids": ["628-use-of-md5-as-the-only-hash-algorithm"]
+    },
+    {
+      "section": "6.2.9",
+      "title": "Use of SHA-1 as the only Hash Algorithm",
+      "fragment": "629-use-of-sha-1-as-the-only-hash-algorithm",
+      "ids": ["629-use-of-sha-1-as-the-only-hash-algorithm"]
+    },
+    {
+      "section": "6.2.10",
+      "title": "Missing TLP label",
+      "fragment": "6210-missing-tlp-label",
+      "ids": ["6210-missing-tlp-label"]
+    },
+    {
+      "section": "6.2.11",
+      "title": "Missing Canonical URL",
+      "fragment": "6211-missing-canonical-url",
+      "ids": ["6211-missing-canonical-url"]
+    },
+    {
+      "section": "6.2.12",
+      "title": "Missing Document Language",
+      "fragment": "6212-missing-document-language",
+      "ids": ["6212-missing-document-language"]
+    },
+    {
+      "section": "6.2.13",
+      "title": "Sorting",
+      "fragment": "6213-sorting",
+      "ids": ["6213-sorting"]
+    },
+    {
+      "section": "6.2.14",
+      "title": "Use of Private Language",
+      "fragment": "6214-use-of-private-language",
+      "ids": ["6214-use-of-private-language"]
+    },
+    {
+      "section": "6.2.15",
+      "title": "Use of Default Language",
+      "fragment": "6215-use-of-default-language",
+      "ids": ["6215-use-of-default-language"]
+    },
+    {
+      "section": "6.2.16",
+      "title": "Missing Product Identification Helper",
+      "fragment": "6216-missing-product-identification-helper",
+      "ids": ["6216-missing-product-identification-helper"]
+    },
+    {
+      "section": "6.2.17",
+      "title": "CVE in field IDs",
+      "fragment": "6217-cve-in-field-ids",
+      "ids": ["6217-cve-in-field-ids"]
+    },
+    {
+      "section": "6.2.18",
+      "title": "Product Version Range without vers",
+      "fragment": "6218-product-version-range-without-vers",
+      "ids": ["6218-product-version-range-without-vers"]
+    },
+    {
+      "section": "6.2.19",
+      "title": "CVSS for Fixed Products",
+      "fragment": "6219-cvss-for-fixed-products",
+      "ids": ["6219-cvss-for-fixed-products"]
+    },
+    {
+      "section": "6.2.20",
+      "title": "Additional Properties",
+      "fragment": "6220-additional-properties",
+      "ids": ["6220-additional-properties"]
+    },
+    {
+      "section": "6.3.1",
+      "title": "Use of CVSS v2 as the only Scoring System",
+      "fragment": "631-use-of-cvss-v2-as-the-only-scoring-system",
+      "ids": ["631-use-of-cvss-v2-as-the-only-scoring-system"]
+    },
+    {
+      "section": "6.3.2",
+      "title": "Use of CVSS v3.0",
+      "fragment": "632-use-of-cvss-v30",
+      "ids": ["632-use-of-cvss-v30"]
+    },
+    {
+      "section": "6.3.3",
+      "title": "Missing CVE",
+      "fragment": "633-missing-cve",
+      "ids": ["633-missing-cve"]
+    },
+    {
+      "section": "6.3.4",
+      "title": "Missing CWE",
+      "fragment": "634-missing-cwe",
+      "ids": ["634-missing-cwe"]
+    },
+    {
+      "section": "6.3.5",
+      "title": "Use of Short Hash",
+      "fragment": "635-use-of-short-hash",
+      "ids": ["635-use-of-short-hash"]
+    },
+    {
+      "section": "6.3.6",
+      "title": "Use of non-self referencing URLs Failing to Resolve",
+      "fragment": "636-use-of-non-self-referencing-urls-failing-to-resolve",
+      "ids": ["636-use-of-non-self-referencing-urls-failing-to-resolve"]
+    },
+    {
+      "section": "6.3.7",
+      "title": "Use of self referencing URLs Failing to Resolve",
+      "fragment": "637-use-of-self-referencing-urls-failing-to-resolve",
+      "ids": ["637-use-of-self-referencing-urls-failing-to-resolve"]
+    },
+    {
+      "section": "6.3.8",
+      "title": "Spell check",
+      "fragment": "638-spell-check",
+      "ids": ["638-spell-check"]
+    },
+    {
+      "section": "6.3.9",
+      "title": "Branch Categories",
+      "fragment": "639-branch-categories",
+      "ids": ["639-branch-categories"]
+    },
+    {
+      "section": "6.3.10",
+      "title": "Usage of Product Version Range",
+      "fragment": "6310-usage-of-product-version-range",
+      "ids": ["6310-usage-of-product-version-range"]
+    },
+    {
+      "section": "6.3.11",
+      "title": "Usage of V as Version Indicator",
+      "fragment": "6311-usage-of-v-as-version-indicator",
+      "ids": ["6311-usage-of-v-as-version-indicator"]
+    },
+    {
+      "section": "9.1.14",
+      "title": "Conformance Clause 14: CSAF basic validator",
+      "fragment": "9114-conformance-clause-14-csaf-basic-validator",
+      "ids": ["9114-conformance-clause-14-csaf-basic-validator"]
+    }
+  ]
+}
