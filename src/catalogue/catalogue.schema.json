@@ -1,0 +1,267 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/secvisogram/csaf-validator-tool/catalogue.schema.json",
+  "title": "CSAF validator tool catalogue for one fixed specification snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "snapshot",
+    "csafVersion",
+    "title",
+    "experimental",
+    "specificationUrl",
+    "groups",
+    "presets",
+    "schemaCheck",
+    "tests",
+    "obsoleteSections"
+  ],
+  "properties": {
+    "snapshot": {
+      "enum": ["csaf-2.0", "csaf-2.1-csd04"]
+    },
+    "csafVersion": {
+      "enum": ["2.0", "2.1"]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "experimental": {
+      "type": "boolean"
+    },
+    "specificationUrl": {
+      "enum": [
+        "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html",
+        "https://docs.oasis-open.org/csaf/csaf/v2.1/csd04/csaf-v2.1-csd04.html"
+      ]
+    },
+    "groups": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/group"
+      }
+    },
+    "presets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/preset"
+      }
+    },
+    "schemaCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "memberships"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^csaf-[0-9a-z.-]+/schema$"
+        },
+        "memberships": {
+          "$ref": "#/$defs/memberships"
+        },
+        "formatValidation": {
+          "enum": ["required"]
+        },
+        "specificationUrl": {
+          "$ref": "#/$defs/specificationUrl"
+        }
+      }
+    },
+    "tests": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/test"
+      }
+    },
+    "obsoleteSections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["section", "title"],
+        "properties": {
+          "section": {
+            "$ref": "#/$defs/section"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "group": {
+      "enum": ["mandatory", "optional", "recommended", "informative"]
+    },
+    "section": {
+      "type": "string",
+      "pattern": "^6\\.[123]\\.[0-9]+(\\.[0-9]+)*$"
+    },
+    "presetName": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "memberships": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/presetName"
+      }
+    },
+    "specificationUrl": {
+      "type": "string",
+      "pattern": "^https://docs\\.oasis-open\\.org/csaf/csaf/v2\\.[01]/[0-9a-z/.-]+\\.html#[^#\\s]+$"
+    },
+    "test": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "section", "title", "group", "memberships"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^csaf-[0-9a-z.-]+/6\\.[123]\\.[0-9]+(\\.[0-9]+)*$"
+        },
+        "section": {
+          "$ref": "#/$defs/section"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "group": {
+          "$ref": "#/$defs/group"
+        },
+        "memberships": {
+          "$ref": "#/$defs/memberships"
+        },
+        "specificationUrl": {
+          "$ref": "#/$defs/specificationUrl"
+        }
+      }
+    },
+    "preset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "definedBy", "definition"],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/presetName"
+        },
+        "definedBy": {
+          "enum": ["specification", "tool"]
+        },
+        "specificationSection": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)*$"
+        },
+        "definition": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "const": "schema"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "group"],
+              "properties": {
+                "type": {
+                  "const": "group"
+                },
+                "group": {
+                  "$ref": "#/$defs/group"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "of"],
+              "properties": {
+                "type": {
+                  "const": "union"
+                },
+                "of": {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": {
+                    "$ref": "#/$defs/presetName"
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "members"],
+              "properties": {
+                "type": {
+                  "const": "set"
+                },
+                "members": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "$ref": "#/$defs/section"
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "from", "excludingPreset"],
+              "properties": {
+                "type": {
+                  "const": "difference"
+                },
+                "from": {
+                  "$ref": "#/$defs/presetName"
+                },
+                "excludingPreset": {
+                  "$ref": "#/$defs/presetName"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "from", "excludingTests"],
+              "properties": {
+                "type": {
+                  "const": "difference"
+                },
+                "from": {
+                  "$ref": "#/$defs/presetName"
+                },
+                "excludingTests": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "$ref": "#/$defs/section"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
