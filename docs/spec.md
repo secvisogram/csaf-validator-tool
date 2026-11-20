@@ -8,12 +8,12 @@ A user supplies a CSAF document, picks one validator and a set of checks, runs t
 
 The app offers four validator choices:
 
-| Validator                | Where it runs                                                                      |
-| ------------------------ | ---------------------------------------------------------------------------------- |
-| `csaf-validator-lib`     | In the browser, in a Web Worker.                                                   |
-| `csaf-validator-service` | Externally operated JavaScript HTTP service.                                       |
-| `csaf-rs-wasm`           | In the browser, only in a Web Worker; exact package `@csaf-rs/csaf-rs@0.7.2`.     |
-| `csaf-service`           | Externally operated Rust HTTP service. Optional and operator-managed.              |
+| Validator                | Where it runs                                                                 |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| `csaf-validator-lib`     | In the browser, in a Web Worker.                                              |
+| `csaf-validator-service` | Externally operated JavaScript HTTP service.                                  |
+| `csaf-rs-wasm`           | In the browser, only in a Web Worker; exact package `@csaf-rs/csaf-rs@0.7.2`. |
+| `csaf-service`           | Externally operated Rust HTTP service. Optional and operator-managed.         |
 
 The csaf-rs CLI cannot be called from a browser and is not an adapter.
 
@@ -23,45 +23,45 @@ The csaf-rs CLI cannot be called from a browser and is not an adapter.
 
 ### Technical Constraints
 
-| Constraint                                             | Explanation                                                                                                                                                                                                             |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Static, backend-free application                       | Everything runs in the browser. Remote validators are reached directly by the browser; the tool adds no proxy and no server component.                                                                                  |
-| React + TypeScript, Vite, npm                          | English UI with i18next. Node is pinned for contributors and CI, `npm ci` is used with a committed lockfile, and browser dependencies use exact versions.                                                                |
-| Vitest and Playwright                                  | Vitest for unit tests, Playwright for browser automation against latest-stable desktop Google Chrome and Firefox.                                                                                                      |
-| csaf-rs WASM runs only in a Web Worker                 | The 15.4 MB module fails main-thread synchronous instantiation in Chrome (limit 8 MB).                                                                                                                                   |
-| GitHub Pages cannot set custom HTTP response headers   | Security must not depend on headers; untrusted data is rendered safely regardless. Assets, module workers, and WASM resolve relative to the deployed app path, including repository project paths.                         |
-| Remote validators need CORS                            | A remote service is usable only if the user's browser can reach it and it allows the app origin. The tool cannot fix or diagnose this.                                                                                   |
-| No browser persistence                                 | Documents, results, diagnostics, and settings stay in page memory only.                                                                                                                                                  |
+| Constraint                                           | Explanation                                                                                                                                                                                        |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Static, backend-free application                     | Everything runs in the browser. Remote validators are reached directly by the browser; the tool adds no proxy and no server component.                                                             |
+| React + TypeScript, Vite, npm                        | English UI with i18next. Node is pinned for contributors and CI, `npm ci` is used with a committed lockfile, and browser dependencies use exact versions.                                          |
+| Vitest and Playwright                                | Vitest for unit tests, Playwright for browser automation against latest-stable desktop Google Chrome and Firefox.                                                                                  |
+| csaf-rs WASM runs only in a Web Worker               | The 15.4 MB module fails main-thread synchronous instantiation in Chrome (limit 8 MB).                                                                                                             |
+| GitHub Pages cannot set custom HTTP response headers | Security must not depend on headers; untrusted data is rendered safely regardless. Assets, module workers, and WASM resolve relative to the deployed app path, including repository project paths. |
+| Remote validators need CORS                          | A remote service is usable only if the user's browser can reach it and it allows the app origin. The tool cannot fix or diagnose this.                                                             |
+| No browser persistence                               | Documents, results, diagnostics, and settings stay in page memory only.                                                                                                                            |
 
 ### Organizational Constraints
 
-| Constraint                                       | Explanation                                                                                                                                                                         |
-| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Validator components are externally maintained   | `csaf-validator-lib`, `@csaf-rs/csaf-rs`, the JavaScript validator service image, and the Rust service are owned elsewhere. Their versions are pinned and updated through review.  |
-| Specification snapshots are fixed                | CSAF 2.0 OASIS Standard and CSAF 2.1 CSD04. Changing a snapshot is a deliberate, reviewed data update.                                                                             |
-| Safari is a manual gate                          | Safari is a supported target but has no CI automation. A recorded manual smoke test is required before each release.                                                                |
+| Constraint                                     | Explanation                                                                                                                                                                       |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Validator components are externally maintained | `csaf-validator-lib`, `@csaf-rs/csaf-rs`, the JavaScript validator service image, and the Rust service are owned elsewhere. Their versions are pinned and updated through review. |
+| Specification snapshots are fixed              | CSAF 2.0 OASIS Standard and CSAF 2.1 CSD04. Changing a snapshot is a deliberate, reviewed data update.                                                                            |
+| Safari is a manual gate                        | Safari is a supported target but has no CI automation. A recorded manual smoke test is required before each release.                                                              |
 
 ## Context and Scope
 
 ### Business context
 
-| Communication partner      | Interaction                                                                                                                                                                |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| User                       | Supplies a document (text, file, or URL), chooses version, validator, and checks, starts and cancels runs, reads the report.                                               |
-| Document host (URL input)  | Receives the browser's direct request when the user clicks Fetch.                                                                                                          |
-| Remote validator operator  | Receives the complete document and request parameters when the user runs a remote validator. The operator controls its own retention and logging.                          |
-| Repository maintainers     | Maintain the catalogue, adapter mappings, hints, pinned dependencies, and the Compose image digest through reviewed changes.                                              |
+| Communication partner     | Interaction                                                                                                                                       |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| User                      | Supplies a document (text, file, or URL), chooses version, validator, and checks, starts and cancels runs, reads the report.                      |
+| Document host (URL input) | Receives the browser's direct request when the user clicks Fetch.                                                                                 |
+| Remote validator operator | Receives the complete document and request parameters when the user runs a remote validator. The operator controls its own retention and logging. |
+| Repository maintainers    | Maintain the catalogue, adapter mappings, hints, pinned dependencies, and the Compose image digest through reviewed changes.                      |
 
 ### Technical context
 
-| Communication partner                   | Channel / protocol                                  | Interface                                                                                                                                                                                         |
-| --------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Static host (GitHub Pages or gateway)   | HTTPS or HTTP, static files                         | App assets, `.well-known/appspecific/runtime-config.json` (optional), the YAML hint file. Normal static loads only.                                                                                |
-| Document host                           | HTTP(S) `GET` from the browser                      | User-entered absolute `http:`/`https:` URL, fetched directly after an explicit Fetch action. Never proxied.                                                                                        |
-| `csaf-validator-lib`                    | In-process, Web Worker                              | Reviewed mapping from catalogue entries to functions of the exact locked library version.                                                                                                          |
-| `@csaf-rs/csaf-rs@0.7.2`                | In-process, module Web Worker                       | Package API verified against the exact version before capabilities are marked supported.                                                                                                           |
-| `csaf-validator-service`                | HTTP(S), REST, JSON                                 | `POST /api/v1/validate` with exact selected test IDs. The service also exposes `GET /api/v1/tests` and `GET /health`; neither establishes capability.                                              |
-| `csaf-service` (Rust)                   | HTTP(S), REST                                       | Operator-managed endpoint and CORS. Route, request format, and ID mapping verified against the target version.                                                                                    |
+| Communication partner                 | Channel / protocol             | Interface                                                                                                                                             |
+| ------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Static host (GitHub Pages or gateway) | HTTPS or HTTP, static files    | App assets, `.well-known/appspecific/runtime-config.json` (optional), the YAML hint file. Normal static loads only.                                   |
+| Document host                         | HTTP(S) `GET` from the browser | User-entered absolute `http:`/`https:` URL, fetched directly after an explicit Fetch action. Never proxied.                                           |
+| `csaf-validator-lib`                  | In-process, Web Worker         | Reviewed mapping from catalogue entries to functions of the exact locked library version.                                                             |
+| `@csaf-rs/csaf-rs@0.7.2`              | In-process, module Web Worker  | Package API verified against the exact version before capabilities are marked supported.                                                              |
+| `csaf-validator-service`              | HTTP(S), REST, JSON            | `POST /api/v1/validate` with exact selected test IDs. The service also exposes `GET /api/v1/tests` and `GET /health`; neither establishes capability. |
+| `csaf-service` (Rust)                 | HTTP(S), REST                  | Operator-managed endpoint and CORS. Route, request format, and ID mapping verified against the target version.                                        |
 
 ## Solution Strategy
 
@@ -78,28 +78,28 @@ The csaf-rs CLI cannot be called from a browser and is not an adapter.
 
 ### Quality goals
 
-| Quality goal                     | Solution approach                                                                                                                                  |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Truthful reporting               | Distinct result and non-result states; validity counts include only actual returned outcomes; no invented status.                                   |
-| Privacy                          | No telemetry or storage; direct fetches; standing inline disclosure before remote submission.                                                      |
-| Safe handling of untrusted data  | Escaped text only; links only for valid absolute HTTP(S) URLs; adapter response validation.                                                         |
-| Reproducibility                  | Pinned Node, `npm ci`, exact dependency versions, digest-pinned service image, deterministic CI fixtures and mock services.                         |
-| Deployability                    | Relative assets and worker/WASM URLs work under a Pages project path and at the Compose root.                                                       |
+| Quality goal                    | Solution approach                                                                                                           |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Truthful reporting              | Distinct result and non-result states; validity counts include only actual returned outcomes; no invented status.           |
+| Privacy                         | No telemetry or storage; direct fetches; standing inline disclosure before remote submission.                               |
+| Safe handling of untrusted data | Escaped text only; links only for valid absolute HTTP(S) URLs; adapter response validation.                                 |
+| Reproducibility                 | Pinned Node, `npm ci`, exact dependency versions, digest-pinned service image, deterministic CI fixtures and mock services. |
+| Deployability                   | Relative assets and worker/WASM URLs work under a Pages project path and at the Compose root.                               |
 
 ## Building Block View
 
-| Building block          | Responsibility                                                                                                                                                                    |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Document intake         | Text, file, and URL input; JSON parsing; object-shape check; declared-version detection.                                                                                          |
-| Settings and config     | Runtime config loader and validator; built-in defaults, runtime values, and session edits with defined precedence.                                                                |
-| Catalogue               | Per-snapshot test data, schema-check entry, group and preset memberships, verified specification links.                                                                          |
-| Selection               | Initial `external-request-free` selection, individual edits, separate schema-check selection, network-test classification.                                                       |
-| Capability and mapping  | Per-adapter records of capability state, identifier mapping, execution mode, and evidence/version. Maintained separately from the catalogue.                                      |
-| Adapters                | `csaf-validator-lib` worker, `csaf-rs-wasm` worker, JavaScript service client, Rust service client. Each validates its responses and maps results only through reviewed mappings.  |
-| Run state               | Queued/running/completed/cancelled/failed state, per-test results, progress, and cancellation.                                                                                    |
-| Report                  | Status counts, "Needs attention", Summary / All messages / Detailed report views.                                                                                                 |
-| Hints                   | Loader and matcher for supplemental hints from a separate YAML file.                                                                                                              |
-| Static deployment       | Vite production build, Pages workflow, Compose files, gateway configuration, Compose runtime config.                                                                              |
+| Building block         | Responsibility                                                                                                                                                                    |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Document intake        | Text, file, and URL input; JSON parsing; object-shape check; declared-version detection.                                                                                          |
+| Settings and config    | Runtime config loader and validator; built-in defaults, runtime values, and session edits with defined precedence.                                                                |
+| Catalogue              | Per-snapshot test data, schema-check entry, group and preset memberships, verified specification links.                                                                           |
+| Selection              | Initial `external-request-free` selection, individual edits, separate schema-check selection, network-test classification.                                                        |
+| Capability and mapping | Per-adapter records of capability state, identifier mapping, execution mode, and evidence/version. Maintained separately from the catalogue.                                      |
+| Adapters               | `csaf-validator-lib` worker, `csaf-rs-wasm` worker, JavaScript service client, Rust service client. Each validates its responses and maps results only through reviewed mappings. |
+| Run state              | Queued/running/completed/cancelled/failed state, per-test results, progress, and cancellation.                                                                                    |
+| Report                 | Status counts, "Needs attention", Summary / All messages / Detailed report views.                                                                                                 |
+| Hints                  | Loader and matcher for supplemental hints from a separate YAML file.                                                                                                              |
+| Static deployment      | Vite production build, Pages workflow, Compose files, gateway configuration, Compose runtime config.                                                                              |
 
 ## Runtime View
 
@@ -129,10 +129,10 @@ The csaf-rs CLI cannot be called from a browser and is not an adapter.
 
 ### Local Compose
 
-| Service        | Role                                                                                                                       |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `app`          | Serves the Vite production build as static files.                                                                          |
-| `validator-js` | Runs the externally maintained JavaScript validator image. It listens on `8082` inside the private network only.           |
+| Service        | Role                                                                                                                        |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `app`          | Serves the Vite production build as static files.                                                                           |
+| `validator-js` | Runs the externally maintained JavaScript validator image. It listens on `8082` inside the private network only.            |
 | `gateway`      | The only browser-facing reverse proxy. It serves the app, proxies `/api/v1/*` and `/health`, and serves its own `/healthz`. |
 
 - The browser-visible origin is `http://127.0.0.1:8080/`. Only the gateway is published, as `127.0.0.1:8080:80`; the app and validator ports are not published. LAN exposure requires a deliberate local edit after an exposure review; it is not a default toggle.
@@ -178,13 +178,25 @@ An illustrative entry (actual data contains all tests and verified fields; the m
       "section": "6.1.1",
       "title": "Missing Definition of Product ID",
       "group": "mandatory",
-      "memberships": ["mandatory", "basic", "extended", "full", "external-request-free"],
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
       "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.1/csd04/csaf-v2.1-csd04.html#missing-definition-of-product-id"
     }
   ],
   "schemaCheck": {
     "id": "csaf-2.1-csd04/schema",
-    "memberships": ["schema", "basic", "extended", "full", "external-request-free"]
+    "memberships": [
+      "schema",
+      "basic",
+      "extended",
+      "full",
+      "external-request-free"
+    ]
   }
 }
 ```
@@ -209,12 +221,12 @@ Only verified support is generally presented as runnable. The one explicit excep
 
 Returned results map to catalogue tests only through an explicit, reviewed, snapshot-specific mapping. The adapter's original identifier, subtest suffixes, and schema identity are preserved. A result without an exact verified mapping stays visible as uncatalogued with its original ID and unmodified details. A response that lacks a requested result is not automatically skipped or passed.
 
-| Adapter                  | Execution and request behavior                                                                                                                               | Known limitations and required verification                                                                                                                                                                                                                                                  |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `csaf-validator-lib`     | Map supported catalogue entries to exact functions of the locked version. Run selected checks individually in a Web Worker, streaming progress and results.   | Browser-incompatible tests, including Hunspell-backed 6.3.8 and unconfirmed external-network tests, stay visible as unavailable with reasons. One thrown test never erases completed independent results. Exact npm pin (3.0.3 at handoff).                                                    |
-| `csaf-rs-wasm`           | Exact `@csaf-rs/csaf-rs@0.7.2`, loaded and called from a module Web Worker only. Assets are relative to the app path.                                         | Unmodified 0.7.2 initialized and returned 44 successful results for a CSAF 2.0 fixture in Chromium 156.0.8078.73 and Firefox 157.0.1 at `/project/demo/`. Safari is unverified. API, individual-test selection, IDs, and status mapping must be verified before capabilities are supported.    |
-| `csaf-validator-service` | `POST /api/v1/validate` with the exact selected test IDs, never a native preset.                                                                              | Verified service is CSAF 2.0 only. A selected CSAF 2.1 request may still be sent. No `external-request-free` preset and no skipped state in the response. Whole-request errors are service failures, not inferred test failures. Per-version IDs and response mapping must be verified.        |
-| `csaf-service`           | Configurable, separately operated Rust REST endpoint; exact selected test IDs, never a preset.                                                                | URL and CORS are operator-managed. The observed legacy response flattens `Skipped` to valid and cannot represent `NotFound`. Only actual communicated information is reported. Exact API, version, and ID mappings must be verified before support is marked verified.                          |
+| Adapter                  | Execution and request behavior                                                                                                                              | Known limitations and required verification                                                                                                                                                                                                                                                 |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `csaf-validator-lib`     | Map supported catalogue entries to exact functions of the locked version. Run selected checks individually in a Web Worker, streaming progress and results. | Browser-incompatible tests, including Hunspell-backed 6.3.8 and unconfirmed external-network tests, stay visible as unavailable with reasons. One thrown test never erases completed independent results. Exact npm pin (3.0.3 at handoff).                                                 |
+| `csaf-rs-wasm`           | Exact `@csaf-rs/csaf-rs@0.7.2`, loaded and called from a module Web Worker only. Assets are relative to the app path.                                       | Unmodified 0.7.2 initialized and returned 44 successful results for a CSAF 2.0 fixture in Chromium 156.0.8078.73 and Firefox 157.0.1 at `/project/demo/`. Safari is unverified. API, individual-test selection, IDs, and status mapping must be verified before capabilities are supported. |
+| `csaf-validator-service` | `POST /api/v1/validate` with the exact selected test IDs, never a native preset.                                                                            | Verified service is CSAF 2.0 only. A selected CSAF 2.1 request may still be sent. No `external-request-free` preset and no skipped state in the response. Whole-request errors are service failures, not inferred test failures. Per-version IDs and response mapping must be verified.     |
+| `csaf-service`           | Configurable, separately operated Rust REST endpoint; exact selected test IDs, never a preset.                                                              | URL and CORS are operator-managed. The observed legacy response flattens `Skipped` to valid and cannot represent `NotFound`. Only actual communicated information is reported. Exact API, version, and ID mappings must be verified before support is marked verified.                      |
 
 ### Result model
 
@@ -300,21 +312,21 @@ Optional JSON is loaded from `.well-known/appspecific/runtime-config.json`, reso
 
 ```yaml
 hints:
-  - csafVersion: "2.1"
-    section: "6.3.8"
-    text: "General guidance for this test."
+  - csafVersion: '2.1'
+    section: '6.3.8'
+    text: 'General guidance for this test.'
 
-  - csafVersion: "2.1"
-    section: "6.3.8"
+  - csafVersion: '2.1'
+    section: '6.3.8'
     validator: csaf-validator-service
     messageCode: SPELLING_ERROR
-    text: "Validator-specific guidance for this message."
+    text: 'Validator-specific guidance for this message.'
 
-  - csafVersion: "2.1"
-    section: "6.3.8"
+  - csafVersion: '2.1'
+    section: '6.3.8'
     validator: csaf-service
-    messageText: "Spelling mistakes found in document title."
-    text: "Guidance for this exact validator message."
+    messageText: 'Spelling mistakes found in document title.'
+    text: 'Guidance for this exact validator message.'
 ```
 
 ### Dependency policy
@@ -334,22 +346,22 @@ The prototype illustrates hierarchy and layout only. It is not normative for cou
 
 ## Architecture decisions
 
-| #   | Title                                                       | Status   |
-| --- | ----------------------------------------------------------- | -------- |
-| 1   | Browser-only static app without backend or proxy            | Accepted |
-| 2   | Explicit checked-in catalogue; presets only initialize      | Accepted |
-| 3   | Separate adapter capability records and exact test IDs      | Accepted |
-| 4   | csaf-rs WASM at exact 0.7.2, Web Worker only                | Accepted |
-| 5   | Per-test worker execution with streaming and termination    | Accepted |
-| 6   | Table-first report with truthful result states              | Accepted |
-| 7   | Strict all-or-nothing runtime configuration                 | Accepted |
-| 8   | No telemetry, no persistence, inline remote disclosure      | Accepted |
-| 9   | Vite and npm toolchain; Pages deploy on published Release   | Accepted |
-| 10  | Loopback-only Compose gateway with digest-pinned image      | Accepted |
-| 11  | Fixed specification snapshots with verified links           | Accepted |
-| 12  | Separate YAML hints with exact match keys                   | Accepted |
-| 13  | Exact dependency pins and reviewed updates                  | Accepted |
-| 14  | Safe input handling and escaped rendering                   | Accepted |
+| #   | Title                                                     | Status   |
+| --- | --------------------------------------------------------- | -------- |
+| 1   | Browser-only static app without backend or proxy          | Accepted |
+| 2   | Explicit checked-in catalogue; presets only initialize    | Accepted |
+| 3   | Separate adapter capability records and exact test IDs    | Accepted |
+| 4   | csaf-rs WASM at exact 0.7.2, Web Worker only              | Accepted |
+| 5   | Per-test worker execution with streaming and termination  | Accepted |
+| 6   | Table-first report with truthful result states            | Accepted |
+| 7   | Strict all-or-nothing runtime configuration               | Accepted |
+| 8   | No telemetry, no persistence, inline remote disclosure    | Accepted |
+| 9   | Vite and npm toolchain; Pages deploy on published Release | Accepted |
+| 10  | Loopback-only Compose gateway with digest-pinned image    | Accepted |
+| 11  | Fixed specification snapshots with verified links         | Accepted |
+| 12  | Separate YAML hints with exact match keys                 | Accepted |
+| 13  | Exact dependency pins and reviewed updates                | Accepted |
+| 14  | Safe input handling and escaped rendering                 | Accepted |
 
 ### ADR 1: Browser-only static app without backend or proxy
 
@@ -534,15 +546,15 @@ The prototype illustrates hierarchy and layout only. It is not normative for cou
 
 ### Browser and release test matrix
 
-| Area               | Automated on PRs and `main`                                                                                                                              | Manual before release or local operation                                                          |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Browser versions   | Latest-stable desktop Chrome and Firefox, with versions recorded. Playwright's bundled Chromium alone does not count as Chrome coverage.                  | Latest-stable desktop Safari, with version, date, and outcome recorded.                           |
-| Input              | Text, file, valid and invalid URL fetch, mocked CORS failure guidance, malformed JSON, and non-object payloads.                                          | Safari text, upload, and URL fetch smoke. Real-source failures are not required.                   |
-| Selection          | Declared and explicit CSAF 2.0/2.1, initial `external-request-free` checks, individual edits, schema-check selection, network-test confirmation, capability states. | Verify configured endpoints and services as available.                                            |
-| Reports            | Three report views, all result and non-result states, missing and uncatalogued results, and no invented status.                                          | Safari report navigation and representative states.                                               |
-| Execution          | Worker progress, per-test messages, cancel with retained results, 0.7.2 WASM load and fixture validation, errors, and malformed service responses.        | Safari WASM worker validation; Compose with the real image.                                       |
-| Runtime and deploy | Missing and invalid config, precedence, and relative asset, worker, and WASM loading under a project prefix and at the app root.                          | Published Pages asset smoke; local Compose start, health, request, and failure flow.               |
-| Privacy / security | No persistence or telemetry, safe text and link rendering, remote disclosure, and network-test confirmation.                                              | Review the actual service URL disclosure before a local run; Rust only if separately configured.   |
+| Area               | Automated on PRs and `main`                                                                                                                                         | Manual before release or local operation                                                         |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Browser versions   | Latest-stable desktop Chrome and Firefox, with versions recorded. Playwright's bundled Chromium alone does not count as Chrome coverage.                            | Latest-stable desktop Safari, with version, date, and outcome recorded.                          |
+| Input              | Text, file, valid and invalid URL fetch, mocked CORS failure guidance, malformed JSON, and non-object payloads.                                                     | Safari text, upload, and URL fetch smoke. Real-source failures are not required.                 |
+| Selection          | Declared and explicit CSAF 2.0/2.1, initial `external-request-free` checks, individual edits, schema-check selection, network-test confirmation, capability states. | Verify configured endpoints and services as available.                                           |
+| Reports            | Three report views, all result and non-result states, missing and uncatalogued results, and no invented status.                                                     | Safari report navigation and representative states.                                              |
+| Execution          | Worker progress, per-test messages, cancel with retained results, 0.7.2 WASM load and fixture validation, errors, and malformed service responses.                  | Safari WASM worker validation; Compose with the real image.                                      |
+| Runtime and deploy | Missing and invalid config, precedence, and relative asset, worker, and WASM loading under a project prefix and at the app root.                                    | Published Pages asset smoke; local Compose start, health, request, and failure flow.             |
+| Privacy / security | No persistence or telemetry, safe text and link rendering, remote disclosure, and network-test confirmation.                                                        | Review the actual service URL disclosure before a local run; Rust only if separately configured. |
 
 CI uses deterministic document fixtures and controlled or local mock validator services. It does not require a live external service.
 
@@ -554,34 +566,34 @@ Against the pinned image: the loopback app loads; gateway `/healthz` and the pro
 
 Ordered by priority (highest first):
 
-| #   | Risk / Technical Debt                                              | Impact                                                                                                                                                                         | Suggested mitigation                                                                                                                                                              |
-| --- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Adapter behavior is unverified until checked against exact versions | Wrong ID mappings or status semantics would produce false results.                                                                                                              | Verify request schema, ID mapping, network-test behavior, and status mapping per adapter before marking support verified. Unknown mappings stay unavailable or uncatalogued.       |
-| 2   | Safari is untested for csaf-rs WASM                                | The adapter may fail in Safari without CI noticing.                                                                                                                             | Required manual Safari smoke test before every release; recorded in the release checklist.                                                                                        |
-| 3   | CORS and local-network permission behavior varies by browser       | Remote services may fail in ways the app cannot observe.                                                                                                                        | Do not diagnose causes; show safe technical details and offer alternatives. Document operator CORS requirements.                                                                  |
-| 4   | The JavaScript service supports CSAF 2.0 only                      | CSAF 2.1 requests may fail or return incomplete results.                                                                                                                        | Allow an explicit 2.1 request, disclose unverified support, show only the actual response or error, and document the limitation.                                                  |
-| 5   | The Rust service loses status information                          | `Skipped` is flattened to valid and `NotFound` cannot be represented.                                                                                                           | Disclose the limitation next to the results and never reconstruct states.                                                                                                         |
-| 6   | The 15.4 MB WASM module                                            | Slow first load and main-thread limits in Chrome.                                                                                                                               | Worker-only execution; keep the exact pin and re-verify on any update.                                                                                                            |
-| 7   | Catalogue maintenance                                              | Specification updates, anchor changes, or membership corrections require manual, reviewed work.                                                                                 | CI checks against manifest baselines and fixed anchors; treat every change as a reviewed data update.                                                                             |
-| 8   | "Latest stable" browsers move                                      | A new browser release can break CI unexpectedly.                                                                                                                                | Treat it as a normal failure and fix it; do not pin an old browser.                                                                                                               |
-| 9   | Observations come from 2026-11-02 to 2026-11-15                    | Upstream behavior may have changed since.                                                                                                                                       | Re-verify upstream behavior at implementation time against exact selected versions.                                                                                               |
+| #   | Risk / Technical Debt                                               | Impact                                                                                          | Suggested mitigation                                                                                                                                                         |
+| --- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Adapter behavior is unverified until checked against exact versions | Wrong ID mappings or status semantics would produce false results.                              | Verify request schema, ID mapping, network-test behavior, and status mapping per adapter before marking support verified. Unknown mappings stay unavailable or uncatalogued. |
+| 2   | Safari is untested for csaf-rs WASM                                 | The adapter may fail in Safari without CI noticing.                                             | Required manual Safari smoke test before every release; recorded in the release checklist.                                                                                   |
+| 3   | CORS and local-network permission behavior varies by browser        | Remote services may fail in ways the app cannot observe.                                        | Do not diagnose causes; show safe technical details and offer alternatives. Document operator CORS requirements.                                                             |
+| 4   | The JavaScript service supports CSAF 2.0 only                       | CSAF 2.1 requests may fail or return incomplete results.                                        | Allow an explicit 2.1 request, disclose unverified support, show only the actual response or error, and document the limitation.                                             |
+| 5   | The Rust service loses status information                           | `Skipped` is flattened to valid and `NotFound` cannot be represented.                           | Disclose the limitation next to the results and never reconstruct states.                                                                                                    |
+| 6   | The 15.4 MB WASM module                                             | Slow first load and main-thread limits in Chrome.                                               | Worker-only execution; keep the exact pin and re-verify on any update.                                                                                                       |
+| 7   | Catalogue maintenance                                               | Specification updates, anchor changes, or membership corrections require manual, reviewed work. | CI checks against manifest baselines and fixed anchors; treat every change as a reviewed data update.                                                                        |
+| 8   | "Latest stable" browsers move                                       | A new browser release can break CI unexpectedly.                                                | Treat it as a normal failure and fix it; do not pin an old browser.                                                                                                          |
+| 9   | Observations come from 2026-11-02 to 2026-11-15                     | Upstream behavior may have changed since.                                                       | Re-verify upstream behavior at implementation time against exact selected versions.                                                                                          |
 
 ## Glossary
 
-| Term                   | Definition                                                                                                                                                  |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| CSAF                   | Common Security Advisory Framework, the OASIS standard format for machine-readable security advisories.                                                      |
-| CSD04                  | OASIS Committee Specification Draft 04 of CSAF 2.1. Experimental; not a final OASIS Standard.                                                               |
-| Catalogue              | The checked-in list of numbered specification tests for one fixed snapshot, independent of any validator.                                                   |
-| Numbered test          | A test with a section ID in the specification's test sections, such as 6.1.1.                                                                               |
-| Schema check           | JSON schema validation. It has no section ID and is represented separately from numbered tests.                                                              |
-| Preset                 | A named group of tests defined by a specification (for example `full`). Presets only initialize the selection; they are never run as a unit.                |
-| `external-request-free` | The initial selection: `full` excluding tests that access external resources. Specification-defined for CSAF 2.1 CSD04, tool-defined for CSAF 2.0.           |
-| Network-enabled test   | A test that may access external resources. Requires explicit confirmation before it runs.                                                                   |
-| Adapter                | The integration for one validator: execution, request shape, identifier mapping, and result mapping.                                                         |
-| Capability state       | `verified-supported`, `known-unsupported`, or `not-yet-verified` for a test and adapter.                                                                     |
-| Uncatalogued result    | A returned result with no exact verified mapping to a catalogue test. Shown with its original ID and details.                                                |
-| Test hint              | Supplemental guidance for a catalogue test or validator message. It is not a validation result.                                                              |
-| Web Worker             | Browser background thread used for validation. Terminated on cancel.                                                                                         |
-| Gateway                | The reverse proxy in the Compose stack, the only service reachable from the host.                                                                            |
-| GitHub Pages           | Static hosting for the deployed app, served at a repository project path.                                                                                    |
+| Term                    | Definition                                                                                                                                         |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CSAF                    | Common Security Advisory Framework, the OASIS standard format for machine-readable security advisories.                                            |
+| CSD04                   | OASIS Committee Specification Draft 04 of CSAF 2.1. Experimental; not a final OASIS Standard.                                                      |
+| Catalogue               | The checked-in list of numbered specification tests for one fixed snapshot, independent of any validator.                                          |
+| Numbered test           | A test with a section ID in the specification's test sections, such as 6.1.1.                                                                      |
+| Schema check            | JSON schema validation. It has no section ID and is represented separately from numbered tests.                                                    |
+| Preset                  | A named group of tests defined by a specification (for example `full`). Presets only initialize the selection; they are never run as a unit.       |
+| `external-request-free` | The initial selection: `full` excluding tests that access external resources. Specification-defined for CSAF 2.1 CSD04, tool-defined for CSAF 2.0. |
+| Network-enabled test    | A test that may access external resources. Requires explicit confirmation before it runs.                                                          |
+| Adapter                 | The integration for one validator: execution, request shape, identifier mapping, and result mapping.                                               |
+| Capability state        | `verified-supported`, `known-unsupported`, or `not-yet-verified` for a test and adapter.                                                           |
+| Uncatalogued result     | A returned result with no exact verified mapping to a catalogue test. Shown with its original ID and details.                                      |
+| Test hint               | Supplemental guidance for a catalogue test or validator message. It is not a validation result.                                                    |
+| Web Worker              | Browser background thread used for validation. Terminated on cancel.                                                                               |
+| Gateway                 | The reverse proxy in the Compose stack, the only service reachable from the host.                                                                  |
+| GitHub Pages            | Static hosting for the deployed app, served at a repository project path.                                                                          |
