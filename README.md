@@ -38,6 +38,7 @@ Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
 - `src/main.tsx`, `src/App.tsx`: application entry and root component
 - `src/intake/`: document intake (JSON parsing, URL validation, file and URL loading, CSAF version detection) without UI
 - `src/catalogue/`: the test catalogue (data, JSON schema, preset resolution, initial selection, consistency checks) without UI
+- `src/config/`: runtime configuration (loader, strict validation, settings precedence) and the settings hook
 - `src/components/`: React components
 - `scripts/`: maintainer scripts
 - `src/i18n/`: i18next setup and the English dictionary
@@ -93,3 +94,38 @@ Every change to the catalogue is a reviewed data update:
 1. Edit the data file. Take titles and fragments from the pinned specification, never derive them from section numbers.
 2. If a source changed, run `node scripts/refresh-baselines.ts` (needs network access) and review the baseline diff.
 3. Run `npm test`.
+
+## Runtime configuration
+
+A deployment can set service endpoints and startup defaults without rebuilding the app. The app fetches an optional JSON file at `.well-known/appspecific/runtime-config.json`. The path is resolved relative to the page, not to the host root, so it works at the app root and under a GitHub Pages project path such as `/csaf-validator-tool/`. Serve the app with a trailing slash on its directory URL.
+
+```json
+{
+  "version": 1,
+  "services": {
+    "javascript": "http://127.0.0.1:8080",
+    "rust": "http://127.0.0.1:8080"
+  },
+  "defaults": {
+    "validator": "csaf-validator-lib",
+    "csafVersion": "document",
+    "reportView": "all-messages"
+  }
+}
+```
+
+- `{"version": 1}` alone is valid. Every other field is optional.
+- `defaults.validator`: `csaf-validator-lib`, `csaf-validator-service`, `csaf-service` or `csaf-rs-wasm`. `defaults.csafVersion`: `document`, `2.0` or `2.1`. `defaults.reportView`: `summary`, `all-messages` or `detailed`.
+- Service URLs must be absolute `http://` or `https://` URLs without credentials, query or fragment. The path is kept and the trailing slash is removed, so `http://host/api/` becomes `http://host/api`.
+- The file is strict and all-or-nothing. A wrong or missing `version`, an unknown field, a wrong type, an unsupported value or a malformed service URL rejects the whole file, and none of its values are applied.
+- The file cannot select presets or tests. The initial selection always follows the `external-request-free` definition of the chosen version.
+
+| Situation                                                         | Result                                                         |
+| ----------------------------------------------------------------- | -------------------------------------------------------------- |
+| No file (HTTP 404)                                                | Built-in defaults, silently                                    |
+| Other HTTP status, network error, timeout (10 s), invalid content | Built-in defaults, with a visible notice that lists the issues |
+| Valid file                                                        | Its values replace the matching built-in defaults              |
+
+The static host must answer 404 for a missing file. A host that serves `index.html` for unknown paths makes the app report invalid content.
+
+Built-in defaults are `csaf-validator-lib`, `document` and `all-messages`, with no service URL. Precedence is built-in defaults, then a valid runtime configuration, then edits made in the current session. Session edits live in page memory only and are lost on reload. The app stores nothing in the browser.
