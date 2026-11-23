@@ -1,0 +1,931 @@
+{
+  "snapshot": "csaf-2.0",
+  "csafVersion": "2.0",
+  "title": "CSAF 2.0 (OASIS Standard)",
+  "experimental": false,
+  "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html",
+  "groups": ["mandatory", "optional", "informative"],
+  "presets": [
+    {
+      "name": "mandatory",
+      "definedBy": "specification",
+      "specificationSection": "6.1",
+      "definition": {
+        "type": "group",
+        "group": "mandatory"
+      }
+    },
+    {
+      "name": "optional",
+      "definedBy": "specification",
+      "specificationSection": "6.2",
+      "definition": {
+        "type": "group",
+        "group": "optional"
+      }
+    },
+    {
+      "name": "informative",
+      "definedBy": "specification",
+      "specificationSection": "6.3",
+      "definition": {
+        "type": "group",
+        "group": "informative"
+      }
+    },
+    {
+      "name": "basic",
+      "definedBy": "specification",
+      "specificationSection": "9.1.14",
+      "definition": {
+        "type": "union",
+        "of": ["schema", "mandatory"]
+      }
+    },
+    {
+      "name": "extended",
+      "definedBy": "specification",
+      "specificationSection": "9.1.15",
+      "definition": {
+        "type": "union",
+        "of": ["basic", "optional"]
+      }
+    },
+    {
+      "name": "full",
+      "definedBy": "specification",
+      "specificationSection": "9.1.16",
+      "definition": {
+        "type": "union",
+        "of": ["extended", "informative"]
+      }
+    },
+    {
+      "name": "external-request-free",
+      "definedBy": "tool",
+      "definition": {
+        "type": "difference",
+        "from": "full",
+        "excludingTests": ["6.3.6", "6.3.7"]
+      }
+    }
+  ],
+  "schemaCheck": {
+    "id": "csaf-2.0/schema",
+    "memberships": ["basic", "extended", "full", "external-request-free"],
+    "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#9114-conformance-clause-14-csaf-basic-validator"
+  },
+  "tests": [
+    {
+      "id": "csaf-2.0/6.1.1",
+      "section": "6.1.1",
+      "title": "Missing Definition of Product ID",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#611-missing-definition-of-product-id"
+    },
+    {
+      "id": "csaf-2.0/6.1.2",
+      "section": "6.1.2",
+      "title": "Multiple Definition of Product ID",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#612-multiple-definition-of-product-id"
+    },
+    {
+      "id": "csaf-2.0/6.1.3",
+      "section": "6.1.3",
+      "title": "Circular Definition of Product ID",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#613-circular-definition-of-product-id"
+    },
+    {
+      "id": "csaf-2.0/6.1.4",
+      "section": "6.1.4",
+      "title": "Missing Definition of Product Group ID",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#614-missing-definition-of-product-group-id"
+    },
+    {
+      "id": "csaf-2.0/6.1.5",
+      "section": "6.1.5",
+      "title": "Multiple Definition of Product Group ID",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#615-multiple-definition-of-product-group-id"
+    },
+    {
+      "id": "csaf-2.0/6.1.6",
+      "section": "6.1.6",
+      "title": "Contradicting Product Status",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#616-contradicting-product-status"
+    },
+    {
+      "id": "csaf-2.0/6.1.7",
+      "section": "6.1.7",
+      "title": "Multiple Scores with same Version per Product",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#617-multiple-scores-with-same-version-per-product"
+    },
+    {
+      "id": "csaf-2.0/6.1.8",
+      "section": "6.1.8",
+      "title": "Invalid CVSS",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#618-invalid-cvss"
+    },
+    {
+      "id": "csaf-2.0/6.1.9",
+      "section": "6.1.9",
+      "title": "Invalid CVSS computation",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#619-invalid-cvss-computation"
+    },
+    {
+      "id": "csaf-2.0/6.1.10",
+      "section": "6.1.10",
+      "title": "Inconsistent CVSS",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6110-inconsistent-cvss"
+    },
+    {
+      "id": "csaf-2.0/6.1.11",
+      "section": "6.1.11",
+      "title": "CWE",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6111-cwe"
+    },
+    {
+      "id": "csaf-2.0/6.1.12",
+      "section": "6.1.12",
+      "title": "Language",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6112-language"
+    },
+    {
+      "id": "csaf-2.0/6.1.13",
+      "section": "6.1.13",
+      "title": "PURL",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6113-purl"
+    },
+    {
+      "id": "csaf-2.0/6.1.14",
+      "section": "6.1.14",
+      "title": "Sorted Revision History",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6114-sorted-revision-history"
+    },
+    {
+      "id": "csaf-2.0/6.1.15",
+      "section": "6.1.15",
+      "title": "Translator",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6115-translator"
+    },
+    {
+      "id": "csaf-2.0/6.1.16",
+      "section": "6.1.16",
+      "title": "Latest Document Version",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6116-latest-document-version"
+    },
+    {
+      "id": "csaf-2.0/6.1.17",
+      "section": "6.1.17",
+      "title": "Document Status Draft",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6117-document-status-draft"
+    },
+    {
+      "id": "csaf-2.0/6.1.18",
+      "section": "6.1.18",
+      "title": "Released Revision History",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6118-released-revision-history"
+    },
+    {
+      "id": "csaf-2.0/6.1.19",
+      "section": "6.1.19",
+      "title": "Revision History Entries for Pre-release Versions",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6119-revision-history-entries-for-pre-release-versions"
+    },
+    {
+      "id": "csaf-2.0/6.1.20",
+      "section": "6.1.20",
+      "title": "Non-draft Document Version",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6120-non-draft-document-version"
+    },
+    {
+      "id": "csaf-2.0/6.1.21",
+      "section": "6.1.21",
+      "title": "Missing Item in Revision History",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6121-missing-item-in-revision-history"
+    },
+    {
+      "id": "csaf-2.0/6.1.22",
+      "section": "6.1.22",
+      "title": "Multiple Definition in Revision History",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6122-multiple-definition-in-revision-history"
+    },
+    {
+      "id": "csaf-2.0/6.1.23",
+      "section": "6.1.23",
+      "title": "Multiple Use of Same CVE",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6123-multiple-use-of-same-cve"
+    },
+    {
+      "id": "csaf-2.0/6.1.24",
+      "section": "6.1.24",
+      "title": "Multiple Definition in Involvements",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6124-multiple-definition-in-involvements"
+    },
+    {
+      "id": "csaf-2.0/6.1.25",
+      "section": "6.1.25",
+      "title": "Multiple Use of Same Hash Algorithm",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6125-multiple-use-of-same-hash-algorithm"
+    },
+    {
+      "id": "csaf-2.0/6.1.26",
+      "section": "6.1.26",
+      "title": "Prohibited Document Category Name",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6126-prohibited-document-category-name"
+    },
+    {
+      "id": "csaf-2.0/6.1.27.1",
+      "section": "6.1.27.1",
+      "title": "Document Notes",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#61271-document-notes"
+    },
+    {
+      "id": "csaf-2.0/6.1.27.2",
+      "section": "6.1.27.2",
+      "title": "Document References",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#61272-document-references"
+    },
+    {
+      "id": "csaf-2.0/6.1.27.3",
+      "section": "6.1.27.3",
+      "title": "Vulnerabilities",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#61273-vulnerabilities"
+    },
+    {
+      "id": "csaf-2.0/6.1.27.4",
+      "section": "6.1.27.4",
+      "title": "Product Tree",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#61274-product-tree"
+    },
+    {
+      "id": "csaf-2.0/6.1.27.5",
+      "section": "6.1.27.5",
+      "title": "Vulnerability Notes",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#61275-vulnerability-notes"
+    },
+    {
+      "id": "csaf-2.0/6.1.27.6",
+      "section": "6.1.27.6",
+      "title": "Product Status",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#61276-product-status"
+    },
+    {
+      "id": "csaf-2.0/6.1.27.7",
+      "section": "6.1.27.7",
+      "title": "VEX Product Status",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#61277-vex-product-status"
+    },
+    {
+      "id": "csaf-2.0/6.1.27.8",
+      "section": "6.1.27.8",
+      "title": "Vulnerability ID",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#61278-vulnerability-id"
+    },
+    {
+      "id": "csaf-2.0/6.1.27.9",
+      "section": "6.1.27.9",
+      "title": "Impact Statement",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#61279-impact-statement"
+    },
+    {
+      "id": "csaf-2.0/6.1.27.10",
+      "section": "6.1.27.10",
+      "title": "Action Statement",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#612710-action-statement"
+    },
+    {
+      "id": "csaf-2.0/6.1.27.11",
+      "section": "6.1.27.11",
+      "title": "Vulnerabilities",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#612711-vulnerabilities"
+    },
+    {
+      "id": "csaf-2.0/6.1.28",
+      "section": "6.1.28",
+      "title": "Translation",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6128-translation"
+    },
+    {
+      "id": "csaf-2.0/6.1.29",
+      "section": "6.1.29",
+      "title": "Remediation without Product Reference",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6129-remediation-without-product-reference"
+    },
+    {
+      "id": "csaf-2.0/6.1.30",
+      "section": "6.1.30",
+      "title": "Mixed Integer and Semantic Versioning",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6130-mixed-integer-and-semantic-versioning"
+    },
+    {
+      "id": "csaf-2.0/6.1.31",
+      "section": "6.1.31",
+      "title": "Version Range in Product Version",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6131-version-range-in-product-version"
+    },
+    {
+      "id": "csaf-2.0/6.1.32",
+      "section": "6.1.32",
+      "title": "Flag without Product Reference",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6132-flag-without-product-reference"
+    },
+    {
+      "id": "csaf-2.0/6.1.33",
+      "section": "6.1.33",
+      "title": "Multiple Flags with VEX Justification Codes per Product",
+      "group": "mandatory",
+      "memberships": [
+        "mandatory",
+        "basic",
+        "extended",
+        "full",
+        "external-request-free"
+      ],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6133-multiple-flags-with-vex-justification-codes-per-product"
+    },
+    {
+      "id": "csaf-2.0/6.2.1",
+      "section": "6.2.1",
+      "title": "Unused Definition of Product ID",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#621-unused-definition-of-product-id"
+    },
+    {
+      "id": "csaf-2.0/6.2.2",
+      "section": "6.2.2",
+      "title": "Missing Remediation",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#622-missing-remediation"
+    },
+    {
+      "id": "csaf-2.0/6.2.3",
+      "section": "6.2.3",
+      "title": "Missing Score",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#623-missing-score"
+    },
+    {
+      "id": "csaf-2.0/6.2.4",
+      "section": "6.2.4",
+      "title": "Build Metadata in Revision History",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#624-build-metadata-in-revision-history"
+    },
+    {
+      "id": "csaf-2.0/6.2.5",
+      "section": "6.2.5",
+      "title": "Older Initial Release Date than Revision History",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#625-older-initial-release-date-than-revision-history"
+    },
+    {
+      "id": "csaf-2.0/6.2.6",
+      "section": "6.2.6",
+      "title": "Older Current Release Date than Revision History",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#626-older-current-release-date-than-revision-history"
+    },
+    {
+      "id": "csaf-2.0/6.2.7",
+      "section": "6.2.7",
+      "title": "Missing Date in Involvements",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#627-missing-date-in-involvements"
+    },
+    {
+      "id": "csaf-2.0/6.2.8",
+      "section": "6.2.8",
+      "title": "Use of MD5 as the only Hash Algorithm",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#628-use-of-md5-as-the-only-hash-algorithm"
+    },
+    {
+      "id": "csaf-2.0/6.2.9",
+      "section": "6.2.9",
+      "title": "Use of SHA-1 as the only Hash Algorithm",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#629-use-of-sha-1-as-the-only-hash-algorithm"
+    },
+    {
+      "id": "csaf-2.0/6.2.10",
+      "section": "6.2.10",
+      "title": "Missing TLP label",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6210-missing-tlp-label"
+    },
+    {
+      "id": "csaf-2.0/6.2.11",
+      "section": "6.2.11",
+      "title": "Missing Canonical URL",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6211-missing-canonical-url"
+    },
+    {
+      "id": "csaf-2.0/6.2.12",
+      "section": "6.2.12",
+      "title": "Missing Document Language",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6212-missing-document-language"
+    },
+    {
+      "id": "csaf-2.0/6.2.13",
+      "section": "6.2.13",
+      "title": "Sorting",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6213-sorting"
+    },
+    {
+      "id": "csaf-2.0/6.2.14",
+      "section": "6.2.14",
+      "title": "Use of Private Language",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6214-use-of-private-language"
+    },
+    {
+      "id": "csaf-2.0/6.2.15",
+      "section": "6.2.15",
+      "title": "Use of Default Language",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6215-use-of-default-language"
+    },
+    {
+      "id": "csaf-2.0/6.2.16",
+      "section": "6.2.16",
+      "title": "Missing Product Identification Helper",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6216-missing-product-identification-helper"
+    },
+    {
+      "id": "csaf-2.0/6.2.17",
+      "section": "6.2.17",
+      "title": "CVE in field IDs",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6217-cve-in-field-ids"
+    },
+    {
+      "id": "csaf-2.0/6.2.18",
+      "section": "6.2.18",
+      "title": "Product Version Range without vers",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6218-product-version-range-without-vers"
+    },
+    {
+      "id": "csaf-2.0/6.2.19",
+      "section": "6.2.19",
+      "title": "CVSS for Fixed Products",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6219-cvss-for-fixed-products"
+    },
+    {
+      "id": "csaf-2.0/6.2.20",
+      "section": "6.2.20",
+      "title": "Additional Properties",
+      "group": "optional",
+      "memberships": ["optional", "extended", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6220-additional-properties"
+    },
+    {
+      "id": "csaf-2.0/6.3.1",
+      "section": "6.3.1",
+      "title": "Use of CVSS v2 as the only Scoring System",
+      "group": "informative",
+      "memberships": ["informative", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#631-use-of-cvss-v2-as-the-only-scoring-system"
+    },
+    {
+      "id": "csaf-2.0/6.3.2",
+      "section": "6.3.2",
+      "title": "Use of CVSS v3.0",
+      "group": "informative",
+      "memberships": ["informative", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#632-use-of-cvss-v30"
+    },
+    {
+      "id": "csaf-2.0/6.3.3",
+      "section": "6.3.3",
+      "title": "Missing CVE",
+      "group": "informative",
+      "memberships": ["informative", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#633-missing-cve"
+    },
+    {
+      "id": "csaf-2.0/6.3.4",
+      "section": "6.3.4",
+      "title": "Missing CWE",
+      "group": "informative",
+      "memberships": ["informative", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#634-missing-cwe"
+    },
+    {
+      "id": "csaf-2.0/6.3.5",
+      "section": "6.3.5",
+      "title": "Use of Short Hash",
+      "group": "informative",
+      "memberships": ["informative", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#635-use-of-short-hash"
+    },
+    {
+      "id": "csaf-2.0/6.3.6",
+      "section": "6.3.6",
+      "title": "Use of non-self referencing URLs Failing to Resolve",
+      "group": "informative",
+      "memberships": ["informative", "full"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#636-use-of-non-self-referencing-urls-failing-to-resolve"
+    },
+    {
+      "id": "csaf-2.0/6.3.7",
+      "section": "6.3.7",
+      "title": "Use of self referencing URLs Failing to Resolve",
+      "group": "informative",
+      "memberships": ["informative", "full"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#637-use-of-self-referencing-urls-failing-to-resolve"
+    },
+    {
+      "id": "csaf-2.0/6.3.8",
+      "section": "6.3.8",
+      "title": "Spell check",
+      "group": "informative",
+      "memberships": ["informative", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#638-spell-check"
+    },
+    {
+      "id": "csaf-2.0/6.3.9",
+      "section": "6.3.9",
+      "title": "Branch Categories",
+      "group": "informative",
+      "memberships": ["informative", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#639-branch-categories"
+    },
+    {
+      "id": "csaf-2.0/6.3.10",
+      "section": "6.3.10",
+      "title": "Usage of Product Version Range",
+      "group": "informative",
+      "memberships": ["informative", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6310-usage-of-product-version-range"
+    },
+    {
+      "id": "csaf-2.0/6.3.11",
+      "section": "6.3.11",
+      "title": "Usage of V as Version Indicator",
+      "group": "informative",
+      "memberships": ["informative", "full", "external-request-free"],
+      "specificationUrl": "https://docs.oasis-open.org/csaf/csaf/v2.0/os/csaf-v2.0-os.html#6311-usage-of-v-as-version-indicator"
+    }
+  ],
+  "obsoleteSections": []
+}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { CatalogueSection } from './components/CatalogueSection.tsx'
 import { DocumentInput } from './components/DocumentInput.tsx'
 import { DocumentView } from './components/DocumentView.tsx'
 import { IntakeErrorMessage } from './components/IntakeErrorMessage.tsx'
@@ -18,6 +19,9 @@ export const App: React.FC = () => {
       <DocumentInput onResult={setResult} />
       {result && !result.ok && <IntakeErrorMessage error={result.error} />}
       {result?.ok && <DocumentView loaded={result.value} />}
+      <CatalogueSection
+        documentVersion={result?.ok ? result.value.version : null}
+      />
     </main>
   )
 }
