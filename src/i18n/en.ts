@@ -43,6 +43,35 @@ export default {
       null: 'null',
     },
   },
+  config: {
+    notice: {
+      heading: 'Runtime configuration was not applied',
+      network:
+        'The runtime configuration file could not be fetched because of a network error.',
+      http: 'The runtime configuration file could not be fetched (HTTP {{status}}).',
+      notJson: 'The runtime configuration file is not valid JSON.',
+      invalid:
+        'The runtime configuration file is invalid and was rejected as a whole:',
+      fallback: 'The built-in defaults are in use.',
+    },
+    issue: {
+      notObject: 'The file must contain a JSON object.',
+      wrongVersion: 'The version must be 1.',
+      unknownField: 'Unknown field.',
+      wrongType: 'The value has the wrong type.',
+      unsupportedValue: 'Unsupported value.',
+      invalidUrl: 'Not a valid service URL.',
+      url: {
+        notAbsolute:
+          'The URL must be absolute and start with http:// or https://.',
+        protocol: 'Only http:// and https:// URLs are allowed.',
+        credentials: 'The URL must not contain credentials.',
+        query: 'The URL must not contain a query.',
+        fragment: 'The URL must not contain a fragment.',
+        malformed: 'The URL is malformed.',
+      },
+    },
+  },
   catalogue: {
     heading: 'Test selection',
     version: {

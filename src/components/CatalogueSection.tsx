@@ -13,13 +13,16 @@ import { VersionSelector } from './VersionSelector.tsx'
 
 type CatalogueSectionProps = {
   documentVersion: VersionInfo | null
+  choice: VersionChoice
+  onChoiceChange: (choice: VersionChoice) => void
 }
 
 export const CatalogueSection: React.FC<CatalogueSectionProps> = ({
   documentVersion,
+  choice,
+  onChoiceChange,
 }) => {
   const { t } = useTranslation()
-  const [choice, setChoice] = useState<VersionChoice>('document')
   // Edits are kept per snapshot for the session, so switching versions does not lose them.
   const [edited, setEdited] = useState<Partial<Record<SnapshotId, Selection>>>(
     {},
@@ -29,7 +32,7 @@ export const CatalogueSection: React.FC<CatalogueSectionProps> = ({
   return (
     <section aria-labelledby="catalogue-heading">
       <h2 id="catalogue-heading">{t('catalogue.heading')}</h2>
-      <VersionSelector value={choice} onChange={setChoice} />
+      <VersionSelector value={choice} onChange={onChoiceChange} />
 
       {resolution.status === 'resolved' &&
         (() => {

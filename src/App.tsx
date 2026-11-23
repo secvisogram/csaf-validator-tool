@@ -4,6 +4,8 @@ import { CatalogueSection } from './components/CatalogueSection.tsx'
 import { DocumentInput } from './components/DocumentInput.tsx'
 import { DocumentView } from './components/DocumentView.tsx'
 import { IntakeErrorMessage } from './components/IntakeErrorMessage.tsx'
+import { RuntimeConfigNotice } from './components/RuntimeConfigNotice.tsx'
+import { useSettings } from './config/useSettings.ts'
 import type { IntakeResult, LoadedDocument } from './intake/types.ts'
 
 export const App: React.FC = () => {
@@ -12,16 +14,25 @@ export const App: React.FC = () => {
     null,
   )
 
+  const { runtime, settings, edit } = useSettings()
+
   return (
     <main>
       <h1>{t('app.title')}</h1>
       <p>{t('app.intro')}</p>
+      {runtime?.status === 'failed' && (
+        <RuntimeConfigNotice problem={runtime.problem} />
+      )}
       <DocumentInput onResult={setResult} />
       {result && !result.ok && <IntakeErrorMessage error={result.error} />}
       {result?.ok && <DocumentView loaded={result.value} />}
-      <CatalogueSection
-        documentVersion={result?.ok ? result.value.version : null}
-      />
+      {runtime !== null && (
+        <CatalogueSection
+          documentVersion={result?.ok ? result.value.version : null}
+          choice={settings.csafVersion}
+          onChoiceChange={(csafVersion) => edit({ csafVersion })}
+        />
+      )}
     </main>
   )
 }
