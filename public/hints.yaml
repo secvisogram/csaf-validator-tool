@@ -1,0 +1,37 @@
+# Supplemental hints shown next to report findings.
+# A hint is explanatory text. It never changes a result, a run state or a count.
+# The text is shown as plain text: HTML, Markdown and links are not interpreted.
+# Any invalid entry or duplicate identity rejects this whole file, and the app
+# then shows a warning and continues without hints.
+#
+# Fields of a hint:
+#   csafVersion  required  '2.0' or '2.1' (quoted, so it stays text)
+#   section      required  a section of the catalogue of that version, such as
+#                          '6.1.1' (quoted), or schema for the schema check
+#   text         required  the hint
+#   validator    optional  csaf-validator-lib, csaf-validator-service,
+#                          csaf-service or csaf-rs-wasm
+#   messageCode  optional  the validator's stable message code, compared exactly
+#   messageText  optional  the validator's original message text, compared
+#                          exactly and case-sensitively, without normalization
+# At most one of messageCode and messageText may be set.
+#
+# Identity: csafVersion + section + validator (or none) + messageCode or
+# messageText (or none) must be unique. The order in this file does not matter.
+#
+# Which hint is shown for a finding: the exact messageCode, then the exact
+# messageText, then the general hint of the test (no message key). A hint with
+# a validator applies to that validator only and wins over one without.
+#
+# Example (remove the leading # to use it):
+#
+# hints:
+#   - csafVersion: '2.1'
+#     section: '6.3.8'
+#     text: 'General guidance for this test.'
+#   - csafVersion: '2.1'
+#     section: '6.3.8'
+#     validator: csaf-service
+#     messageText: 'Spelling mistakes found in document title.'
+#     text: 'Guidance for this exact validator message.'
+hints: []

@@ -80,6 +80,12 @@ export function outcomeMessages(outcome: ValidatorOutcome): ReportMessage[] {
   ]
 }
 
+/** Whether the validator returned a result for the row: it succeeded, failed or was skipped. */
+export function hasResult(row: ReportRow): boolean {
+  const { kind } = row.status
+  return kind === 'succeeded' || kind === 'failed' || kind === 'skipped'
+}
+
 export function rowMessages(status: RowStatus): ReportMessage[] {
   return status.kind === 'succeeded' ||
     status.kind === 'failed' ||
