@@ -5,6 +5,7 @@ import { CATALOGUES, resolveSnapshot } from '../catalogue/catalogues.ts'
 import { initialSelection, type Selection } from '../catalogue/selection.ts'
 import type { SnapshotId } from '../catalogue/types.ts'
 import type { SessionEdits, Settings } from '../config/types.ts'
+import type { HintSet } from '../hints/types.ts'
 import type { LoadedDocument } from '../intake/types.ts'
 import { useRun } from '../validation/useRun.ts'
 import { CatalogueView } from './CatalogueView.tsx'
@@ -16,12 +17,15 @@ type WorkbenchProps = {
   loaded: LoadedDocument | null
   settings: Settings
   onEdit: (edit: SessionEdits) => void
+  /** The valid supplemental hints. Without them, reports are shown without hints. */
+  hints?: HintSet
 }
 
 export const Workbench: React.FC<WorkbenchProps> = ({
   loaded,
   settings,
   onEdit,
+  hints,
 }) => {
   const { t } = useTranslation()
   // Edits are kept per snapshot for the session, so switching versions does not lose them.
@@ -118,6 +122,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
       {run && (
         <ReportSection
           run={run}
+          {...(hints && { hints })}
           view={settings.reportView}
           onViewChange={(reportView) => onEdit({ reportView })}
         />
