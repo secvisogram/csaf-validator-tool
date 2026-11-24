@@ -91,3 +91,143 @@ td {
   padding: 0.5rem 1rem;
   margin-block: 1rem;
 }
+
+.muted {
+  color: #555;
+}
+
+.reason {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.capability {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.capability-verified-supported {
+  color: #1b5e20;
+}
+
+.capability-known-unsupported {
+  color: #8a1c1c;
+}
+
+.capability-not-yet-verified {
+  color: #8a4b00;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #e8e8e8;
+  white-space: nowrap;
+}
+
+.badge-succeeded {
+  background: #dff1e1;
+  color: #1b5e20;
+}
+
+.badge-failed,
+.badge-execution-error,
+.badge-run-failed {
+  background: #fdecee;
+  color: #8a1c1c;
+}
+
+.badge-unavailable,
+.badge-missing,
+.badge-cancelled,
+.badge-skipped,
+.badge-uncatalogued {
+  background: #fff3d6;
+  color: #6b4400;
+}
+
+.severity {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.severity-error {
+  color: #8a1c1c;
+}
+
+.severity-warning {
+  color: #8a4b00;
+}
+
+.severity-info {
+  color: #0d47a1;
+}
+
+.counts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.count {
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.count dt {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.count dd {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.run-state {
+  border-left: 0.25rem solid #0d47a1;
+  background: #eef4fd;
+  padding: 0.5rem 1rem;
+}
+
+[role='tablist'] {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid #ccc;
+  margin-top: 1rem;
+}
+
+[role='tab'] {
+  margin: 0;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+[role='tab'][aria-selected='true'] {
+  border-bottom-color: #0d47a1;
+  font-weight: 700;
+}
+
+.attention,
+.cannot-run,
+.messages {
+  padding-left: 1.25rem;
+}
+
+.attention {
+  max-height: 24rem;
+  overflow: auto;
+}
+
+.messages {
+  margin: 0.25rem 0;
+}
