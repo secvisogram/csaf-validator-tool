@@ -43,6 +43,183 @@ export default {
       null: 'null',
     },
   },
+  validators: {
+    legend: 'Validator',
+    names: {
+      'csaf-validator-lib': 'csaf-validator-lib, in this browser',
+      'csaf-rs-wasm': 'csaf-rs (WASM), in this browser',
+      'csaf-validator-service': 'csaf-validator-service (JavaScript service)',
+      'csaf-service': 'csaf-service (Rust service)',
+    },
+    unavailable: 'Unavailable: {{reason}}',
+    notImplemented:
+      'This validator is not implemented in this version of the tool yet.',
+    library: {
+      runsLocally:
+        'Runs in this browser in a Web Worker. The document stays on this page.',
+      onlyVerified:
+        'Only tests with verified support run. A selected test that the library does not implement, cannot run in a browser or has no verified support stays selected and is shown as unavailable.',
+      csaf21Experimental: 'CSAF 2.1 support in this library is experimental.',
+    },
+  },
+  settings: {
+    heading: 'Settings for this session',
+    note: 'Changes apply to this session only and are never saved. Runtime configuration provides the starting values.',
+    services: {
+      legend: 'Service URLs',
+      javascript: 'JavaScript service URL',
+      rust: 'Rust service URL',
+      placeholder: 'Not set',
+      clearHint: 'Leave empty for no service.',
+    },
+    urlProblem: {
+      notAbsolute:
+        'Not applied: the URL must be absolute and start with http:// or https://.',
+      protocol: 'Not applied: only http:// and https:// URLs are allowed.',
+      credentials: 'Not applied: the URL must not contain credentials.',
+      query: 'Not applied: the URL must not contain a query.',
+      fragment: 'Not applied: the URL must not contain a fragment.',
+      malformed: 'Not applied: the URL is malformed.',
+    },
+  },
+  run: {
+    heading: 'Run',
+    noDocument: 'Load a document to run the selected tests.',
+    validatorLine: 'Validator: {{validator}}',
+    version: 'Version {{version}}',
+    adapterUnavailable: 'This validator is unavailable: {{reason}}',
+    limitations: 'Limitations',
+    runnable:
+      '{{runnable}} of {{selected}} selected tests can run with this validator.',
+    nothingToRun:
+      'None of the selected tests can run with this validator. Select other tests or choose another validator.',
+    cannotRun: {
+      summary: '{{count}} selected tests cannot run',
+      state: {
+        'known-unsupported': 'Not supported',
+        'not-yet-verified': 'Not verified',
+      },
+      noReason: 'No reason is recorded.',
+    },
+    start: 'Run selected tests',
+    cancel: 'Cancel run',
+    cancelNote:
+      'Cancelling stops the validation worker immediately. Results that were already returned are kept.',
+    progress: '{{done}} of {{total}} tests finished',
+    network: {
+      heading: 'Some selected tests may access external resources',
+      body: 'These tests may contact external servers. They run only after you confirm.',
+      confirm: 'Run including these tests',
+      back: 'Do not run',
+    },
+  },
+  report: {
+    heading: 'Report',
+    context: '{{snapshot}} · {{validator}}',
+    tabs: {
+      label: 'Report views',
+      summary: 'Summary',
+      'all-messages': 'All messages',
+      detailed: 'Detailed report',
+    },
+    state: {
+      running: 'Running',
+      completed: 'Run completed',
+      cancelled: 'Run cancelled',
+      failed: 'Run failed',
+    },
+    stateLine: {
+      running: '{{done}} of {{total}} runnable tests finished.',
+      completed:
+        '{{returned}} of {{selected}} selected tests returned a result.',
+      cancelled:
+        '{{returned}} of {{selected}} selected tests returned a result before the run was cancelled.',
+      failed:
+        '{{returned}} of {{selected}} selected tests returned a result before the run failed.',
+    },
+    failure: 'Failure: {{message}}',
+    noVerdict:
+      'No single pass or fail verdict is inferred. A run can contain valid results, findings, missing responses and tests the validator cannot run. Review each state and its source.',
+    counts: {
+      heading: 'Status counts',
+      succeeded: 'Valid',
+      failed: 'Not valid',
+      skipped: 'Skipped by the validator',
+      unavailable: 'Unavailable',
+      pending: 'Queued or running',
+      missing: 'Missing result',
+      executionError: 'Execution error',
+      runFailed: 'Run failed',
+      cancelled: 'Not run: cancelled',
+      notSelected: 'Not selected',
+      uncatalogued: 'Uncatalogued',
+    },
+    messageCounts:
+      'Returned messages: {{errors}} errors, {{warnings}} warnings, {{infos}} information.',
+    attention: {
+      heading: 'Needs attention',
+      count: '{{count}} items',
+      none: 'Nothing needs attention.',
+    },
+    status: {
+      'not-selected': 'Not selected',
+      unavailable: 'Unavailable',
+      queued: 'Queued',
+      running: 'Running',
+      succeeded: 'Valid',
+      failed: 'Not valid',
+      skipped: 'Skipped',
+      missing: 'Missing result',
+      'execution-error': 'Execution error',
+      'run-failed': 'Run failed',
+      cancelled: 'Not run — cancelled',
+    },
+    note: {
+      'not-selected': 'This test is not selected.',
+      unavailable: 'Selected, but the validator cannot run it.',
+      queued: 'Waiting to run.',
+      running: 'Running now.',
+      succeeded: 'The validator reported success.',
+      failed: 'The validator reported a failure.',
+      skipped: 'The validator reported that it skipped this test.',
+      missing:
+        'This test was requested, but the completed response has no result for it.',
+      'execution-error': 'Running this test failed.',
+      'run-failed': 'No result: the run failed before this test returned.',
+      cancelled: 'No result: the run was cancelled before this test finished.',
+    },
+    capability: {
+      'verified-supported': 'Supported',
+      'known-unsupported': 'Not supported',
+      'not-yet-verified': 'Not verified',
+    },
+    severity: { error: 'Error', warning: 'Warning', info: 'Information' },
+    table: {
+      section: 'Section',
+      test: 'Test',
+      status: 'Status',
+      message: 'Message',
+      path: 'Location in document',
+      selected: 'Selected',
+      messages: 'Messages',
+      yes: 'Yes',
+      no: 'No',
+      schemaCheck: 'Schema validation',
+      noMessages: 'No messages.',
+      noMessagesRow: 'No messages were returned and no row has a status note.',
+    },
+    link: {
+      open: 'Specification',
+      openLabel:
+        'Specification section {{section}} (opens the pinned document)',
+    },
+    uncatalogued: {
+      heading: 'Uncatalogued results',
+      note: 'These results are not connected to any catalogue test. They are shown as returned.',
+      id: 'Original ID',
+      details: 'Details',
+    },
+  },
   config: {
     notice: {
       heading: 'Runtime configuration was not applied',
@@ -111,6 +288,8 @@ export default {
       notSelected: 'schema check not selected',
     },
     table: {
+      support: 'Support with the chosen validator',
+      network: 'May access external resources',
       select: 'Select',
       section: 'Section',
       title: 'Title',
