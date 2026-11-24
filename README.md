@@ -25,8 +25,10 @@ See [docs/spec.md](docs/spec.md) for the full specification (context and scope, 
 - React 19 and TypeScript 7
 - Vite 8 and npm (Node 24, committed lockfile, `npm ci`)
 - i18next 27 with react-i18next 18 (English UI)
-- Vitest 5 for unit tests
+- Vitest 5 for unit tests, with jsdom and Testing Library (development only) for component interaction tests
+- `@secvisogram/csaf-validator-lib` 3.0.3 (exact pin) as the in-browser validator, run in a module Web Worker
 - Ajv 8 (development only) for validating the catalogue data against its JSON schema in CI
+- `playwright-core` (development only) for the maintainer script that verifies the library capabilities in Chrome and Firefox
 - oxlint and oxfmt for linting and formatting
 - Playwright for browser tests in latest-stable Chrome and Firefox (planned)
 - Docker Compose for the local deployment (planned)
@@ -39,7 +41,10 @@ Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
 - `src/intake/`: document intake (JSON parsing, URL validation, file and URL loading, CSAF version detection) without UI
 - `src/catalogue/`: the test catalogue (data, JSON schema, preset resolution, initial selection, consistency checks) without UI
 - `src/config/`: runtime configuration (loader, strict validation, settings precedence) and the settings hook
+- `src/validation/`: the shared validator model: capability states, run planning, run state, and the report model with its counts, without UI
+- `src/adapters/`: validator adapters. `src/adapters/library/` holds the browser library adapter (worker, runner, capability data)
 - `src/components/`: React components
+- `src/util/`: small helpers such as the safe-link check
 - `scripts/`: maintainer scripts
 - `src/i18n/`: i18next setup and the English dictionary
 - `docs/`: specification
@@ -129,3 +134,55 @@ A deployment can set service endpoints and startup defaults without rebuilding t
 The static host must answer 404 for a missing file. A host that serves `index.html` for unknown paths makes the app report invalid content.
 
 Built-in defaults are `csaf-validator-lib`, `document` and `all-messages`, with no service URL. Precedence is built-in defaults, then a valid runtime configuration, then edits made in the current session. Session edits live in page memory only and are lost on reload. The app stores nothing in the browser.
+
+## Running validation
+
+The user loads a document, chooses a validator, adjusts the selected tests and runs them. The report shows the outcome of every catalogue test.
+
+### Validators and capabilities
+
+The app offers four validators. Only `csaf-validator-lib` can run in this version. The others are listed as unavailable with the reason until their adapters are added.
+
+Every adapter has capability data that is kept apart from the catalogue. Each record names the catalogue test or schema check, the adapter function, the execution mode, the evidence and the component version. A record is in one of three states:
+
+| State                | Meaning                                                                    |
+| -------------------- | -------------------------------------------------------------------------- |
+| `verified-supported` | Evidence shows the adapter runs this test correctly. Only these tests run. |
+| `known-unsupported`  | The adapter cannot run this test. A reason is recorded.                    |
+| `not-yet-verified`   | There is no evidence yet. The test does not run, and the reason is shown.  |
+
+A selected test that the adapter cannot run stays selected. It is shown as unavailable, with its reason, before and after the run. The app never infers support from the name of a library export.
+
+### The browser library adapter
+
+`@secvisogram/csaf-validator-lib` is pinned to an exact version in `package.json` and the lockfile. Tests run one at a time in a module Web Worker. Each result is shown as soon as it is returned. A test that throws is recorded as an execution error for that test only. Cancelling terminates the worker at once, keeps the results already returned, and marks the unfinished tests "not run: cancelled".
+
+The Vite build prints warnings that `node:child_process`, `node:fs/promises` and `node:module` were externalized. The library imports them only inside code paths that the browser never takes (the Hunspell spell check, loading WebAssembly from disk in Node, and a Node-only `User-Agent` header).
+
+The schema check uses the library's schema for the version (`csaf_2_0`, `csaf_2_1`), which is the schema published with the pinned specification. The library's stricter `_strict` variants are not offered, because the catalogue has no entry for them.
+
+The capability data is `src/adapters/library/capabilities.json`. It is written by `scripts/verify-library-capabilities.ts`, which runs the OASIS reference documents of the pinned catalogue baselines through the real worker in Chrome and Firefox. A test is `verified-supported` only if the library agrees with every failing and every passing reference document of that test in both browsers. Network-enabled tests and the Hunspell test are never run by the script.
+
+```bash
+node scripts/verify-library-capabilities.ts
+```
+
+The script needs network access, `git`, Google Chrome (set `CHROME_PATH` if it is not at `/usr/bin/google-chrome`) and the Playwright Firefox build (`npx playwright-core install firefox`). It takes about half an hour. Review the diff of `capabilities.json` like any other data change. CI does not run the script. It checks the file against the catalogue and the installed library without a browser.
+
+When the library is updated, run the script again before merging the update. If a test no longer agrees, it becomes `not-yet-verified` and stops running until the difference is understood.
+
+### Network-enabled tests
+
+Tests that may access external resources are classified per CSAF version in `src/catalogue/network.ts`. For CSAF 2.1 CSD04 this is the specification-defined `non-external-request-free` set. For CSAF 2.0 it is tool-defined (6.3.6 and 6.3.7). Before a run that includes any such test the app lists them and asks for confirmation. The tests are never started before the user confirms.
+
+With the browser library these tests are `not-yet-verified`: the browser applies CORS to their requests, so a blocked request cannot be told apart from an unreachable URL. They stay visible as unavailable with that reason.
+
+### Report
+
+The report is table-first. It shows the status counts, a "Needs attention" list, and three in-page views (Summary, All messages, Detailed report). The Detailed report lists every catalogue test, selected or not.
+
+Execution states and validator outcomes are kept apart. A row can be not selected, unavailable, queued, running, valid or not valid as reported by the validator, skipped (only if the validator says so), missing from a completed response, an execution error, a run failure, or not run because the run was cancelled. A returned result that cannot be mapped to a catalogue test is shown as uncatalogued with its original ID and details. Only results the validator returned are counted as valid or not valid. The app does not infer a pass or a fail for anything else, and it shows no single verdict.
+
+All text from documents and validators is rendered as escaped text. Links are created only for valid absolute `http:` and `https:` URLs and open with `rel="noopener noreferrer"`. Anything else is shown as plain text.
+
+The report belongs to the document it was run on. Loading another document clears it. Settings, selections, results and the document stay in page memory only.
