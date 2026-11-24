@@ -33,6 +33,16 @@ describe('SettingsPanel', () => {
     expect(reasons).toHaveLength(2)
   })
 
+  it('shows the JavaScript service as unavailable until a URL is entered, then as available', () => {
+    const reason = /Unavailable: Enter a JavaScript service URL/
+    expect(markup).toMatch(reason)
+    const configured = render({
+      ...BUILT_IN_DEFAULTS,
+      services: { javascript: 'http://127.0.0.1:8080', rust: null },
+    })
+    expect(configured).not.toMatch(reason)
+  })
+
   it('does not mark the implemented validators as unavailable', () => {
     const entryOf = (label: string) =>
       markup.split(label)[1]?.split('</label>')[0] ?? ''

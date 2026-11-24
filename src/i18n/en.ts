@@ -72,6 +72,16 @@ export default {
         'The validation is one call, so there is no per-test progress. Cancelling stops the worker, and no results of that run are kept.',
       csaf21Experimental: 'CSAF 2.1 support in this package is experimental.',
     },
+    service: {
+      noUrl:
+        'Enter a JavaScript service URL in the service URLs setting to use this validator.',
+      csaf20Only:
+        'The verified service supports CSAF 2.0 only. A CSAF 2.1 request you select is still sent. Its support stays not verified, and only the actual response or request error is shown. A test name the service does not know makes the whole request fail.',
+      resultsAsReturned:
+        'Results are shown as returned. HTTP success does not mean the document is valid, and a failing test is shown as failing. A selected test the response does not contain is shown as missing.',
+      verifiedVersion:
+        'Test names and the response mapping were verified against csaf-validator-service {{version}}. The configured service may be a different version.',
+    },
   },
   settings: {
     heading: 'Settings for this session',
@@ -114,6 +124,18 @@ export default {
     },
     start: 'Run selected tests',
     cancel: 'Cancel run',
+    cancelNoteRemote:
+      'Cancelling aborts the browser request. Results that were already returned are kept and a late response is ignored. This does not guarantee that the service stops processing the request.',
+    remote: {
+      heading: 'Where the document goes',
+      destination: 'Validator: {{validator}}. Destination: {{endpoint}}',
+      disclosure:
+        'Running sends the complete document and the request parameters to this service. The operator of the service controls retention and logging. This app does not guarantee how the service handles your data.',
+      unverified_one:
+        '{{count}} selected check is not verified for this service. It is still sent, and only the actual response or error is shown.',
+      unverified_other:
+        '{{count}} selected checks are not verified for this service. They are still sent, and only the actual response or error is shown.',
+    },
     cancelNote:
       'Cancelling stops the validation worker immediately. Results that were already returned are kept.',
     cancelNoteDiscarded:
@@ -124,6 +146,8 @@ export default {
     network: {
       heading: 'Some selected tests may access external resources',
       body: 'These tests may contact external servers. They run only after you confirm.',
+      bodyRemote:
+        'With a remote validator, the service runs these tests on the service, and the service contacts the external servers, not this browser.',
       confirm: 'Run including these tests',
       back: 'Do not run',
     },
@@ -153,6 +177,8 @@ export default {
         '{{returned}} of {{selected}} selected tests returned a result before the run failed.',
     },
     failure: 'Failure: {{message}}',
+    reportedValid:
+      "The validator reported isValid: {{value}} for the whole request. This is the validator's own flag, shown as returned. It is not a verdict of this app.",
     noVerdict:
       'No single pass or fail verdict is inferred. A run can contain valid results, findings, missing responses and tests the validator cannot run. Review each state and its source.',
     counts: {
