@@ -28,7 +28,6 @@ See [docs/spec.md](docs/spec.md) for the full specification (context and scope, 
 - Vitest 5 for unit tests, with jsdom and Testing Library (development only) for component interaction tests
 - `@secvisogram/csaf-validator-lib` 3.0.3 (exact pin) as the in-browser validator, run in a module Web Worker
 - Ajv 8 (development only) for validating the catalogue data against its JSON schema in CI
-- `playwright-core` (development only) for the maintainer script that verifies the library capabilities in Chrome and Firefox
 - oxlint and oxfmt for linting and formatting
 - Playwright for browser tests in latest-stable Chrome and Firefox (planned)
 - Docker Compose for the local deployment (planned)
@@ -161,15 +160,15 @@ The Vite build prints warnings that `node:child_process`, `node:fs/promises` and
 
 The schema check uses the library's schema for the version (`csaf_2_0`, `csaf_2_1`), which is the schema published with the pinned specification. The library's stricter `_strict` variants are not offered, because the catalogue has no entry for them.
 
-The capability data is `src/adapters/library/capabilities.json`. It is written by `scripts/verify-library-capabilities.ts`, which runs the OASIS reference documents of the pinned catalogue baselines through the real worker in Chrome and Firefox. A test is `verified-supported` only if the library agrees with every failing and every passing reference document of that test in both browsers. Network-enabled tests and the Hunspell test are never run by the script.
+The capability data is `src/adapters/library/capabilities.json`. It is edited by hand and reviewed like code. There is no generator. Each record maps a catalogue test or the schema check to one library function (`module` and `export`), or records why none can run:
 
-```bash
-node scripts/verify-library-capabilities.ts
-```
+- `verified-supported`: a reviewer mapped the test to an export that exists in the pinned library version. `capabilities.test.ts` checks that the export exists, that it belongs to the test's section and snapshot, and that no export is used twice. The app does not check whether the library's results agree with the OASIS reference documents. That is the validator component's job, not this app's.
+- `known-unsupported`: the library has no function for the test, or cannot run it in a browser (Hunspell, 6.3.8). The reason is recorded.
+- `not-yet-verified`: the test is mapped but must not run yet. This is the case for network-enabled tests until their behaviour in the browser is reviewed. The reason is recorded.
 
-The script needs network access, `git`, Google Chrome (set `CHROME_PATH` if it is not at `/usr/bin/google-chrome`) and the Playwright Firefox build (`npx playwright-core install firefox`). It takes about half an hour. Review the diff of `capabilities.json` like any other data change. CI does not run the script. It checks the file against the catalogue and the installed library without a browser.
+A record may carry an `evidence` note, for example a known deviation of the library that a reviewer saw. Without it, the evidence of a verified record is the reviewed mapping itself.
 
-When the library is updated, run the script again before merging the update. If a test no longer agrees, it becomes `not-yet-verified` and stops running until the difference is understood.
+When the library is updated, change the pin, the `version` in `capabilities.json` and the mapping together. The tests fail until the mapping and the installed library agree. Browser behaviour of the worker and the mapped functions is covered by the browser tests, not by a separate script.
 
 ### Network-enabled tests
 

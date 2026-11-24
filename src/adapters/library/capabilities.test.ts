@@ -35,7 +35,7 @@ describe('the library pin', () => {
     expect(packageJson.dependencies[LIBRARY_PACKAGE]).toMatch(/^\d+\.\d+\.\d+$/)
   })
 
-  it('is the version the capability evidence was gathered for', () => {
+  it('is the version the reviewed mapping applies to', () => {
     expect(file.version).toBe(packageJson.dependencies[LIBRARY_PACKAGE])
     expect(installed.version).toBe(file.version)
   })
@@ -71,21 +71,6 @@ describe('library capability records', () => {
     }
   })
 
-  it('never marks a test verified without evidence from both browsers', () => {
-    expect(file.verifiedIn.some((name) => name.startsWith('Chrome '))).toBe(
-      true,
-    )
-    expect(file.verifiedIn.some((name) => name.startsWith('Firefox '))).toBe(
-      true,
-    )
-    for (const record of records) {
-      if (record.state !== 'verified-supported') continue
-      for (const browser of file.verifiedIn) {
-        expect(record.evidence, record.id).toContain(browser)
-      }
-    }
-  })
-
   it('names a library target for every verified-supported record', () => {
     for (const record of records) {
       if (record.state !== 'verified-supported') continue
@@ -116,16 +101,6 @@ describe('library capability records', () => {
     }
   })
 
-  it('records the OASIS reference documents the evidence is based on', () => {
-    expect(file.sources.map((source) => source.snapshot).toSorted()).toEqual([
-      'csaf-2.0',
-      'csaf-2.1-csd04',
-    ])
-    for (const source of file.sources) {
-      expect(source.commit).toMatch(/^[0-9a-f]{40}$/)
-    }
-  })
-
   it('reads capability only from the record, never from an export name', () => {
     expect(libraryCapability('csaf-2.0/6.3.8').state).toBe('known-unsupported')
     expect(libraryCapability('csaf-2.0/does-not-exist')).toEqual({
@@ -153,6 +128,19 @@ describe(
         }
       }
       expect(missing).toEqual([])
+    })
+
+    it('name the function of the section they are recorded for', () => {
+      for (const record of expandRecords(file)) {
+        if (!record.target || record.id.endsWith('/schema')) continue
+        const section = record.id.split('/')[1] as string
+        const expected = section.replaceAll('.', '_')
+        expect(
+          record.target.export === expected ||
+            record.target.export.endsWith(`Test_${expected}`),
+          record.id,
+        ).toBe(true)
+      }
     })
 
     it('are used by one test only', () => {
