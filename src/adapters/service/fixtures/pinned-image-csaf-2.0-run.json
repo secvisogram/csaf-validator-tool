@@ -1,0 +1,870 @@
+{
+  "image": "ghcr.io/secvisogram/csaf-validator-service@sha256:e09b8a2b7c7715cce3de2144d73789a06df85a3d116ff07229199060f2e6e5db",
+  "recorded": "2026-11-24",
+  "request": {
+    "tests": [
+      {
+        "name": "optionalTest_6_2_2",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_3",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_4",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_5",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_6",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_7",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_8",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_9",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_10",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_12",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_13",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_20",
+        "type": "test"
+      },
+      {
+        "name": "informativeTest_6_3_5",
+        "type": "test"
+      },
+      {
+        "name": "informativeTest_6_3_6",
+        "type": "test"
+      },
+      {
+        "name": "informativeTest_6_3_7",
+        "type": "test"
+      },
+      {
+        "name": "informativeTest_6_3_8",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_1",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_2",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_3",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_4",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_5",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_6",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_7",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_8",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_9",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_10",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_11",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_12",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_13",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_14",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_15",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_16",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_17",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_18",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_19",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_20",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_21",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_22",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_23",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_24",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_25",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_26",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_27_1",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_27_2",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_27_3",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_27_4",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_27_5",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_27_6",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_27_7",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_27_8",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_27_9",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_27_10",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_27_11",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_28",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_29",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_30",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_31",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_32",
+        "type": "test"
+      },
+      {
+        "name": "mandatoryTest_6_1_33",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_1",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_11",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_14",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_15",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_16",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_17",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_18",
+        "type": "test"
+      },
+      {
+        "name": "optionalTest_6_2_19",
+        "type": "test"
+      },
+      {
+        "name": "informativeTest_6_3_1",
+        "type": "test"
+      },
+      {
+        "name": "informativeTest_6_3_2",
+        "type": "test"
+      },
+      {
+        "name": "informativeTest_6_3_3",
+        "type": "test"
+      },
+      {
+        "name": "informativeTest_6_3_4",
+        "type": "test"
+      },
+      {
+        "name": "informativeTest_6_3_9",
+        "type": "test"
+      },
+      {
+        "name": "informativeTest_6_3_10",
+        "type": "test"
+      },
+      {
+        "name": "informativeTest_6_3_11",
+        "type": "test"
+      },
+      {
+        "name": "csaf_2_0",
+        "type": "test"
+      }
+    ],
+    "document": {
+      "document": {
+        "category": "csaf_base",
+        "csaf_version": "2.0",
+        "title": "Fixture document"
+      }
+    }
+  },
+  "status": 200,
+  "response": {
+    "isValid": false,
+    "tests": [
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_2"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_3"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_4"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_5"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_6"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_7"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_8"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_9"
+      },
+      {
+        "errors": [],
+        "warnings": [
+          {
+            "instancePath": "/document/distribution/tlp/label",
+            "message": "missing tlp label"
+          }
+        ],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_10"
+      },
+      {
+        "errors": [],
+        "warnings": [
+          {
+            "instancePath": "/document",
+            "message": "missing document language"
+          }
+        ],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_12"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_13"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_20"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "informativeTest_6_3_5"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "informativeTest_6_3_6"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "informativeTest_6_3_7"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "informativeTest_6_3_8"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_1"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_2"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_3"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_4"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_5"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_6"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_7"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_8"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_9"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_10"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_11"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_12"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_13"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_14"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_15"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_16"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_17"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_18"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_19"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_20"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_21"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_22"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_23"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_24"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_25"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_26"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_27_1"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_27_2"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_27_3"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_27_4"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_27_5"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_27_6"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_27_7"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_27_8"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_27_9"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_27_10"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_27_11"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_28"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_29"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_30"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_31"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_32"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "mandatoryTest_6_1_33"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_1"
+      },
+      {
+        "errors": [],
+        "warnings": [
+          {
+            "instancePath": "/document/references",
+            "message": "missing canonical url"
+          }
+        ],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_11"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_14"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_15"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_16"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_17"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_18"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "optionalTest_6_2_19"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "informativeTest_6_3_1"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "informativeTest_6_3_2"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "informativeTest_6_3_3"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "informativeTest_6_3_4"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "informativeTest_6_3_9"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "informativeTest_6_3_10"
+      },
+      {
+        "errors": [],
+        "warnings": [],
+        "infos": [],
+        "isValid": true,
+        "name": "informativeTest_6_3_11"
+      },
+      {
+        "errors": [
+          {
+            "instancePath": "/document",
+            "message": "must have required property 'publisher'"
+          },
+          {
+            "instancePath": "/document",
+            "message": "must have required property 'tracking'"
+          }
+        ],
+        "warnings": [],
+        "infos": [],
+        "isValid": false,
+        "name": "csaf_2_0"
+      }
+    ]
+  }
+}
