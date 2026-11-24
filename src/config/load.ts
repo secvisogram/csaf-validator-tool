@@ -56,7 +56,7 @@ export async function loadRuntimeConfig(
       }
 }
 
-function isTimeout(signal: AbortSignal): boolean {
+export function isTimeout(signal: AbortSignal): boolean {
   return signal.reason instanceof DOMException
     ? signal.reason.name === 'TimeoutError'
     : false
