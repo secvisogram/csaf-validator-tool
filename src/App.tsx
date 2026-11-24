@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CatalogueSection } from './components/CatalogueSection.tsx'
 import { DocumentInput } from './components/DocumentInput.tsx'
 import { DocumentView } from './components/DocumentView.tsx'
 import { IntakeErrorMessage } from './components/IntakeErrorMessage.tsx'
+import { Workbench } from './components/Workbench.tsx'
 import { RuntimeConfigNotice } from './components/RuntimeConfigNotice.tsx'
 import { useSettings } from './config/useSettings.ts'
 import type { IntakeResult, LoadedDocument } from './intake/types.ts'
@@ -27,10 +27,10 @@ export const App: React.FC = () => {
       {result && !result.ok && <IntakeErrorMessage error={result.error} />}
       {result?.ok && <DocumentView loaded={result.value} />}
       {runtime !== null && (
-        <CatalogueSection
-          documentVersion={result?.ok ? result.value.version : null}
-          choice={settings.csafVersion}
-          onChoiceChange={(csafVersion) => edit({ csafVersion })}
+        <Workbench
+          loaded={result?.ok ? result.value : null}
+          settings={settings}
+          onEdit={edit}
         />
       )}
     </main>

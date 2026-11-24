@@ -6,13 +6,33 @@ import {
   toggleTest,
   type Selection,
 } from '../catalogue/selection.ts'
+import { SafeLink } from './SafeLink.tsx'
+import { isNetworkEnabled } from '../catalogue/network.ts'
 import type { Catalogue, CatalogueTest } from '../catalogue/types.ts'
+import type { Capability, ValidatorAdapter } from '../validation/types.ts'
 
 type CatalogueViewProps = {
   catalogue: Catalogue
+  adapter: Pick<ValidatorAdapter, 'capability'>
   selection: Selection
   onChange: (selection: Selection) => void
   onReset: () => void
+}
+
+const CapabilityCell: React.FC<{
+  capability: Capability
+  network?: boolean
+}> = ({ capability, network = false }) => {
+  const { t } = useTranslation()
+  return (
+    <>
+      <span className={`capability capability-${capability.state}`}>
+        {t(`report.capability.${capability.state}`)}
+      </span>
+      {capability.reason && <div className="reason">{capability.reason}</div>}
+      {network && <div className="reason">{t('catalogue.table.network')}</div>}
+    </>
+  )
 }
 
 const SpecificationLink: React.FC<{ test: CatalogueTest }> = ({ test }) => {
@@ -21,19 +41,18 @@ const SpecificationLink: React.FC<{ test: CatalogueTest }> = ({ test }) => {
     return <span className="maintenance">{t('catalogue.link.missing')}</span>
   }
   return (
-    <a
+    <SafeLink
       href={test.specificationUrl}
-      target="_blank"
-      rel="noreferrer"
       aria-label={t('catalogue.link.openLabel', { section: test.section })}
     >
       {t('catalogue.link.open')}
-    </a>
+    </SafeLink>
   )
 }
 
 export const CatalogueView: React.FC<CatalogueViewProps> = ({
   catalogue,
+  adapter,
   selection,
   onChange,
   onReset,
@@ -47,9 +66,9 @@ export const CatalogueView: React.FC<CatalogueViewProps> = ({
       <h3>{catalogue.title}</h3>
       <p>
         {t('catalogue.specification')}:{' '}
-        <a href={catalogue.specificationUrl} target="_blank" rel="noreferrer">
+        <SafeLink href={catalogue.specificationUrl}>
           {catalogue.specificationUrl}
-        </a>
+        </SafeLink>
       </p>
       {catalogue.experimental && <p>{t('catalogue.experimental')}</p>}
       <p>{t(`catalogue.initial.${initialSelectionOrigin(catalogue)}`)}</p>
@@ -81,6 +100,9 @@ export const CatalogueView: React.FC<CatalogueViewProps> = ({
           />{' '}
           {t('catalogue.schema.label')}
         </label>
+        <div data-row-id={schemaCheck.id}>
+          <CapabilityCell capability={adapter.capability(schemaCheck.id)} />
+        </div>
         <p>
           {t('catalogue.schema.note')}
           {schemaCheck.formatValidation === 'required' &&
@@ -88,13 +110,9 @@ export const CatalogueView: React.FC<CatalogueViewProps> = ({
           {schemaCheck.specificationUrl && (
             <>
               {' '}
-              <a
-                href={schemaCheck.specificationUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <SafeLink href={schemaCheck.specificationUrl}>
                 {t('catalogue.link.open')}
-              </a>
+              </SafeLink>
             </>
           )}
         </p>
@@ -119,13 +137,14 @@ export const CatalogueView: React.FC<CatalogueViewProps> = ({
                   <th scope="col">{t('catalogue.table.select')}</th>
                   <th scope="col">{t('catalogue.table.section')}</th>
                   <th scope="col">{t('catalogue.table.title')}</th>
+                  <th scope="col">{t('catalogue.table.support')}</th>
                   <th scope="col">{t('catalogue.link.open')}</th>
                   <th scope="col">{t('catalogue.table.presets')}</th>
                 </tr>
               </thead>
               <tbody>
                 {tests.map((test) => (
-                  <tr key={test.id}>
+                  <tr key={test.id} data-row-id={test.id}>
                     <td>
                       <input
                         type="checkbox"
@@ -147,6 +166,15 @@ export const CatalogueView: React.FC<CatalogueViewProps> = ({
                     </td>
                     <td>{test.section}</td>
                     <td>{test.title}</td>
+                    <td>
+                      <CapabilityCell
+                        capability={adapter.capability(test.id)}
+                        network={isNetworkEnabled(
+                          catalogue.snapshot,
+                          test.section,
+                        )}
+                      />
+                    </td>
                     <td>
                       <SpecificationLink test={test} />
                     </td>
