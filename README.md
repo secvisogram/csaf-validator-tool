@@ -27,6 +27,7 @@ See [docs/spec.md](docs/spec.md) for the full specification (context and scope, 
 - i18next 27 with react-i18next 18 (English UI)
 - Vitest 5 for unit tests, with jsdom and Testing Library (development only) for component interaction tests
 - `@secvisogram/csaf-validator-lib` 3.0.3 (exact pin) as the in-browser validator, run in a module Web Worker
+- yaml 2.9.1 (exact pin) for reading the supplemental hint file
 - Ajv 8 (development only) for validating the catalogue data against its JSON schema in CI
 - oxlint and oxfmt for linting and formatting
 - Playwright for browser tests in latest-stable Chrome and Firefox (planned)
@@ -40,6 +41,8 @@ Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
 - `src/intake/`: document intake (JSON parsing, URL validation, file and URL loading, CSAF version detection) without UI
 - `src/catalogue/`: the test catalogue (data, JSON schema, preset resolution, initial selection, consistency checks) without UI
 - `src/config/`: runtime configuration (loader, strict validation, settings precedence) and the settings hook
+- `src/hints/`: supplemental hints (YAML loader and hook, strict file check, exact matching)
+- `public/hints.yaml`: the hint file, served as a static asset next to the app
 - `src/validation/`: the shared validator model: capability states, run planning, run state, and the report model with its counts, without UI
 - `src/adapters/`: validator adapters. `src/adapters/library/` holds the browser library adapter (worker, runner, capability data)
 - `src/components/`: React components
@@ -183,5 +186,31 @@ The report is table-first. It shows the status counts, a "Needs attention" list,
 Execution states and validator outcomes are kept apart. A row can be not selected, unavailable, queued, running, valid or not valid as reported by the validator, skipped (only if the validator says so), missing from a completed response, an execution error, a run failure, or not run because the run was cancelled. A returned result that cannot be mapped to a catalogue test is shown as uncatalogued with its original ID and details. Only results the validator returned are counted as valid or not valid. The app does not infer a pass or a fail for anything else, and it shows no single verdict.
 
 All text from documents and validators is rendered as escaped text. Links are created only for valid absolute `http:` and `https:` URLs and open with `rel="noopener noreferrer"`. Anything else is shown as plain text.
+
+### Supplemental hints
+
+A report can show supplemental hints: short explanatory texts for a test or for one validator message. They are guidance and never results. They are labelled as such, and they never change a result, a run state, a count or a validity flag.
+
+**The file.** Hints live in [`public/hints.yaml`](public/hints.yaml). Vite copies it to the build output, and the app requests it relative to its own location (`hints.yaml` next to `index.html`), so it also works under a GitHub Pages project path. The file ships without hints (`hints: []`) and documents the format in its comments. Edit it and redeploy to change hints. It needs no code change.
+
+```yaml
+hints:
+  - csafVersion: '2.1' # required: '2.0' or '2.1', quoted
+    section: '6.3.8' # required: a section of that version's catalogue (quoted), or schema
+    text: 'General guidance for this test.' # required
+    validator: csaf-service # optional: one of the four validator values
+    messageCode: SPELLING_ERROR # optional: the validator's stable code
+    messageText: 'Spelling mistakes found in document title.' # optional: the exact message
+```
+
+At most one of `messageCode` and `messageText` may be set. `validator` is optional on every hint. Without it the hint applies to all validators. A hint with a `validator` applies only to runs of that validator and wins over a hint without one at the same level. Unknown fields, wrong types (an unquoted `2.1` is a number and is rejected), empty values, an unknown validator, a section the catalogue of that version does not have, and YAML anchors or aliases are errors. The text of a hint is plain text: HTML, Markdown and links in it are shown as written and are never interpreted. There are no link fields.
+
+**Identity.** A hint is identified by version, section, validator (or none) and message code or text (or none). Two hints with the same identity are an error. The order of the file never decides which hint is shown.
+
+**Matching.** For a validator message the app shows the first match of: a hint with its exact `messageCode`, and a hint with its exact `messageText`. The general hint of a test (no message key) comes after them: it is shown once on the test, not repeated on every message. Strings are compared exactly as they are: case-sensitive, without trimming or normalization, and never by substring, regular expression, fuzzy match or translated UI text. A message whose wording changes silently loses its message-specific hint. The general hint of the test still applies. Only results the validator returned get hints, so a test that is unavailable, missing or not selected, and an uncatalogued result, get none. The schema check uses the section `schema`. No adapter supplies a stable `messageCode` yet, so only `messageText` hints can match for now.
+
+**Invalid files.** The file is checked as a whole when the app starts. Any problem rejects all of it: a YAML error, an invalid hint or a duplicate identity. The app then shows a warning that lists the problems by path (for example `hints[2].section`) and continues without hints. A missing or unreachable file shows the same kind of warning, and so does a request that takes longer than 10 seconds. Validation and reporting never wait for hints and never fail because of them.
+
+**Where they appear.** In the Detailed report the general hint appears in the messages cell of the test, and a code or text hint appears beside its message. In All messages a code or text hint appears beside its message, and the general hint appears once, with the first message of the test. The Summary view shows no hints.
 
 The report belongs to the document it was run on. Loading another document clears it. Settings, selections, results and the document stay in page memory only.
