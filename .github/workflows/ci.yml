@@ -27,3 +27,13 @@ jobs:
         run: npm run test
       - name: Build
         run: npm run build
+      - name: Check the Compose setup
+        run: |
+          cp .env.example .env
+          sh scripts/compose-preflight.sh
+          docker compose config --quiet
+      - name: Build the Compose images and check the nginx configuration
+        run: |
+          docker compose build
+          docker compose run --rm --no-deps --entrypoint nginx app -t
+          docker compose run --rm --no-deps --entrypoint nginx gateway -t
