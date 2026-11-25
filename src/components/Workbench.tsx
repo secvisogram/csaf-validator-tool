@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ADAPTERS } from '../adapters/index.ts'
+import { adaptersFor } from '../adapters/index.ts'
 import { CATALOGUES, resolveSnapshot } from '../catalogue/catalogues.ts'
 import { initialSelection, type Selection } from '../catalogue/selection.ts'
 import type { SnapshotId } from '../catalogue/types.ts'
@@ -33,7 +33,8 @@ export const Workbench: React.FC<WorkbenchProps> = ({
     {},
   )
   const { run, start, cancel, clear } = useRun()
-  const adapter = ADAPTERS[settings.validator]
+  const adapters = adaptersFor(settings.services)
+  const adapter = adapters[settings.validator]
   const resolution = resolveSnapshot(
     settings.csafVersion,
     loaded?.version ?? null,
@@ -123,6 +124,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
         <ReportSection
           run={run}
           {...(hints && { hints })}
+          adapter={adapters[run.request.validator]}
           view={settings.reportView}
           onViewChange={(reportView) => onEdit({ reportView })}
         />

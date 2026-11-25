@@ -6,7 +6,7 @@ import { CATALOGUES } from '../catalogue/catalogues.ts'
 import { REPORT_VIEWS, type ReportView } from '../config/types.ts'
 import { buildReport } from '../validation/report.ts'
 import { runProgress, type RunState } from '../validation/runState.ts'
-import { ADAPTERS } from '../adapters/index.ts'
+import type { ValidatorAdapter } from '../validation/types.ts'
 import { AllMessagesTab } from './report/AllMessagesTab.tsx'
 import { DetailedTab } from './report/DetailedTab.tsx'
 import { SummaryTab } from './report/SummaryTab.tsx'
@@ -14,6 +14,8 @@ import { SummaryTab } from './report/SummaryTab.tsx'
 type ReportSectionProps = {
   run: RunState
   hints?: HintSet
+  /** The adapter the run was made with, not the one selected now. */
+  adapter: ValidatorAdapter
   view: ReportView
   onViewChange: (view: ReportView) => void
 }
@@ -21,14 +23,14 @@ type ReportSectionProps = {
 export const ReportSection: React.FC<ReportSectionProps> = ({
   run,
   hints,
+  adapter,
   view,
   onViewChange,
 }) => {
   const { t } = useTranslation()
   const id = useId()
   const catalogue = CATALOGUES[run.request.snapshot]
-  // The report describes the validator that ran, not the one selected now.
-  const capability = ADAPTERS[run.request.validator].capability
+  const capability = adapter.capability
   const report = useMemo(
     () => buildReport(catalogue, run, capability),
     [catalogue, run, capability],
@@ -79,6 +81,9 @@ export const ReportSection: React.FC<ReportSectionProps> = ({
           </div>
         )}
       </div>
+      {run.reportedValid !== undefined && (
+        <p>{t('report.reportedValid', { value: String(run.reportedValid) })}</p>
+      )}
       <p className="muted">{t('report.noVerdict')}</p>
 
       <div role="tablist" aria-label={t('report.tabs.label')}>

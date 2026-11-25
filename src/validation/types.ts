@@ -13,19 +13,26 @@ export type Capability = {
   state: CapabilityState
   /** Required for `known-unsupported`; explains `not-yet-verified` where known. */
   reason?: string
+  /**
+   * Set for `not-yet-verified` checks the adapter sends anyway because the user
+   * selected them. Support stays unverified and only the actual result is shown.
+   */
+  attemptAllowed?: true
 }
 
 /**
  * One reviewed record in an adapter's capability data. It is kept apart from
  * the catalogue and names the target, execution mode, evidence and version.
  */
-export type CapabilityRecord = {
+export type CapabilityRecord<Target = { module: string; export: string }> = {
   /** Catalogue ID: `<snapshot>/<section>` or `<snapshot>/schema`. */
   id: string
   adapter: ValidatorId
   state: CapabilityState
   /** The adapter function that runs this test. Absent where none exists. */
-  target?: { module: string; export: string }
+  target?: Target
+  /** The identifier the adapter component uses for this test, where it has one. */
+  adapterTestId?: string
   executionMode: string
   /** Version of the adapter component the evidence applies to. */
   version: string
@@ -70,8 +77,12 @@ export type RunEvent =
   | { type: 'test-result'; id: string; outcome: ValidatorOutcome }
   | { type: 'test-error'; id: string; message: string }
   | { type: 'uncatalogued'; result: UncataloguedResult }
-  /** The response is complete. Requested tests without a result are missing. */
-  | { type: 'completed' }
+  /**
+   * The response is complete. Requested tests without a result are missing.
+   * `reportedValid` is the validator's own overall flag, shown as returned and
+   * never used to derive a verdict.
+   */
+  | { type: 'completed'; reportedValid?: boolean }
   /** The request, response, worker or adapter failed as a whole. */
   | { type: 'failed'; message: string }
   | { type: 'cancelled' }
@@ -89,10 +100,18 @@ export type ValidatorAdapter = {
   limitationKeys: string[]
   /** Pinned component version shown beside the limitations, if the adapter has one. */
   componentVersion?: string
+  /** `indeterminate` where the component cannot report progress, because one call does all the work. */
+  progress?: 'indeterminate'
+  /** Set for a remote validator: where the document and request parameters go. */
+  remote?: { endpoint: string }
   capability: (id: string) => Capability
   start: (request: RunRequest, emit: (event: RunEvent) => void) => RunHandle
 }
 
 export function isRunnable(capability: Capability): boolean {
-  return capability.state === 'verified-supported'
+  return (
+    capability.state === 'verified-supported' ||
+    (capability.state === 'not-yet-verified' &&
+      capability.attemptAllowed === true)
+  )
 }

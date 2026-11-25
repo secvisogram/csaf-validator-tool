@@ -30,12 +30,26 @@ describe('SettingsPanel', () => {
       markup.match(
         /Unavailable: This validator is not implemented in this version of the tool yet\./g,
       ) ?? []
-    expect(reasons).toHaveLength(3)
+    expect(reasons).toHaveLength(1)
   })
 
-  it('does not mark the implemented validator as unavailable', () => {
-    const library = markup.split('csaf-validator-service (JavaScript')[0] ?? ''
-    expect(library).not.toContain('Unavailable')
+  it('shows the JavaScript service as unavailable until a URL is entered, then as available', () => {
+    const reason = /Unavailable: Enter a JavaScript service URL/
+    expect(markup).toMatch(reason)
+    const configured = render({
+      ...BUILT_IN_DEFAULTS,
+      services: { javascript: 'http://127.0.0.1:8080', rust: null },
+    })
+    expect(configured).not.toMatch(reason)
+  })
+
+  it('does not mark the implemented validators as unavailable', () => {
+    const entryOf = (label: string) =>
+      markup.split(label)[1]?.split('</label>')[0] ?? ''
+    expect(entryOf('csaf-validator-lib')).not.toContain('Unavailable')
+    expect(entryOf('csaf-rs (WASM), in this browser')).not.toContain(
+      'Unavailable',
+    )
   })
 
   it('offers the CSAF version choice, the report views and both service URLs', () => {

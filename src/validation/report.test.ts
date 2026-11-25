@@ -330,3 +330,28 @@ describe('run state', () => {
     expect(kinds(second)).toEqual(kinds(first))
   })
 })
+
+describe('the overall flag a validator returns', () => {
+  it('is kept exactly as returned and does not change any row', () => {
+    const state = play([
+      {
+        type: 'test-result',
+        id: 'csaf-2.0/6.1.1',
+        outcome: outcome('succeeded'),
+      },
+      { type: 'completed', reportedValid: false },
+    ])
+    expect(state.reportedValid).toBe(false)
+    expect(kindOf(build(state), '6.1.1')).toBe('succeeded')
+  })
+
+  it('is absent when the validator returned none', () => {
+    expect(play([{ type: 'completed' }]).reportedValid).toBeUndefined()
+  })
+
+  it('is not set by a run that failed', () => {
+    expect(
+      play([{ type: 'failed', message: 'x' }]).reportedValid,
+    ).toBeUndefined()
+  })
+})
