@@ -16,6 +16,9 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@csaf-rs/csaf-rs": ["./src/adapters/csafrs/csaf-rs.d.ts"]
+    }
   }
 }

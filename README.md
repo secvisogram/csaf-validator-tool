@@ -12,7 +12,7 @@ Browser-based validation of CSAF security advisories.
 The app offers four validators:
 
 - `csaf-validator-lib`, running in the browser
-- `csaf-rs-wasm` (`@csaf-rs/csaf-rs@0.7.2`), running in the browser in a Web Worker
+- `csaf-rs-wasm` (`@csaf-rs/csaf-rs@0.7.3`), running in the browser in a Web Worker
 - `csaf-validator-service`, an externally operated JavaScript HTTP service
 - `csaf-service`, an optional, externally operated Rust HTTP service
 
@@ -27,6 +27,7 @@ See [docs/spec.md](docs/spec.md) for the full specification (context and scope, 
 - i18next 27 with react-i18next 18 (English UI)
 - Vitest 5 for unit tests, with jsdom and Testing Library (development only) for component interaction tests
 - `@secvisogram/csaf-validator-lib` 3.0.3 (exact pin) as the in-browser validator, run in a module Web Worker
+- `@csaf-rs/csaf-rs` 0.7.3 (exact pin, unpatched) as the in-browser WebAssembly validator, run in a module Web Worker
 - Ajv 8 (development only) for validating the catalogue data against its JSON schema in CI
 - oxlint and oxfmt for linting and formatting
 - Playwright for browser tests in latest-stable Chrome and Firefox (planned)
@@ -41,7 +42,7 @@ Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
 - `src/catalogue/`: the test catalogue (data, JSON schema, preset resolution, initial selection, consistency checks) without UI
 - `src/config/`: runtime configuration (loader, strict validation, settings precedence) and the settings hook
 - `src/validation/`: the shared validator model: capability states, run planning, run state, and the report model with its counts, without UI
-- `src/adapters/`: validator adapters. `src/adapters/library/` holds the browser library adapter (worker, runner, capability data)
+- `src/adapters/`: validator adapters. `src/adapters/library/` holds the browser library adapter (worker, runner, capability data), and `src/adapters/csafrs/` holds the csaf-rs WebAssembly adapter
 - `src/components/`: React components
 - `src/util/`: small helpers such as the safe-link check
 - `scripts/`: maintainer scripts
@@ -140,7 +141,7 @@ The user loads a document, chooses a validator, adjusts the selected tests and r
 
 ### Validators and capabilities
 
-The app offers four validators. Only `csaf-validator-lib` can run in this version. The others are listed as unavailable with the reason until their adapters are added.
+The app offers four validators. `csaf-validator-lib` and `csaf-rs-wasm` can run in this version. The others are listed as unavailable with the reason until their adapters are added.
 
 Every adapter has capability data that is kept apart from the catalogue. Each record names the catalogue test or schema check, the adapter function, the execution mode, the evidence and the component version. A record is in one of three states:
 
@@ -169,6 +170,32 @@ The capability data is `src/adapters/library/capabilities.json`. It is edited by
 A record may carry an `evidence` note, for example a known deviation of the library that a reviewer saw. Without it, the evidence of a verified record is the reviewed mapping itself.
 
 When the library is updated, change the pin, the `version` in `capabilities.json` and the mapping together. The tests fail until the mapping and the installed library agree. Browser behaviour of the worker and the mapped functions is covered by the browser tests, not by a separate script.
+
+### The csaf-rs WebAssembly adapter
+
+`@csaf-rs/csaf-rs` is pinned to exactly 0.7.3 and is not patched. It is loaded only in a module Web Worker, because the 15.6 MB module cannot be instantiated on the main thread in Chrome. The worker is created when a run starts, so the WebAssembly is not downloaded before then. Vite emits the `.wasm` file beside the worker chunk, and both resolve relative to the deployed path.
+
+The package cannot run individual tests. It accepts only a preset, so every run calls `validateCsaf20` or `validateCsaf21` with the `full` preset for the selected CSAF version. The adapter keeps the results of the selected tests and discards the others. The version-specific functions are used because the auto-detecting one would override the version the user chose. The UI says this next to the validator.
+
+The call is synchronous, so there is no per-test progress. The run shows an indeterminate progress bar, and all results appear together. Cancelling terminates the worker and discards the run, so no results are kept. Unlike the library adapter, there are no partial results.
+
+Result mapping:
+
+| csaf-rs status             | Shown as                                                                        |
+| -------------------------- | ------------------------------------------------------------------------------- |
+| `Success`                  | Succeeded                                                                       |
+| `Failure`                  | Failed, with every error, warning and info message and its instance path        |
+| `Skipped`                  | Skipped, as reported by the validator                                           |
+| `NotFound`                 | An execution error for that test, because capability data lists it as supported |
+| An ID not in the catalogue | Uncatalogued, with its original ID and details                                  |
+
+A selected test missing from the response is shown as missing. A malformed response, or an exception from the package, fails the whole run and gives no test outcome. The catalogue ID `<snapshot>/<section>` maps to the package ID `<section>`, and the schema check maps to `schema`.
+
+The capability data is `src/adapters/csafrs/capabilities.json`. It is edited by hand and reviewed like code, with no generator. The 3 CSAF 2.0 tests and 29 CSAF 2.1 tests that csaf-rs 0.7.3 reports as `NotFound` in every run over the OASIS validator test documents are `known-unsupported`. This includes all network-enabled tests. Every other test, and the schema check, is `verified-supported`. For the schema check, the strictness of the package schema is not verified. `capabilities.test.ts` compares the file with the identifiers of the installed package, so a package update fails the tests until the mapping is reviewed again. When updating the pin, also re-run the full set over the OASIS validator test documents to see which tests return `NotFound`, and re-check whether any network-enabled test has gained network behaviour. No test enforces this re-check. CSAF 2.1 support in the package is experimental.
+
+The package ships TypeScript source that does not compile under this repository's strict settings. `tsconfig.json` therefore maps it to a local declaration, `src/adapters/csafrs/csaf-rs.d.ts`, which declares only the part the adapter uses. A test checks that every declared function exists in the package. The fixtures in `src/adapters/csafrs/fixtures/` are unmodified OASIS example documents. A minimal document is not enough, because when it fails the schema check csaf-rs skips most tests.
+
+The Vite build may print the same kind of externalization warnings for Node modules that the package imports only on paths the browser never takes.
 
 ### Network-enabled tests
 
