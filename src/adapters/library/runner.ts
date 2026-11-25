@@ -2,8 +2,8 @@ import type { RunEvent, RunHandle } from '../../validation/types.ts'
 import type { LibraryTestTarget } from './execute.ts'
 import type { WorkerRequest } from './protocol.ts'
 
-export type WorkerLike = {
-  postMessage: (message: WorkerRequest) => void
+export type WorkerLike<Request = WorkerRequest> = {
+  postMessage: (message: Request) => void
   terminate: () => void
   onmessage: ((event: MessageEvent<RunEvent>) => void) | null
   onerror: ((event: ErrorEvent) => void) | null
@@ -35,16 +35,16 @@ export function createLibraryWorker(): WorkerLike {
 }
 
 /**
- * Runs the tests in a module Web Worker and forwards each event as it
+ * Runs a request in a module Web Worker and forwards each event as it
  * arrives. Cancelling terminates the worker at once and ignores anything it
  * may still have posted. A worker that crashes or cannot be loaded fails the run.
  */
-export function startLibraryRun(
-  input: { document: unknown; tests: LibraryTestTarget[] },
+export function startWorkerRun<Request>(
+  input: Request,
   emit: (event: RunEvent) => void,
-  createWorker: () => WorkerLike = createLibraryWorker,
+  createWorker: () => WorkerLike<Request>,
 ): RunHandle {
-  let worker: WorkerLike
+  let worker: WorkerLike<Request>
   let active = true
 
   const stop = () => {
@@ -103,4 +103,12 @@ export function startLibraryRun(
       emit({ type: 'cancelled' })
     },
   }
+}
+
+export function startLibraryRun(
+  input: { document: unknown; tests: LibraryTestTarget[] },
+  emit: (event: RunEvent) => void,
+  createWorker: () => WorkerLike = createLibraryWorker,
+): RunHandle {
+  return startWorkerRun(input, emit, createWorker)
 }

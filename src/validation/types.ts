@@ -26,6 +26,8 @@ export type CapabilityRecord = {
   state: CapabilityState
   /** The adapter function that runs this test. Absent where none exists. */
   target?: { module: string; export: string }
+  /** The identifier the adapter component uses for this test, where it has one. */
+  adapterTestId?: string
   executionMode: string
   /** Version of the adapter component the evidence applies to. */
   version: string
@@ -87,6 +89,8 @@ export type ValidatorAdapter = {
   limitationKeys: string[]
   /** Pinned component version shown beside the limitations, if the adapter has one. */
   componentVersion?: string
+  /** `indeterminate` where the component cannot report progress, because one call does all the work. */
+  progress?: 'indeterminate'
   capability: (id: string) => Capability
   start: (request: RunRequest, emit: (event: RunEvent) => void) => RunHandle
 }

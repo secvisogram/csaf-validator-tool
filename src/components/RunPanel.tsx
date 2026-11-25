@@ -165,13 +165,24 @@ export const RunPanel: React.FC<RunPanelProps> = ({
           <button type="button" onClick={onCancel}>
             {t('run.cancel')}
           </button>
-          <p>{t('run.cancelNote')}</p>
-          {progress && (
-            <p>
-              <progress value={progress.done} max={progress.total} />{' '}
-              {t('run.progress', progress)}
-            </p>
-          )}
+          <p>
+            {t(
+              adapter.progress === 'indeterminate'
+                ? 'run.cancelNoteDiscarded'
+                : 'run.cancelNote',
+            )}
+          </p>
+          {progress &&
+            (adapter.progress === 'indeterminate' ? (
+              <p>
+                <progress /> {t('run.progressIndeterminate')}
+              </p>
+            ) : (
+              <p>
+                <progress value={progress.done} max={progress.total} />{' '}
+                {t('run.progress', progress)}
+              </p>
+            ))}
         </>
       )}
     </section>

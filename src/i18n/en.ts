@@ -61,6 +61,17 @@ export default {
         'Only tests with verified support run. A selected test that the library does not implement, cannot run in a browser or has no verified support stays selected and is shown as unavailable.',
       csaf21Experimental: 'CSAF 2.1 support in this library is experimental.',
     },
+    csafRs: {
+      runsLocally:
+        'Runs in this browser in a Web Worker. The document stays on this page. The 15.6 MB WebAssembly module loads when a run starts.',
+      fullSetFiltered:
+        'csaf-rs cannot run individual tests. It always runs the complete set for the selected CSAF version, and results for tests you did not select are discarded.',
+      onlyVerified:
+        'Only tests with verified support are shown with a result. A selected test that csaf-rs does not implement, or that has no verified support, stays selected and is shown as unavailable.',
+      noProgress:
+        'The validation is one call, so there is no per-test progress. Cancelling stops the worker, and no results of that run are kept.',
+      csaf21Experimental: 'CSAF 2.1 support in this package is experimental.',
+    },
   },
   settings: {
     heading: 'Settings for this session',
@@ -105,7 +116,11 @@ export default {
     cancel: 'Cancel run',
     cancelNote:
       'Cancelling stops the validation worker immediately. Results that were already returned are kept.',
+    cancelNoteDiscarded:
+      'Cancelling stops the validation worker immediately. This validator returns all results together, so no results of this run are kept.',
     progress: '{{done}} of {{total}} tests finished',
+    progressIndeterminate:
+      'The validator is running. It cannot report progress, and all results appear together when it finishes.',
     network: {
       heading: 'Some selected tests may access external resources',
       body: 'These tests may contact external servers. They run only after you confirm.',

@@ -134,6 +134,25 @@ describe('RunPanel during a run', () => {
   })
 })
 
+describe('RunPanel during a run of an adapter without progress', () => {
+  const markup = render({
+    run: startRun(FIXTURE_REQUEST),
+    adapter: { ...FIXTURE_ADAPTER, progress: 'indeterminate' },
+  })
+
+  it('shows that the run is in progress without counting finished tests', () => {
+    expect(markup).toContain('The validator is running')
+    expect(markup).not.toContain('tests finished')
+    expect(markup).toMatch(/<progress>/)
+  })
+
+  it('still offers cancel, and says that cancelling keeps no results', () => {
+    expect(markup).toContain('Cancel run')
+    expect(markup).toContain('no results of this run are kept')
+    expect(markup).not.toContain('Results that were already returned are kept')
+  })
+})
+
 describe('RunPanel with network-enabled tests selected', () => {
   it('does not start anything on render and shows no confirmation until asked', () => {
     let started = 0
