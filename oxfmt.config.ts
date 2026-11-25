@@ -1,4 +1,5 @@
 export default {
+  ignorePatterns: ['tools/**'],
   bracketSpacing: true,
   singleQuote: true,
   semi: false,

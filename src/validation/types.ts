@@ -98,6 +98,8 @@ export type ValidatorAdapter = {
   availability: AdapterAvailability
   /** i18n keys of the adapter and version limitations shown before a run. */
   limitationKeys: string[]
+  /** i18n keys of notes shown next to the results, where the validator loses information. */
+  resultNoteKeys?: string[]
   /** Pinned component version shown beside the limitations, if the adapter has one. */
   componentVersion?: string
   /** `indeterminate` where the component cannot report progress, because one call does all the work. */

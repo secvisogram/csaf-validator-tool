@@ -2,35 +2,15 @@ import type { ValidatorId } from '../config/types.ts'
 import type { ValidatorAdapter } from '../validation/types.ts'
 import { csafRsAdapter } from './csafrs/adapter.ts'
 import { libraryAdapter } from './library/adapter.ts'
+import { rustServiceAdapter } from './rustservice/adapter.ts'
 import { serviceAdapter } from './service/adapter.ts'
 
-/** A validator the app offers but does not implement yet. It is shown as unavailable with the reason. */
-function notImplemented(id: ValidatorId): ValidatorAdapter {
-  return {
-    id,
-    availability: { available: false, reasonKey: 'validators.notImplemented' },
-    limitationKeys: [],
-    capability: () => ({
-      state: 'not-yet-verified',
-      reason:
-        'This validator is not implemented in this version of the tool yet.',
-    }),
-    start: (_request, emit) => {
-      emit({
-        type: 'failed',
-        message: 'This validator is not implemented.',
-      })
-      return { cancel: () => {} }
-    },
-  }
-}
-
 const LIBRARY = libraryAdapter()
-const RUST = notImplemented('csaf-service')
 const WASM = csafRsAdapter()
 
 let cached: {
   javascript: string | null
+  rust: string | null
   adapters: Record<ValidatorId, ValidatorAdapter>
 } | null = null
 
@@ -41,15 +21,20 @@ let cached: {
  */
 export function adaptersFor(services: {
   javascript: string | null
+  rust: string | null
 }): Record<ValidatorId, ValidatorAdapter> {
-  if (cached?.javascript !== services.javascript) {
+  if (
+    cached?.javascript !== services.javascript ||
+    cached?.rust !== services.rust
+  ) {
     cached = {
       javascript: services.javascript,
+      rust: services.rust,
       adapters: {
         'csaf-validator-lib': LIBRARY,
         'csaf-rs-wasm': WASM,
         'csaf-validator-service': serviceAdapter({ url: services.javascript }),
-        'csaf-service': RUST,
+        'csaf-service': rustServiceAdapter({ url: services.rust }),
       },
     }
   }

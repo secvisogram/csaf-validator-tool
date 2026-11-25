@@ -72,6 +72,18 @@ export default {
         'The validation is one call, so there is no per-test progress. Cancelling stops the worker, and no results of that run are kept.',
       csaf21Experimental: 'CSAF 2.1 support in this package is experimental.',
     },
+    rust: {
+      noUrl:
+        'Enter a Rust service URL in the service URLs setting to use this validator.',
+      flattenedResults:
+        'The Rust service returns flattened results. It cannot tell a passed test from a skipped test or from a test it does not implement, and a test with only warnings or information counts as valid. Results are shown as returned and are never reconstructed, and this app never shows a skipped result for this service.',
+      versionFromDocument:
+        'The service validates by the version the document declares and ignores any other choice. If the selected version differs from the declared one, nothing is sent and the run fails with that reason.',
+      onlyVerified:
+        'Only tests the pinned build implements are sent. Any other selected test, including network-enabled tests and tests with no verified support, stays selected and is shown as unavailable, because the service would show it as valid.',
+      verifiedBuild:
+        'Test names and the response mapping were verified against csaf-rs {{version}}, built from source. The configured service may be a different build.',
+    },
     service: {
       noUrl:
         'Enter a JavaScript service URL in the service URLs setting to use this validator.',
@@ -177,6 +189,8 @@ export default {
         '{{returned}} of {{selected}} selected tests returned a result before the run failed.',
     },
     failure: 'Failure: {{message}}',
+    reportedValidFlattened:
+      'For this validator the flag is computed from flattened results, so it does not distinguish passed, skipped and unimplemented tests.',
     reportedValid:
       "The validator reported isValid: {{value}} for the whole request. This is the validator's own flag, shown as returned. It is not a verdict of this app.",
     noVerdict:
