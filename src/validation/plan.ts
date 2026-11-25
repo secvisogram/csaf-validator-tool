@@ -1,36 +1,35 @@
 import { isNetworkEnabled } from '../catalogue/network.ts'
 import type { Selection } from '../catalogue/selection.ts'
 import type { Catalogue, CatalogueTest } from '../catalogue/types.ts'
-import {
-  isRunnable,
-  type Capability,
-  type RunRequest,
-  type ValidatorAdapter,
-} from './types.ts'
+import type { RunRequest, UnavailableTest, ValidatorAdapter } from './types.ts'
 
 export type SelectionAnalysis = {
   /** Selected IDs the adapter can run (schema check first, then catalogue order). */
   runnable: string[]
-  /** Selected IDs the adapter cannot run. They stay selected. */
-  unavailable: { id: string; capability: Capability }[]
+  /** Selected IDs that cannot run in this environment. They stay selected. */
+  unavailable: UnavailableTest[]
   /** Runnable selected tests that may access external resources. */
   networkTests: CatalogueTest[]
 }
 
-/** Splits the user's selection by what the adapter can run. Nothing is dropped. */
+/**
+ * Splits the user's selection by what can be sent to the adapter. Nothing is
+ * dropped. A test the validator does not implement is not known here: it is
+ * found when the run starts and is not part of the unavailable tests.
+ */
 export function analyzeSelection(
   catalogue: Catalogue,
   selection: Selection,
-  adapter: Pick<ValidatorAdapter, 'capability'>,
+  adapter: Pick<ValidatorAdapter, 'unavailableReason'>,
 ): SelectionAnalysis {
   const runnable: string[] = []
   const unavailable: SelectionAnalysis['unavailable'] = []
   const networkTests: CatalogueTest[] = []
 
   const consider = (id: string) => {
-    const capability = adapter.capability(id)
-    if (isRunnable(capability)) runnable.push(id)
-    else unavailable.push({ id, capability })
+    const reason = adapter.unavailableReason?.(id)
+    if (reason === undefined) runnable.push(id)
+    else unavailable.push({ id, reason })
   }
 
   if (selection.schema) consider(catalogue.schemaCheck.id)
@@ -89,6 +88,7 @@ export function planRun(input: {
       snapshot: catalogue.snapshot,
       runnable: analysis.runnable,
       selected,
+      unavailable: analysis.unavailable,
       document,
     },
   }

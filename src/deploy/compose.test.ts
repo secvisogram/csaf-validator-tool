@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { parse } from 'yaml'
 import { describe, expect, it } from 'vitest'
-import capabilities from '../adapters/service/capabilities.json'
+import reference from '../adapters/service/reference.json'
 
 import { read, root } from './files.ts'
 
@@ -67,8 +67,8 @@ describe('compose.yaml', () => {
     expect(validator).not.toHaveProperty('healthcheck')
   })
 
-  it('pins the validator image the service adapter was reviewed against', () => {
-    expect(compose.services['validator-js']?.image).toBe(capabilities.image)
+  it('pins the validator image to the reference build of the service adapter', () => {
+    expect(compose.services['validator-js']?.image).toBe(reference.image)
   })
 
   it('pins the validator image by an immutable digest', () => {

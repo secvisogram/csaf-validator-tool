@@ -30,11 +30,7 @@ export const ReportSection: React.FC<ReportSectionProps> = ({
   const { t } = useTranslation()
   const id = useId()
   const catalogue = CATALOGUES[run.request.snapshot]
-  const capability = adapter.capability
-  const report = useMemo(
-    () => buildReport(catalogue, run, capability),
-    [catalogue, run, capability],
-  )
+  const report = useMemo(() => buildReport(catalogue, run), [catalogue, run])
   // The hints of the validator and version that ran, not of the current selection.
   const hint = useMemo(
     () =>
@@ -124,11 +120,7 @@ export const ReportSection: React.FC<ReportSectionProps> = ({
           <AllMessagesTab report={report} {...(hint && { hint })} />
         )}
         {view === 'detailed' && (
-          <DetailedTab
-            report={report}
-            capability={capability}
-            {...(hint && { hint })}
-          />
+          <DetailedTab report={report} {...(hint && { hint })} />
         )}
       </div>
     </section>

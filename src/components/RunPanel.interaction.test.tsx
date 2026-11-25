@@ -47,6 +47,9 @@ describe('starting a run', () => {
     expect(onStart.mock.calls[0]?.[0]).toMatchObject({
       runnable: ['csaf-2.0/schema', 'csaf-2.0/6.1.1'],
       selected: ['csaf-2.0/schema', 'csaf-2.0/6.1.1', 'csaf-2.0/6.3.7'],
+      unavailable: [
+        { id: 'csaf-2.0/6.3.7', reason: expect.stringContaining('fixture') },
+      ],
     })
   })
 
@@ -195,21 +198,9 @@ describe('a remote validator', () => {
     ).toBeTruthy()
   })
 
-  it('discloses that checks without verified support are sent anyway', () => {
-    const attempting: ValidatorAdapter = {
-      ...remote,
-      capability: (id) =>
-        id === 'csaf-2.0/6.1.2'
-          ? { state: 'not-yet-verified', attemptAllowed: true }
-          : { state: 'verified-supported' },
-    }
-    setupRemote(['6.1.1', '6.1.2'], { adapter: attempting })
-    expect(screen.getByText(/1 selected check is not verified/)).toBeTruthy()
-  })
-
-  it('does not mention unverified checks when everything sent is verified', () => {
-    setupRemote(['6.1.1'])
-    expect(screen.queryByText(/not verified for this service/)).toBeNull()
+  it('makes no claim that a selected check is supported', () => {
+    setupRemote(['6.1.1', '6.1.2'])
+    expect(screen.queryByText(/not verified/)).toBeNull()
   })
 
   it('shows the validator as unavailable, with no destination, until a URL is entered', () => {
@@ -217,7 +208,6 @@ describe('a remote validator', () => {
       adapter: {
         id: remote.id,
         limitationKeys: remote.limitationKeys,
-        capability: remote.capability,
         start: remote.start,
         availability: {
           available: false,

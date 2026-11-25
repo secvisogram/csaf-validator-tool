@@ -1,45 +1,6 @@
 import type { SnapshotId } from '../catalogue/types.ts'
 import type { ValidatorId } from '../config/types.ts'
 
-export const CAPABILITY_STATES = [
-  'verified-supported',
-  'known-unsupported',
-  'not-yet-verified',
-] as const
-export type CapabilityState = (typeof CAPABILITY_STATES)[number]
-
-/** What an adapter can say about one catalogue test or schema check. */
-export type Capability = {
-  state: CapabilityState
-  /** Required for `known-unsupported`; explains `not-yet-verified` where known. */
-  reason?: string
-  /**
-   * Set for `not-yet-verified` checks the adapter sends anyway because the user
-   * selected them. Support stays unverified and only the actual result is shown.
-   */
-  attemptAllowed?: true
-}
-
-/**
- * One reviewed record in an adapter's capability data. It is kept apart from
- * the catalogue and names the target, execution mode, evidence and version.
- */
-export type CapabilityRecord<Target = { module: string; export: string }> = {
-  /** Catalogue ID: `<snapshot>/<section>` or `<snapshot>/schema`. */
-  id: string
-  adapter: ValidatorId
-  state: CapabilityState
-  /** The adapter function that runs this test. Absent where none exists. */
-  target?: Target
-  /** The identifier the adapter component uses for this test, where it has one. */
-  adapterTestId?: string
-  executionMode: string
-  /** Version of the adapter component the evidence applies to. */
-  version: string
-  evidence: string
-  reason?: string
-}
-
 /** A message returned by a validator, kept exactly as returned. */
 export type ValidatorMessage = {
   message: string
@@ -62,13 +23,18 @@ export type UncataloguedResult = {
   details: unknown
 }
 
+/** A selected test that cannot run in this environment, with the reason. It is not an implementation gap. */
+export type UnavailableTest = { id: string; reason: string }
+
 export type RunRequest = {
   validator: ValidatorId
   snapshot: SnapshotId
-  /** The exact selected tests (and schema check) the adapter can run, in catalogue order. */
+  /** The exact selected tests (and schema check) sent to the adapter, in catalogue order. */
   runnable: string[]
   /** Everything the user selected, including what the adapter cannot run. */
   selected: string[]
+  /** The selected tests that are not in `runnable`, each with its reason. */
+  unavailable: UnavailableTest[]
   document: Record<string, unknown>
 }
 
@@ -76,6 +42,8 @@ export type RunEvent =
   | { type: 'test-started'; id: string }
   | { type: 'test-result'; id: string; outcome: ValidatorOutcome }
   | { type: 'test-error'; id: string; message: string }
+  /** The validator does not implement the test: it has no function for it or reports it as not found. */
+  | { type: 'test-gap'; id: string }
   | { type: 'uncatalogued'; result: UncataloguedResult }
   /**
    * The response is complete. Requested tests without a result are missing.
@@ -100,20 +68,13 @@ export type ValidatorAdapter = {
   limitationKeys: string[]
   /** i18n keys of notes shown next to the results, where the validator loses information. */
   resultNoteKeys?: string[]
-  /** Pinned component version shown beside the limitations, if the adapter has one. */
+  /** The shipped version of a local validator, or the reference build of a remote one. Shown beside the limitations, if the adapter has one. */
   componentVersion?: string
   /** `indeterminate` where the component cannot report progress, because one call does all the work. */
   progress?: 'indeterminate'
   /** Set for a remote validator: where the document and request parameters go. */
   remote?: { endpoint: string }
-  capability: (id: string) => Capability
+  /** Why a selected test cannot run in this environment, or `undefined` if the adapter can be asked to run it. */
+  unavailableReason?: (id: string) => string | undefined
   start: (request: RunRequest, emit: (event: RunEvent) => void) => RunHandle
-}
-
-export function isRunnable(capability: Capability): boolean {
-  return (
-    capability.state === 'verified-supported' ||
-    (capability.state === 'not-yet-verified' &&
-      capability.attemptAllowed === true)
-  )
 }

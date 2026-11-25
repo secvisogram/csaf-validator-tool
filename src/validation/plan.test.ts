@@ -1,13 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { CATALOGUES } from '../catalogue/catalogues.ts'
 import { initialSelection } from '../catalogue/selection.ts'
-import { libraryCapability } from '../adapters/library/capabilities.ts'
-import { serviceCapability } from '../adapters/service/capabilities.ts'
 import { analyzeSelection, planRun } from './plan.ts'
 import {
   FIXTURE_ADAPTER,
   FIXTURE_CATALOGUE,
   FIXTURE_DOCUMENT,
+  FIXTURE_UNAVAILABLE_REASON,
 } from './fixtures.ts'
 import type { ValidatorAdapter } from './types.ts'
 
@@ -23,14 +22,30 @@ describe('analyzeSelection', () => {
       select(['6.1.1', '6.3.7', '6.3.8']),
       FIXTURE_ADAPTER,
     )
-    expect(analysis.runnable).toEqual(['csaf-2.0/schema', 'csaf-2.0/6.1.1'])
-    expect(analysis.unavailable.map((entry) => entry.id)).toEqual([
-      'csaf-2.0/6.3.7',
+    expect(analysis.runnable).toEqual([
+      'csaf-2.0/schema',
+      'csaf-2.0/6.1.1',
       'csaf-2.0/6.3.8',
     ])
-    expect(analysis.unavailable.map((entry) => entry.capability.state)).toEqual(
-      ['known-unsupported', 'not-yet-verified'],
+    expect(analysis.unavailable).toEqual([
+      { id: 'csaf-2.0/6.3.7', reason: FIXTURE_UNAVAILABLE_REASON },
+    ])
+  })
+
+  it('sends a test the validator may not implement, because that is only found by the run', () => {
+    const analysis = analyzeSelection(
+      FIXTURE_CATALOGUE,
+      select(['6.3.8'], false),
+      FIXTURE_ADAPTER,
     )
+    expect(analysis.runnable).toEqual(['csaf-2.0/6.3.8'])
+    expect(analysis.unavailable).toEqual([])
+  })
+
+  it('sends everything when the adapter names no unavailable test', () => {
+    const analysis = analyzeSelection(FIXTURE_CATALOGUE, select(['6.3.7']), {})
+    expect(analysis.runnable).toEqual(['csaf-2.0/schema', 'csaf-2.0/6.3.7'])
+    expect(analysis.unavailable).toEqual([])
   })
 
   it('keeps catalogue order, with the schema check first', () => {
@@ -81,10 +96,7 @@ describe('analyzeSelection', () => {
   it('treats a network-enabled test the adapter cannot run as unavailable, not as network', () => {
     const adapter: ValidatorAdapter = {
       ...FIXTURE_ADAPTER,
-      capability: (id) =>
-        id === 'csaf-2.0/6.3.6'
-          ? { state: 'not-yet-verified', reason: 'x' }
-          : { state: 'verified-supported' },
+      unavailableReason: (id) => (id === 'csaf-2.0/6.3.6' ? 'x' : undefined),
     }
     const analysis = analyzeSelection(
       FIXTURE_CATALOGUE,
@@ -115,6 +127,9 @@ describe('planRun', () => {
         snapshot: 'csaf-2.0',
         runnable: ['csaf-2.0/schema', 'csaf-2.0/6.1.1'],
         selected: ['csaf-2.0/schema', 'csaf-2.0/6.1.1', 'csaf-2.0/6.3.7'],
+        unavailable: [
+          { id: 'csaf-2.0/6.3.7', reason: FIXTURE_UNAVAILABLE_REASON },
+        ],
         document: FIXTURE_DOCUMENT,
       },
     })
@@ -139,9 +154,9 @@ describe('planRun', () => {
   })
 
   it('has nothing to run when no selected test is runnable', () => {
-    expect(
-      planRun({ ...base, selection: select(['6.3.7', '6.3.8'], false) }),
-    ).toEqual({ status: 'nothing-to-run' })
+    expect(planRun({ ...base, selection: select(['6.3.7'], false) })).toEqual({
+      status: 'nothing-to-run',
+    })
     expect(planRun({ ...base, selection: select([], false) })).toEqual({
       status: 'nothing-to-run',
     })
@@ -183,17 +198,13 @@ describe('network classification', () => {
       const classified = catalogue.tests
         .filter((test) => !initial.tests.has(test.id))
         .map((test) => test.section)
-      const adapter: ValidatorAdapter = {
-        ...FIXTURE_ADAPTER,
-        capability: () => ({ state: 'verified-supported' }),
-      }
       const analysis = analyzeSelection(
         catalogue,
         {
           tests: new Set(catalogue.tests.map((test) => test.id)),
           schema: false,
         },
-        adapter,
+        {},
       )
       expect(analysis.networkTests.map((test) => test.section)).toEqual(
         classified,
@@ -202,13 +213,12 @@ describe('network classification', () => {
   })
 })
 
-describe('an explicit CSAF 2.1 selection with the JavaScript service', () => {
+describe('an explicit CSAF 2.1 selection', () => {
   const catalogue = CATALOGUES['csaf-2.1-csd04']
-  const service: ValidatorAdapter = {
+  const adapter: ValidatorAdapter = {
     id: 'csaf-validator-service',
     availability: { available: true },
     limitationKeys: [],
-    capability: serviceCapability,
     start: () => ({ cancel: () => {} }),
   }
   const selection = {
@@ -216,28 +226,14 @@ describe('an explicit CSAF 2.1 selection with the JavaScript service', () => {
     schema: true,
   }
 
-  it('runs the not-yet-verified checks that have a service test name, without a support gate', () => {
-    const analysis = analyzeSelection(catalogue, selection, service)
+  it('is sent like any other selection, with no test list consulted', () => {
+    const analysis = analyzeSelection(catalogue, selection, adapter)
     expect(analysis.runnable).toEqual([
       'csaf-2.1-csd04/schema',
       'csaf-2.1-csd04/6.1.1',
-    ])
-  })
-
-  it('keeps a check without a service test name selected as unavailable', () => {
-    const analysis = analyzeSelection(catalogue, selection, service)
-    expect(analysis.unavailable.map((entry) => entry.id)).toEqual([
       'csaf-2.1-csd04/6.1.48',
     ])
-  })
-
-  it('does not extend the exception to the library, which still runs only verified checks', () => {
-    const analysis = analyzeSelection(catalogue, selection, {
-      capability: libraryCapability,
-    })
-    for (const id of analysis.runnable) {
-      expect(libraryCapability(id).state).toBe('verified-supported')
-    }
+    expect(analysis.unavailable).toEqual([])
   })
 
   it('still asks for confirmation of network-enabled tests', () => {
@@ -247,7 +243,7 @@ describe('an explicit CSAF 2.1 selection with the JavaScript service', () => {
         tests: new Set(['csaf-2.1-csd04/6.2.55']),
         schema: false,
       },
-      adapter: service,
+      adapter,
       document: FIXTURE_DOCUMENT,
       networkConfirmed: false,
     })

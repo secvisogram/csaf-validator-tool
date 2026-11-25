@@ -101,20 +101,12 @@ td {
   color: #555;
 }
 
-.capability {
+.availability {
   font-size: 0.85rem;
   font-weight: 600;
 }
 
-.capability-verified-supported {
-  color: #1b5e20;
-}
-
-.capability-known-unsupported {
-  color: #8a1c1c;
-}
-
-.capability-not-yet-verified {
+.availability-unavailable {
   color: #8a4b00;
 }
 
@@ -141,6 +133,7 @@ td {
 }
 
 .badge-unavailable,
+.badge-implementation-gap,
 .badge-missing,
 .badge-cancelled,
 .badge-skipped,

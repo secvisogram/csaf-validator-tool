@@ -5,7 +5,6 @@ import { describe, expect, it, vi, type Mock } from 'vitest'
 import { CATALOGUES } from '../../catalogue/catalogues.ts'
 import type { SnapshotId } from '../../catalogue/types.ts'
 import type { RunEvent } from '../../validation/types.ts'
-import { CSAF_RS_RECORDS } from './capabilities.ts'
 import {
   createValidate,
   executeCsafRs,
@@ -163,16 +162,35 @@ describe('mapping returned statuses', () => {
     ])
   })
 
-  it('turns an unexpected NotFound into an execution error for that test, never a pass or a skip', () => {
+  it('reports a selected test the package reports as NotFound as an implementation gap, never a pass, a skip or an error', () => {
     const { events } = run(
       () => response(result('6.1.1', { tag: 'NotFound' }), success('6.1.2')),
       input(['csaf-2.0/6.1.1', 'csaf-2.0/6.1.2']),
     )
-    const error = events.find((event) => event.type === 'test-error')
-    expect(error).toMatchObject({ id: 'csaf-2.0/6.1.1' })
-    expect(error?.type === 'test-error' && error.message).toMatch(/NotFound/)
+    expect(events.filter((event) => event.type === 'test-gap')).toEqual([
+      { type: 'test-gap', id: 'csaf-2.0/6.1.1' },
+    ])
+    expect(events.some((event) => event.type === 'test-error')).toBe(false)
     expect(results(events).map((event) => event.id)).toEqual(['csaf-2.0/6.1.2'])
     expect(events.at(-1)).toEqual({ type: 'completed' })
+  })
+
+  it('does not report a gap for a NotFound of a test that was not selected', () => {
+    const { events } = run(
+      () => response(result('6.1.1', { tag: 'NotFound' }), success('6.1.2')),
+      input(['csaf-2.0/6.1.2']),
+    )
+    expect(events.some((event) => event.type === 'test-gap')).toBe(false)
+  })
+
+  it('reports a gap for the schema check when the package reports it as NotFound', () => {
+    const { events } = run(
+      () => response(result('schema', { tag: 'NotFound' })),
+      input(['csaf-2.0/schema']),
+    )
+    expect(events.filter((event) => event.type === 'test-gap')).toEqual([
+      { type: 'test-gap', id: 'csaf-2.0/schema' },
+    ])
   })
 })
 
@@ -324,27 +342,40 @@ describe.each([
     catalogue.schemaCheck.id,
     ...catalogue.tests.map((test) => test.id),
   ]
-  const supported = catalogued.filter(
-    (id) => CSAF_RS_RECORDS.get(id)?.state === 'verified-supported',
-  )
   const events: RunEvent[] = []
   executeCsafRs(
-    { document, snapshot, tests: supported, catalogued },
+    { document, snapshot, tests: catalogued, catalogued },
     { validate: createValidate(CsafFfi) },
     (event) => events.push(event),
   )
+  const notFound = (
+    version === '2.0'
+      ? CsafFfi.validateCsaf20(JSON.stringify(document), 'full')
+      : CsafFfi.validateCsaf21(JSON.stringify(document), 'full')
+  ).testResults
+    .filter((entry) => entry.status.tag === 'NotFound')
+    .map((entry) => `${snapshot}/${entry.testId}`)
+  const gaps = events.flatMap((event) =>
+    event.type === 'test-gap' ? [event.id] : [],
+  )
 
-  it('completes and returns an outcome or error for every verified-supported test', () => {
+  it('completes and answers every selected test the package returned, with an outcome or a gap', () => {
     expect(events.at(-1)).toEqual({ type: 'completed' })
-    const answered = events
-      .filter(
-        (event) => event.type === 'test-result' || event.type === 'test-error',
-      )
-      .map((event) => event.id)
-    expect(answered.toSorted()).toEqual(supported.toSorted())
+    const answered = events.flatMap((event) =>
+      event.type === 'test-result' || event.type === 'test-gap'
+        ? [event.id]
+        : [],
+    )
+    expect(new Set(answered).size).toBe(answered.length)
+    for (const id of answered) expect(catalogued).toContain(id)
   })
 
-  it('never reports an execution error or an uncatalogued result for a verified-supported test', () => {
+  it('reports exactly the tests the package answers NotFound for as gaps', () => {
+    expect(gaps.toSorted()).toEqual(notFound.toSorted())
+    expect(gaps.length).toBeGreaterThan(0)
+  })
+
+  it('never reports an execution error or an uncatalogued result', () => {
     expect(events.some((event) => event.type === 'test-error')).toBe(false)
     expect(events.some((event) => event.type === 'uncatalogued')).toBe(false)
   })

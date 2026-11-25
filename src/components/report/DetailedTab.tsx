@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next'
 import type { HintLookup } from '../../hints/match.ts'
-import type { Capability } from '../../validation/types.ts'
 import {
   rowMessages,
   type Report,
@@ -18,9 +17,8 @@ import { Uncatalogued } from './Uncatalogued.tsx'
 
 export const DetailedTab: React.FC<{
   report: Report
-  capability: (id: string) => Capability
   hint?: HintLookup
-}> = ({ report, capability, hint }) => {
+}> = ({ report, hint }) => {
   const { t } = useTranslation()
   const title = useRowTitle()
 
@@ -32,7 +30,6 @@ export const DetailedTab: React.FC<{
             <th scope="col">{t('report.table.section')}</th>
             <th scope="col">{t('report.table.test')}</th>
             <th scope="col">{t('report.table.selected')}</th>
-            <th scope="col">{t('catalogue.table.support')}</th>
             <th scope="col">{t('report.table.status')}</th>
             <th scope="col">{t('report.table.messages')}</th>
           </tr>
@@ -54,7 +51,6 @@ export const DetailedTab: React.FC<{
                 <td>
                   {row.selected ? t('report.table.yes') : t('report.table.no')}
                 </td>
-                <td>{t(`report.capability.${capability(row.id).state}`)}</td>
                 <td>
                   <StatusBadge kind={row.status.kind} />
                 </td>

@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import type { Capability } from '../../validation/types.ts'
 import {
   rowMessages,
   type ReportMessage,
@@ -66,12 +65,8 @@ export const StatusNote: React.FC<{ row: ReportRow }> = ({ row }) => {
   return (
     <>
       {t(`report.note.${status.kind}`)}
-      {status.kind === 'unavailable' && (
-        <>
-          {' '}
-          {t(`report.capability.${status.capability.state}`)}
-          {status.capability.reason && <>: {status.capability.reason}</>}
-        </>
+      {status.kind === 'unavailable' && status.reason !== '' && (
+        <> {status.reason}</>
       )}
       {(status.kind === 'execution-error' || status.kind === 'run-failed') &&
         status.message !== '' && <> {status.message}</>}
@@ -81,11 +76,4 @@ export const StatusNote: React.FC<{ row: ReportRow }> = ({ row }) => {
 
 export function hasMessages(row: ReportRow): boolean {
   return rowMessages(row.status).length > 0
-}
-
-export function capabilityLabel(
-  capability: Capability,
-  t: (key: string) => string,
-) {
-  return t(`report.capability.${capability.state}`)
 }

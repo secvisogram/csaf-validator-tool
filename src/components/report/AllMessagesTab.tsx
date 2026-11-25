@@ -43,6 +43,7 @@ export const AllMessagesTab: React.FC<{
     const kind = row.status.kind
     if (
       kind === 'unavailable' ||
+      kind === 'implementation-gap' ||
       kind === 'missing' ||
       kind === 'execution-error' ||
       kind === 'run-failed' ||

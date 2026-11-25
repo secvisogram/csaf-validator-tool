@@ -5,11 +5,8 @@ import {
   type RemoteServiceOptions,
   type RemoteServiceProfile,
 } from '../service/remote.ts'
-import {
-  RUST_CAPABILITY_FILE,
-  rustCapability,
-  rustTestName,
-} from './capabilities.ts'
+import { bareSection } from '../naming.ts'
+import reference from './reference.json'
 
 /**
  * The service validates by the version the document declares and ignores any
@@ -33,16 +30,11 @@ const RUST_SERVICE: RemoteServiceProfile = {
   limitationKeys: [
     'validators.rust.flattenedResults',
     'validators.rust.versionFromDocument',
-    'validators.rust.onlyVerified',
     'validators.rust.verifiedBuild',
   ],
   resultNoteKeys: ['validators.rust.flattenedResults'],
-  componentVersion: RUST_CAPABILITY_FILE.tag,
-  capability: rustCapability,
-  testName: (id) =>
-    rustCapability(id).state === 'verified-supported'
-      ? rustTestName(id)
-      : undefined,
+  componentVersion: reference.tag,
+  testName: bareSection,
   noUrlReasonKey: 'validators.rust.noUrl',
   noUrlMessage: 'No Rust service URL is configured, so nothing was sent.',
   refuse: refuseVersionMismatch,

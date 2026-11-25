@@ -112,10 +112,13 @@ describe('the Rust service in the app', () => {
     const body = JSON.parse(String(init.body))
     expect(body.tests[0]).toEqual({ name: 'schema', type: 'test' })
     expect(body.tests).toContainEqual({ name: '6.1.1', type: 'test' })
-    expect(body.tests).not.toContainEqual({ name: '6.3.8', type: 'test' })
+    expect(body.tests).toContainEqual({ name: '6.3.8', type: 'test' })
     expect(rowStatus('csaf-2.0/6.1.1')).toBe('succeeded')
     expect(rowStatus('csaf-2.0/6.1.2')).toBe('missing')
     expect(document.querySelector('tr[data-status="skipped"]')).toBeNull()
+    expect(
+      document.querySelector('tr[data-status="implementation-gap"]'),
+    ).toBeNull()
     const report = screen.getByRole('region', { name: 'Report' })
     expect(
       within(report).getByText(/cannot tell a passed test from/),
@@ -135,13 +138,10 @@ describe('the Rust service in the app', () => {
     expect(document.querySelector('tr[data-status="succeeded"]')).toBeNull()
   })
 
-  it('never offers a check without verified support, such as the spell check 6.3.8', () => {
+  it('holds back no selected test, such as the spell check 6.3.8, because it consults no list', () => {
     render(<Harness document={document20} />)
     enterUrl('http://127.0.0.1:8082')
-    fireEvent.click(screen.getByText(/selected tests cannot run/))
-    expect(
-      document.querySelector('.cannot-run li[data-row-id="csaf-2.0/6.3.8"]')
-        ?.textContent,
-    ).toMatch(/Not supported.*NotFound/)
+    expect(document.querySelector('.cannot-run')).toBeNull()
+    expect(screen.queryByText(/selected tests cannot run/)).toBeNull()
   })
 })

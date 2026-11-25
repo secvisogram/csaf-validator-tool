@@ -6,7 +6,6 @@ import { CATALOGUES } from '../../catalogue/catalogues.ts'
 import { createHintLookup, type HintLookup } from '../../hints/match.ts'
 import { parseHints } from '../../hints/parse.ts'
 import {
-  FIXTURE_ADAPTER,
   FIXTURE_CATALOGUE,
   FIXTURE_REQUEST,
 } from '../../validation/fixtures.ts'
@@ -55,7 +54,7 @@ const events: RunEvent[] = [
 ]
 
 const run = events.reduce(reduceRun, startRun(FIXTURE_REQUEST))
-const report = buildReport(FIXTURE_CATALOGUE, run, FIXTURE_ADAPTER.capability)
+const report = buildReport(FIXTURE_CATALOGUE, run)
 
 function lookupFor(
   yaml: string,
@@ -91,13 +90,7 @@ hints:
 `
 
 const detailed = (hint?: HintLookup) =>
-  render(
-    <DetailedTab
-      report={report}
-      capability={FIXTURE_ADAPTER.capability}
-      {...(hint && { hint })}
-    />,
-  ).container
+  render(<DetailedTab report={report} {...(hint && { hint })} />).container
 
 const allMessages = (hint?: HintLookup) =>
   render(<AllMessagesTab report={report} {...(hint && { hint })} />).container
@@ -218,9 +211,7 @@ describe('hints never change results', () => {
   })
 
   it('builds the same report regardless of hints, so counts cannot change', () => {
-    expect(
-      buildReport(FIXTURE_CATALOGUE, run, FIXTURE_ADAPTER.capability),
-    ).toEqual(report)
+    expect(buildReport(FIXTURE_CATALOGUE, run)).toEqual(report)
     expect(report.counts.failed).toBe(2)
   })
 })

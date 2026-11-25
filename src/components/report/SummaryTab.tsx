@@ -10,6 +10,7 @@ const COUNT_KEYS = [
   'failed',
   'skipped',
   'unavailable',
+  'implementationGap',
   'pending',
   'missing',
   'executionError',

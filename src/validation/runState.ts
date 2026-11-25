@@ -10,6 +10,8 @@ export type RunPhase = 'running' | 'completed' | 'failed' | 'cancelled'
 export type TestResultState =
   | { kind: 'outcome'; outcome: ValidatorOutcome }
   | { kind: 'execution-error'; message: string }
+  /** The validator does not implement the test. It has no outcome. */
+  | { kind: 'gap' }
 
 /** Execution state of one run. Validation outcomes live inside `results`, never in `phase`. */
 export type RunState = {
@@ -47,12 +49,17 @@ export function reduceRun(state: RunState, event: RunEvent): RunState {
       return { ...state, started: new Set(state.started).add(event.id) }
     }
     case 'test-result':
-    case 'test-error': {
+    case 'test-error':
+    case 'test-gap': {
       const result: TestResultState =
         event.type === 'test-result'
           ? { kind: 'outcome', outcome: event.outcome }
-          : { kind: 'execution-error', message: event.message }
+          : event.type === 'test-gap'
+            ? { kind: 'gap' }
+            : { kind: 'execution-error', message: event.message }
       if (!state.request.runnable.includes(event.id)) {
+        // Nothing was returned for a gap, so there is nothing to keep.
+        if (result.kind === 'gap') return state
         return {
           ...state,
           uncatalogued: [
