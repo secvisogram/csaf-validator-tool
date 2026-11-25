@@ -28,10 +28,7 @@ jobs:
       - name: Build
         run: npm run build
       - name: Check the Compose setup
-        run: |
-          cp .env.example .env
-          sh scripts/compose-preflight.sh
-          docker compose config --quiet
+        run: docker compose config --quiet
       - name: Build the Compose images and check the nginx configuration
         run: |
           docker compose build

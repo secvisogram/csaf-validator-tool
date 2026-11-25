@@ -1,4 +1,3 @@
-import { execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { parse } from 'yaml'
@@ -66,11 +65,13 @@ describe('compose.yaml', () => {
     expect(validator).not.toHaveProperty('healthcheck')
   })
 
-  it('requires CSAF_VALIDATOR_IMAGE and has no fallback', () => {
+  it('pins the validator image the service adapter was reviewed against', () => {
+    expect(compose.services['validator-js']?.image).toBe(capabilities.image)
+  })
+
+  it('pins the validator image by an immutable digest', () => {
     const image = compose.services['validator-js']?.image
-    expect(image).toMatch(/^\$\{CSAF_VALIDATOR_IMAGE:\?[^}]+\}$/)
-    expect(image).not.toContain(':-')
-    expect(image).not.toContain('latest')
+    expect(image).toMatch(/^[^\s@:]+(\/[^\s@:]+)*@sha256:[0-9a-f]{64}$/)
   })
 
   it('starts the app and the gateway without waiting for the validator', () => {
@@ -88,32 +89,6 @@ describe('compose.yaml', () => {
   it('does not publish a Rust service', () => {
     expect(Object.keys(compose.services)).not.toContain('csaf-service')
     expect(JSON.stringify(compose)).not.toContain('csaf-service')
-  })
-})
-
-describe('.env.example', () => {
-  const text = read('.env.example')
-
-  it('documents the verified pinned image of the service adapter', () => {
-    expect(text).toContain(`CSAF_VALIDATOR_IMAGE=${capabilities.image}`)
-  })
-
-  it('is committed while .env stays ignored', () => {
-    expect(read('.gitignore')).toMatch(/^\.env$/m)
-    expect(read('.gitignore')).not.toMatch(/^\.env\.example$/m)
-  })
-
-  it('passes the preflight', () => {
-    const line = text
-      .split('\n')
-      .find((l) => l.startsWith('CSAF_VALIDATOR_IMAGE='))
-    expect(line).toBeDefined()
-    execFileSync('sh', [resolve(root, 'scripts/compose-preflight.sh')], {
-      env: {
-        PATH: process.env['PATH'] ?? '',
-        CSAF_VALIDATOR_IMAGE: line!.slice('CSAF_VALIDATOR_IMAGE='.length),
-      },
-    })
   })
 })
 
