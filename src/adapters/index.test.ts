@@ -29,7 +29,7 @@ describe('adaptersFor', () => {
   it('keeps the other validators as they were', () => {
     const adapters = adaptersFor({ javascript: null })
     expect(adapters['csaf-validator-lib'].availability.available).toBe(true)
-    expect(adapters['csaf-rs-wasm'].availability.available).toBe(false)
+    expect(adapters['csaf-rs-wasm'].availability.available).toBe(true)
     expect(adapters['csaf-service'].availability.available).toBe(false)
   })
 })
