@@ -43,6 +43,8 @@ export type CapabilityRecord<Target = { module: string; export: string }> = {
 /** A message returned by a validator, kept exactly as returned. */
 export type ValidatorMessage = {
   message: string
+  /** The validator's stable code for this message, where it supplies one. */
+  messageCode?: string
   instancePath?: string
 }
 

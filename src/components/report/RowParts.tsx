@@ -5,7 +5,9 @@ import {
   type ReportMessage,
   type ReportRow,
 } from '../../validation/report.ts'
+import type { HintMatch } from '../../hints/match.ts'
 import { SafeLink } from '../SafeLink.tsx'
+import { HintNote } from './HintNote.tsx'
 
 export function useRowTitle() {
   const { t } = useTranslation()
@@ -27,26 +29,32 @@ export const SectionCell: React.FC<{ row: ReportRow }> = ({ row }) => {
   )
 }
 
-export const MessageList: React.FC<{ messages: ReportMessage[] }> = ({
-  messages,
-}) => {
+export const MessageList: React.FC<{
+  messages: ReportMessage[]
+  /** The hint that matches a message by its exact code or text. */
+  hintFor?: (message: ReportMessage) => HintMatch | null
+}> = ({ messages, hintFor }) => {
   const { t } = useTranslation()
   return (
     <ul className="messages">
-      {messages.map((message, index) => (
-        <li key={index} data-severity={message.severity}>
-          <span className={`severity severity-${message.severity}`}>
-            {t(`report.severity.${message.severity}`)}
-          </span>{' '}
-          {message.message}
-          {message.instancePath !== undefined && (
-            <>
-              {' '}
-              <code>{message.instancePath}</code>
-            </>
-          )}
-        </li>
-      ))}
+      {messages.map((message, index) => {
+        const match = hintFor?.(message)
+        return (
+          <li key={index} data-severity={message.severity}>
+            <span className={`severity severity-${message.severity}`}>
+              {t(`report.severity.${message.severity}`)}
+            </span>{' '}
+            {message.message}
+            {message.instancePath !== undefined && (
+              <>
+                {' '}
+                <code>{message.instancePath}</code>
+              </>
+            )}
+            {match && <HintNote match={match} />}
+          </li>
+        )
+      })}
     </ul>
   )
 }

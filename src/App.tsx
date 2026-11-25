@@ -4,8 +4,10 @@ import { DocumentInput } from './components/DocumentInput.tsx'
 import { DocumentView } from './components/DocumentView.tsx'
 import { IntakeErrorMessage } from './components/IntakeErrorMessage.tsx'
 import { Workbench } from './components/Workbench.tsx'
+import { HintsNotice } from './components/HintsNotice.tsx'
 import { RuntimeConfigNotice } from './components/RuntimeConfigNotice.tsx'
 import { useSettings } from './config/useSettings.ts'
+import { useHints } from './hints/useHints.ts'
 import type { IntakeResult, LoadedDocument } from './intake/types.ts'
 
 export const App: React.FC = () => {
@@ -15,6 +17,7 @@ export const App: React.FC = () => {
   )
 
   const { runtime, settings, edit } = useSettings()
+  const hints = useHints()
 
   return (
     <main>
@@ -23,6 +26,7 @@ export const App: React.FC = () => {
       {runtime?.status === 'failed' && (
         <RuntimeConfigNotice problem={runtime.problem} />
       )}
+      {hints?.status === 'failed' && <HintsNotice problem={hints.problem} />}
       <DocumentInput onResult={setResult} />
       {result && !result.ok && <IntakeErrorMessage error={result.error} />}
       {result?.ok && <DocumentView loaded={result.value} />}
@@ -31,6 +35,7 @@ export const App: React.FC = () => {
           loaded={result?.ok ? result.value : null}
           settings={settings}
           onEdit={edit}
+          {...(hints?.status === 'loaded' && { hints: hints.hints })}
         />
       )}
     </main>

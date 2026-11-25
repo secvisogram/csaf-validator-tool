@@ -231,3 +231,14 @@ td {
 .messages {
   margin: 0.25rem 0;
 }
+
+.hint {
+  margin-top: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  border-left: 3px solid #6b7a99;
+  background: #f1f4fa;
+  font-size: 0.95em;
+}
+.hint-text {
+  white-space: pre-line;
+}

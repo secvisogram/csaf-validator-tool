@@ -1,6 +1,11 @@
 import { useTranslation } from 'react-i18next'
+import type { HintLookup } from '../../hints/match.ts'
 import type { Capability } from '../../validation/types.ts'
-import { rowMessages, type Report } from '../../validation/report.ts'
+import {
+  rowMessages,
+  type Report,
+  type ReportMessage,
+} from '../../validation/report.ts'
 import { StatusBadge } from '../StatusBadge.tsx'
 import {
   MessageList,
@@ -8,12 +13,14 @@ import {
   StatusNote,
   useRowTitle,
 } from './RowParts.tsx'
+import { HintNote } from './HintNote.tsx'
 import { Uncatalogued } from './Uncatalogued.tsx'
 
 export const DetailedTab: React.FC<{
   report: Report
   capability: (id: string) => Capability
-}> = ({ report, capability }) => {
+  hint?: HintLookup
+}> = ({ report, capability, hint }) => {
   const { t } = useTranslation()
   const title = useRowTitle()
 
@@ -33,6 +40,7 @@ export const DetailedTab: React.FC<{
         <tbody>
           {report.rows.map((row) => {
             const messages = rowMessages(row.status)
+            const general = hint?.forRow(row)
             return (
               <tr
                 key={row.id}
@@ -52,7 +60,16 @@ export const DetailedTab: React.FC<{
                 </td>
                 <td>
                   <StatusNote row={row} />
-                  {messages.length > 0 && <MessageList messages={messages} />}
+                  {messages.length > 0 && (
+                    <MessageList
+                      messages={messages}
+                      {...(hint && {
+                        hintFor: (message: ReportMessage) =>
+                          hint.forMessage(row, message),
+                      })}
+                    />
+                  )}
+                  {general && <HintNote match={general} />}
                 </td>
               </tr>
             )

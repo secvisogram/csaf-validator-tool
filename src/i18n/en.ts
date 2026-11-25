@@ -290,6 +290,32 @@ export default {
       },
     },
   },
+  hints: {
+    label: 'Supplemental hint',
+    notResult: '(guidance, not a validation result)',
+    notice: {
+      heading: 'Supplemental hints were not applied',
+      network: 'The hint file could not be fetched because of a network error.',
+      http: 'The hint file could not be fetched (HTTP {{status}}).',
+      invalid:
+        'The hint file is invalid and was rejected as a whole. These problems were found:',
+      fallback:
+        'Validation and reports are not affected and are shown without hints.',
+      line: 'line {{line}}',
+      more: 'and {{count}} more problems',
+    },
+    issue: {
+      syntax: 'The file is not valid YAML for this format.',
+      notObject: 'The file must contain a mapping with a hints list.',
+      unknownField: 'Unknown field.',
+      missingField: 'A required field is missing.',
+      wrongType: 'The value has the wrong type.',
+      unsupportedValue: 'Unsupported or empty value.',
+      unknownSection: 'The catalogue of this CSAF version has no such section.',
+      bothMessageKeys: 'Set at most one of messageCode and messageText.',
+      duplicate: 'Another hint has the same identity.',
+    },
+  },
   catalogue: {
     heading: 'Test selection',
     version: {

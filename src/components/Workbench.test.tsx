@@ -4,6 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '../i18n/i18n.ts'
 import { BUILT_IN_DEFAULTS } from '../config/settings.ts'
 import type { Settings } from '../config/types.ts'
+import { CATALOGUES } from '../catalogue/catalogues.ts'
+import { parseHints } from '../hints/parse.ts'
+import type { HintSet } from '../hints/types.ts'
 import { loadFromText } from '../intake/loadDocument.ts'
 import { outcome } from '../validation/fixtures.ts'
 import type {
@@ -58,10 +61,16 @@ const loaded = (version = '2.0') => {
 function mount(
   document: ReturnType<typeof loaded> | null,
   settings: Settings = BUILT_IN_DEFAULTS,
+  hints?: HintSet,
 ) {
   const onEdit = vi.fn()
   const view = render(
-    <Workbench loaded={document} settings={settings} onEdit={onEdit} />,
+    <Workbench
+      loaded={document}
+      settings={settings}
+      onEdit={onEdit}
+      {...(hints && { hints })}
+    />,
   )
   return { onEdit, view }
 }
@@ -272,5 +281,74 @@ describe('Workbench', () => {
     expect(
       screen.queryByRole('button', { name: 'Run selected tests' }),
     ).toBeNull()
+  })
+})
+
+describe('Workbench with hints', () => {
+  const hintsOf = (yaml: string): HintSet => {
+    const result = parseHints(yaml, CATALOGUES)
+    if (!result.ok) throw new Error(JSON.stringify(result.issues))
+    return result.hints
+  }
+  const HINTS = hintsOf(`
+hints:
+  - csafVersion: '2.0'
+    section: '6.1.1'
+    text: 'General guidance for 6.1.1.'
+  - csafVersion: '2.0'
+    section: '6.1.1'
+    messageText: 'bad title'
+    text: 'Guidance for the exact message.'
+  - csafVersion: '2.0'
+    section: '6.1.1'
+    validator: csaf-service
+    text: 'Only for csaf-service.'
+`)
+  const DETAILED: Settings = { ...BUILT_IN_DEFAULTS, reportView: 'detailed' }
+  const fail = () => {
+    run()
+    act(() =>
+      last().emit({
+        type: 'test-result',
+        id: 'csaf-2.0/6.1.1',
+        outcome: {
+          status: 'failed',
+          errors: [{ message: 'bad title', instancePath: '/x' }],
+          warnings: [],
+          infos: [],
+        },
+      }),
+    )
+    act(() => last().emit({ type: 'completed' }))
+  }
+
+  it('shows the hints of the validator that ran, beside the finding, labelled as supplemental', () => {
+    mount(loaded(), DETAILED, HINTS)
+    fail()
+    const row = document.querySelector(
+      'tr[data-status][data-row-id="csaf-2.0/6.1.1"]',
+    )
+    expect(row?.textContent).toContain('General guidance for 6.1.1.')
+    expect(row?.textContent).toContain('Guidance for the exact message.')
+    expect(row?.textContent).not.toContain('Only for csaf-service.')
+    expect(screen.getAllByText('Supplemental hint').length).toBe(2)
+  })
+
+  it('changes neither the run state nor any status', () => {
+    mount(loaded(), DETAILED, HINTS)
+    fail()
+    expect(screen.getByText('Run completed')).toBeTruthy()
+    expect(
+      document
+        .querySelector('tr[data-status][data-row-id="csaf-2.0/6.1.1"]')
+        ?.getAttribute('data-status'),
+    ).toBe('failed')
+  })
+
+  it('shows no hints and keeps working without a hint set', () => {
+    mount(loaded(), DETAILED)
+    fail()
+    expect(document.querySelector('.hint')).toBeNull()
+    expect(screen.getByText('Run completed')).toBeTruthy()
   })
 })

@@ -1,5 +1,7 @@
 import { useId, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { createHintLookup } from '../hints/match.ts'
+import type { HintSet } from '../hints/types.ts'
 import { CATALOGUES } from '../catalogue/catalogues.ts'
 import { REPORT_VIEWS, type ReportView } from '../config/types.ts'
 import { buildReport } from '../validation/report.ts'
@@ -11,6 +13,7 @@ import { SummaryTab } from './report/SummaryTab.tsx'
 
 type ReportSectionProps = {
   run: RunState
+  hints?: HintSet
   /** The adapter the run was made with, not the one selected now. */
   adapter: ValidatorAdapter
   view: ReportView
@@ -19,6 +22,7 @@ type ReportSectionProps = {
 
 export const ReportSection: React.FC<ReportSectionProps> = ({
   run,
+  hints,
   adapter,
   view,
   onViewChange,
@@ -30,6 +34,14 @@ export const ReportSection: React.FC<ReportSectionProps> = ({
   const report = useMemo(
     () => buildReport(catalogue, run, capability),
     [catalogue, run, capability],
+  )
+  // The hints of the validator and version that ran, not of the current selection.
+  const hint = useMemo(
+    () =>
+      hints
+        ? createHintLookup(hints, catalogue.csafVersion, run.request.validator)
+        : undefined,
+    [hints, catalogue, run.request.validator],
   )
   const progress = runProgress(run)
 
@@ -97,9 +109,15 @@ export const ReportSection: React.FC<ReportSectionProps> = ({
         aria-labelledby={`${id}-tab-${view}`}
       >
         {view === 'summary' && <SummaryTab report={report} />}
-        {view === 'all-messages' && <AllMessagesTab report={report} />}
+        {view === 'all-messages' && (
+          <AllMessagesTab report={report} {...(hint && { hint })} />
+        )}
         {view === 'detailed' && (
-          <DetailedTab report={report} capability={capability} />
+          <DetailedTab
+            report={report}
+            capability={capability}
+            {...(hint && { hint })}
+          />
         )}
       </div>
     </section>

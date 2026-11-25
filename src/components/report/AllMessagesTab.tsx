@@ -5,7 +5,9 @@ import {
   type ReportMessage,
   type ReportRow,
 } from '../../validation/report.ts'
+import type { HintLookup } from '../../hints/match.ts'
 import { StatusBadge } from '../StatusBadge.tsx'
+import { HintNote } from './HintNote.tsx'
 import { Uncatalogued } from './Uncatalogued.tsx'
 import { SectionCell, StatusNote, useRowTitle } from './RowParts.tsx'
 
@@ -14,11 +16,20 @@ import { SectionCell, StatusNote, useRowTitle } from './RowParts.tsx'
  * state to explain instead of a message. Nothing is invented for rows that
  * simply succeeded or were not selected.
  */
-export const AllMessagesTab: React.FC<{ report: Report }> = ({ report }) => {
+export const AllMessagesTab: React.FC<{
+  report: Report
+  hint?: HintLookup
+}> = ({ report, hint }) => {
   const { t } = useTranslation()
   const title = useRowTitle()
 
-  type Entry = { key: string; row: ReportRow; message: ReportMessage | null }
+  type Entry = {
+    key: string
+    row: ReportRow
+    message: ReportMessage | null
+    /** The first entry of a row also carries the general hint of its test. */
+    first: boolean
+  }
   const entries = report.rows.flatMap((row): Entry[] => {
     const messages = rowMessages(row.status)
     if (messages.length > 0) {
@@ -26,6 +37,7 @@ export const AllMessagesTab: React.FC<{ report: Report }> = ({ report }) => {
         key: `${row.id}-m${index}`,
         row,
         message,
+        first: index === 0,
       }))
     }
     const kind = row.status.kind
@@ -38,7 +50,7 @@ export const AllMessagesTab: React.FC<{ report: Report }> = ({ report }) => {
       kind === 'skipped' ||
       kind === 'failed'
     ) {
-      return [{ key: `${row.id}-s`, row, message: null }]
+      return [{ key: `${row.id}-s`, row, message: null, first: true }]
     }
     return []
   })
@@ -59,29 +71,37 @@ export const AllMessagesTab: React.FC<{ report: Report }> = ({ report }) => {
             </tr>
           </thead>
           <tbody>
-            {entries.map(({ key, row, message }) => (
-              <tr key={key} data-row-id={row.id}>
-                <td>
-                  <SectionCell row={row} />
-                </td>
-                <td>{title(row)}</td>
-                <td>
-                  {message ? (
-                    <span className={`severity severity-${message.severity}`}>
-                      {t(`report.severity.${message.severity}`)}
-                    </span>
-                  ) : (
-                    <StatusBadge kind={row.status.kind} />
-                  )}
-                </td>
-                <td>{message ? message.message : <StatusNote row={row} />}</td>
-                <td>
-                  {message?.instancePath !== undefined && (
-                    <code>{message.instancePath}</code>
-                  )}
-                </td>
-              </tr>
-            ))}
+            {entries.map(({ key, row, message, first }) => {
+              const specific = message && hint?.forMessage(row, message)
+              const general = first && hint?.forRow(row)
+              return (
+                <tr key={key} data-row-id={row.id}>
+                  <td>
+                    <SectionCell row={row} />
+                  </td>
+                  <td>{title(row)}</td>
+                  <td>
+                    {message ? (
+                      <span className={`severity severity-${message.severity}`}>
+                        {t(`report.severity.${message.severity}`)}
+                      </span>
+                    ) : (
+                      <StatusBadge kind={row.status.kind} />
+                    )}
+                  </td>
+                  <td>
+                    {message ? message.message : <StatusNote row={row} />}
+                    {specific && <HintNote match={specific} />}
+                    {general && <HintNote match={general} />}
+                  </td>
+                  <td>
+                    {message?.instancePath !== undefined && (
+                      <code>{message.instancePath}</code>
+                    )}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       )}
