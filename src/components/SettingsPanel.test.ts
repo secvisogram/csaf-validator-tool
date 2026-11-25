@@ -30,7 +30,17 @@ describe('SettingsPanel', () => {
       markup.match(
         /Unavailable: This validator is not implemented in this version of the tool yet\./g,
       ) ?? []
-    expect(reasons).toHaveLength(2)
+    expect(reasons).toHaveLength(1)
+  })
+
+  it('shows the JavaScript service as unavailable until a URL is entered, then as available', () => {
+    const reason = /Unavailable: Enter a JavaScript service URL/
+    expect(markup).toMatch(reason)
+    const configured = render({
+      ...BUILT_IN_DEFAULTS,
+      services: { javascript: 'http://127.0.0.1:8080', rust: null },
+    })
+    expect(configured).not.toMatch(reason)
   })
 
   it('does not mark the implemented validators as unavailable', () => {

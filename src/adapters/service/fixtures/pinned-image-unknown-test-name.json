@@ -1,0 +1,30 @@
+{
+  "image": "ghcr.io/secvisogram/csaf-validator-service@sha256:e09b8a2b7c7715cce3de2144d73789a06df85a3d116ff07229199060f2e6e5db",
+  "recorded": "2026-11-24",
+  "request": {
+    "tests": [
+      {
+        "name": "mandatoryTest_6_1_1",
+        "type": "test"
+      },
+      {
+        "name": "csaf_2_1",
+        "type": "test"
+      }
+    ],
+    "document": {
+      "document": {
+        "category": "csaf_base",
+        "csaf_version": "2.0",
+        "title": "Fixture document"
+      }
+    }
+  },
+  "status": 400,
+  "response": {
+    "statusCode": 400,
+    "code": "FST_ERR_VALIDATION",
+    "error": "Bad Request",
+    "message": "body/tests/1/name must be equal to one of the allowed values, body/tests/1/name must be equal to one of the allowed values, body/tests/1 must match exactly one schema in oneOf"
+  }
+}

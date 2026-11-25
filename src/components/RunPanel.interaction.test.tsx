@@ -9,6 +9,7 @@ import {
   FIXTURE_REQUEST,
 } from '../validation/fixtures.ts'
 import { startRun } from '../validation/runState.ts'
+import type { ValidatorAdapter } from '../validation/types.ts'
 import { RunPanel } from './RunPanel.tsx'
 
 afterEach(cleanup)
@@ -105,5 +106,133 @@ describe('confirming network-enabled tests', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Run selected tests' }))
     expect(screen.queryByRole('alertdialog')).toBeNull()
     expect(onStart).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('a remote validator', () => {
+  const remote: ValidatorAdapter = {
+    ...FIXTURE_ADAPTER,
+    id: 'csaf-validator-service',
+    remote: { endpoint: 'https://validator.example/svc/api/v1/validate' },
+    limitationKeys: ['validators.service.csaf20Only'],
+  }
+
+  function setupRemote(
+    sections: string[],
+    options: {
+      adapter?: ValidatorAdapter
+      run?: ReturnType<typeof startRun> | null
+    } = {},
+  ) {
+    const onStart = vi.fn()
+    const onCancel = vi.fn()
+    render(
+      <RunPanel
+        catalogue={FIXTURE_CATALOGUE}
+        selection={select(sections)}
+        adapter={options.adapter ?? remote}
+        document={FIXTURE_DOCUMENT}
+        run={options.run ?? null}
+        onStart={onStart}
+        onCancel={onCancel}
+      />,
+    )
+    return { onStart, onCancel }
+  }
+
+  it('names the service and the destination beside the run button, before the run', () => {
+    setupRemote(['6.1.1'])
+    const disclosure = screen.getByRole('region', {
+      name: 'Where the document goes',
+    })
+    expect(disclosure.textContent).toContain(
+      'https://validator.example/svc/api/v1/validate',
+    )
+    expect(disclosure.textContent).toContain('csaf-validator-service')
+    expect(disclosure.textContent).toMatch(
+      /complete document and the request parameters/,
+    )
+    expect(disclosure.textContent).toMatch(/retention and logging/)
+    expect(disclosure.textContent).toMatch(/does not guarantee/)
+    const button = screen.getByRole('button', { name: 'Run selected tests' })
+    expect(
+      disclosure.compareDocumentPosition(button) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  })
+
+  it('starts at once without a per-run confirmation modal', () => {
+    const { onStart } = setupRemote(['6.1.1'])
+    fireEvent.click(screen.getByRole('button', { name: 'Run selected tests' }))
+    expect(screen.queryByRole('alertdialog')).toBeNull()
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(onStart).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows no destination for a browser-local validator', () => {
+    setup(['6.1.1'])
+    expect(
+      screen.queryByRole('region', { name: 'Where the document goes' }),
+    ).toBeNull()
+  })
+
+  it('keeps the network confirmation and says the service runs those tests', () => {
+    const { onStart } = setupRemote(['6.1.1', '6.3.6'])
+    fireEvent.click(screen.getByRole('button', { name: 'Run selected tests' }))
+    expect(onStart).not.toHaveBeenCalled()
+    const dialog = screen.getByRole('alertdialog')
+    expect(dialog.textContent).toMatch(/on the service/)
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Run including these tests' }),
+    )
+    expect(onStart).toHaveBeenCalledTimes(1)
+  })
+
+  it('says that cancelling does not stop the work on the server', () => {
+    setupRemote(['6.1.1'], { run: startRun(FIXTURE_REQUEST) })
+    expect(
+      screen.getByText(/does not guarantee that the service stops/),
+    ).toBeTruthy()
+  })
+
+  it('discloses that checks without verified support are sent anyway', () => {
+    const attempting: ValidatorAdapter = {
+      ...remote,
+      capability: (id) =>
+        id === 'csaf-2.0/6.1.2'
+          ? { state: 'not-yet-verified', attemptAllowed: true }
+          : { state: 'verified-supported' },
+    }
+    setupRemote(['6.1.1', '6.1.2'], { adapter: attempting })
+    expect(screen.getByText(/1 selected check is not verified/)).toBeTruthy()
+  })
+
+  it('does not mention unverified checks when everything sent is verified', () => {
+    setupRemote(['6.1.1'])
+    expect(screen.queryByText(/not verified for this service/)).toBeNull()
+  })
+
+  it('shows the validator as unavailable, with no destination, until a URL is entered', () => {
+    setupRemote(['6.1.1'], {
+      adapter: {
+        id: remote.id,
+        limitationKeys: remote.limitationKeys,
+        capability: remote.capability,
+        start: remote.start,
+        availability: {
+          available: false,
+          reasonKey: 'validators.service.noUrl',
+        },
+      },
+    })
+    expect(screen.getByRole('alert').textContent).toMatch(
+      /Enter a JavaScript service URL/,
+    )
+    expect(
+      screen.queryByRole('region', { name: 'Where the document goes' }),
+    ).toBeNull()
+    expect(
+      screen.getByRole('button', { name: 'Run selected tests' }),
+    ).toHaveProperty('disabled', true)
   })
 })

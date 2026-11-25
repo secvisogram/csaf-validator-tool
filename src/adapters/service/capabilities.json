@@ -1,0 +1,2176 @@
+{
+  "adapter": "csaf-validator-service",
+  "package": "csaf-validator-service",
+  "version": "3.0.5",
+  "image": "ghcr.io/secvisogram/csaf-validator-service@sha256:e09b8a2b7c7715cce3de2144d73789a06df85a3d116ff07229199060f2e6e5db",
+  "executionMode": "Remote POST /api/v1/validate with the exact selected test names",
+  "records": [
+    {
+      "id": "csaf-2.0/6.2.2",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_2"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.3",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_3"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.4",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_4"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.5",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_5"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.6",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_6"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.7",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_7"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.8",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_8"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.9",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_9"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.10",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_10"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.12",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_12"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.13",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_13"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.20",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_20"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.3.5",
+      "state": "verified-supported",
+      "target": {
+        "name": "informativeTest_6_3_5"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.3.6",
+      "state": "verified-supported",
+      "target": {
+        "name": "informativeTest_6_3_6"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.3.7",
+      "state": "verified-supported",
+      "target": {
+        "name": "informativeTest_6_3_7"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.3.8",
+      "state": "verified-supported",
+      "target": {
+        "name": "informativeTest_6_3_8"
+      },
+      "evidence": "The pinned image ran the spell check on the service host and returned results. This differs from the browser library, which cannot start Hunspell."
+    },
+    {
+      "id": "csaf-2.0/6.1.1",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_1"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.2",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_2"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.3",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_3"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.4",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_4"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.5",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_5"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.6",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_6"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.7",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_7"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.8",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_8"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.9",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_9"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.10",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_10"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.11",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_11"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.12",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_12"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.13",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_13"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.14",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_14"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.15",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_15"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.16",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_16"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.17",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_17"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.18",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_18"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.19",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_19"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.20",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_20"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.21",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_21"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.22",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_22"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.23",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_23"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.24",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_24"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.25",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_25"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.26",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_26"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.27.1",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_27_1"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.27.2",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_27_2"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.27.3",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_27_3"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.27.4",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_27_4"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.27.5",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_27_5"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.27.6",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_27_6"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.27.7",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_27_7"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.27.8",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_27_8"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.27.9",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_27_9"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.27.10",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_27_10"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.27.11",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_27_11"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.28",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_28"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.29",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_29"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.30",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_30"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.31",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_31"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.32",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_32"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.1.33",
+      "state": "verified-supported",
+      "target": {
+        "name": "mandatoryTest_6_1_33"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.1",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_1"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.11",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_11"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.14",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_14"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.15",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_15"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.16",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_16"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.17",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_17"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.18",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_18"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.2.19",
+      "state": "verified-supported",
+      "target": {
+        "name": "optionalTest_6_2_19"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.3.1",
+      "state": "verified-supported",
+      "target": {
+        "name": "informativeTest_6_3_1"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.3.2",
+      "state": "verified-supported",
+      "target": {
+        "name": "informativeTest_6_3_2"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.3.3",
+      "state": "verified-supported",
+      "target": {
+        "name": "informativeTest_6_3_3"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.3.4",
+      "state": "verified-supported",
+      "target": {
+        "name": "informativeTest_6_3_4"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.3.9",
+      "state": "verified-supported",
+      "target": {
+        "name": "informativeTest_6_3_9"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.3.10",
+      "state": "verified-supported",
+      "target": {
+        "name": "informativeTest_6_3_10"
+      }
+    },
+    {
+      "id": "csaf-2.0/6.3.11",
+      "state": "verified-supported",
+      "target": {
+        "name": "informativeTest_6_3_11"
+      }
+    },
+    {
+      "id": "csaf-2.0/schema",
+      "state": "verified-supported",
+      "target": {
+        "name": "csaf_2_0"
+      }
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.48",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.50",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.60.2",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.60.3",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.66",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.2",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_2"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.3",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_3"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.4",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_4"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.8",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_8"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.9",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_9"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.12",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_12"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.13",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_13"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.20",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.24",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.31",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.39.1",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.46",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.50.1",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.50.2",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.50.3",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.51",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.54.1",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.54.2",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.54.4",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.55",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_55"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.56.2",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.56.3",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.56.4",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.56.5",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.57",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.6",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_6"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.7",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_7"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.8",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.13",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.16",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.17",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.19.1",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.19.2",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.19.3",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.19.4",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.19.5",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.21.2",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.24",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_24"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.25",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.26.1",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.26.2",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.26.3",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.26.4",
+      "state": "known-unsupported",
+      "reason": "The tool knows no service test name for this check. The reviewed library mapping has no function for it."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.1",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_1"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.2",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_2"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.3",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_3"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.4",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_4"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.5",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_5"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.6",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_6"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.7",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_7"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.8",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_8"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.9",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_9"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.10",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_10"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.11",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_11"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.12",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_12"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.13",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_13"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.14",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_14"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.15",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_15"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.16",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_16"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.17",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_17"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.18",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_18"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.19",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_19"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.20",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_20"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.21",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_21"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.22",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_22"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.23",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_23"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.24",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_24"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.25",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_25"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.26",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_26"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.1",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_1"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.2",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_2"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.3",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_3"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.4",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_4"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.5",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_5"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.6",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_6"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.7",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_7"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.8",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_8"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.9",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_9"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.10",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_10"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.11",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_11"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.12",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_12"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.13",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_13"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.14",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_14"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.15",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_15"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.16",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_16"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.17",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_17"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.18",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_18"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.19",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_19"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.27.20",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_27_20"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.28",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_28"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.29",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_29"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.30",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_30"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.31",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_31"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.32",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_32"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.33",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_33"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.34",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_34"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.35",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_35"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.36",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_36"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.37",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_37"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.38",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_38"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.39",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_39"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.40",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_40"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.41",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_41"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.42",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_42"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.43",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_43"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.44",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_44"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.45",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_45"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.46",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_46"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.47",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_47"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.49",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_49"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.51",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_51"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.52",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_52"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.53",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_53"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.54",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_54"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.55",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_55"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.56",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_56"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.57",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_57"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.58",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_58"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.59",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_59"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.60.1",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_60_1"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.61",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_61"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.62",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_62"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.63",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_63"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.64.1",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_64_1"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.64.2",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_64_2"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.64.3",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_64_3"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.64.4",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_64_4"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.64.5",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_64_5"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.64.6",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_64_6"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.64.7",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_64_7"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.64.8",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_64_8"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.64.9",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_64_9"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.64.10",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_64_10"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.64.11",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_64_11"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.64.12",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_64_12"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.64.13",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_64_13"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.65.1",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_65_1"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.65.2",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "mandatoryTest_6_1_65_2"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.1",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_1"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.5",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_5"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.6",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_6"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.11",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_11"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.14",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_14"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.15",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_15"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.16",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_16"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.17",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_17"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.18",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_18"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.19",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_19"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.21",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_21"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.22",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_22"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.23",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_23"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.25",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_25"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.26",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_26"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.27",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_27"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.28",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_28"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.29",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_29"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.30",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_30"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.32",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_32"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.33",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_33"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.34",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_34"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.35",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_35"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.36",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_36"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.37",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_37"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.38",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_38"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.39.2",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_39_2"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.39.3",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_39_3"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.39.4",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_39_4"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.39.5",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_39_5"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.39.6",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_39_6"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.39.7",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_39_7"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.39.8",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_39_8"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.39.9",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_39_9"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.39.10",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_39_10"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.39.11",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_39_11"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.39.12",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_39_12"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.39.13",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_39_13"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.40",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_40"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.41",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_41"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.42",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_42"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.43",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_43"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.44",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_44"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.45",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_45"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.47",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_47"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.48",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_48"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.49",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_49"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.52",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_52"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.53",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_53"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.54.3",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_54_3"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.2.56.1",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "recommendedTest_6_2_56_1"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.1",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_1"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.2",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_2"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.3",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_3"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.4",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_4"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.5",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_5"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.9",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_9"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.10",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_10"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.11",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_11"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.12",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_12"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.14",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_14"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.15",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_15"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.18",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_18"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.20",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_20"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.21.1",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_21_1"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.21.3",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_21_3"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.21.4",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_21_4"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.21.5",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_21_5"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.21.6",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_21_6"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.21.7",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_21_7"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.21.8",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_21_8"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.21.9",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_21_9"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.22",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_22"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.23.1",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_23_1"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.23.2",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "informativeTest_6_3_23_2"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    },
+    {
+      "id": "csaf-2.1-csd04/schema",
+      "state": "not-yet-verified",
+      "target": {
+        "name": "csaf_2_1"
+      },
+      "reason": "The pinned service version 3.0.5 supports CSAF 2.0 only. A request you select is still sent and only the actual response or error is shown."
+    }
+  ]
+}

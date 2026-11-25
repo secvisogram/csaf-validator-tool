@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { ADAPTERS } from '../adapters/index.ts'
+import { adaptersFor } from '../adapters/index.ts'
 import {
   REPORT_VIEWS,
   VALIDATOR_IDS,
@@ -19,6 +19,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   onEdit,
 }) => {
   const { t } = useTranslation()
+  const adapters = adaptersFor(settings.services)
 
   return (
     <section aria-labelledby="settings-heading">
@@ -28,7 +29,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       <fieldset>
         <legend>{t('validators.legend')}</legend>
         {VALIDATOR_IDS.map((id) => {
-          const availability = ADAPTERS[id].availability
+          const availability = adapters[id].availability
           return (
             <label key={id} className="inline-label">
               <input

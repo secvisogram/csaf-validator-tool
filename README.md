@@ -42,7 +42,7 @@ Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
 - `src/catalogue/`: the test catalogue (data, JSON schema, preset resolution, initial selection, consistency checks) without UI
 - `src/config/`: runtime configuration (loader, strict validation, settings precedence) and the settings hook
 - `src/validation/`: the shared validator model: capability states, run planning, run state, and the report model with its counts, without UI
-- `src/adapters/`: validator adapters. `src/adapters/library/` holds the browser library adapter (worker, runner, capability data), and `src/adapters/csafrs/` holds the csaf-rs WebAssembly adapter
+- `src/adapters/`: validator adapters. `src/adapters/library/` holds the browser library adapter (worker, runner, capability data), `src/adapters/csafrs/` holds the csaf-rs WebAssembly adapter, and `src/adapters/service/` holds the JavaScript service adapter (request, response check, capability data, recorded fixtures)
 - `src/components/`: React components
 - `src/util/`: small helpers such as the safe-link check
 - `scripts/`: maintainer scripts
@@ -141,15 +141,17 @@ The user loads a document, chooses a validator, adjusts the selected tests and r
 
 ### Validators and capabilities
 
-The app offers four validators. `csaf-validator-lib` and `csaf-rs-wasm` can run in this version. The others are listed as unavailable with the reason until their adapters are added.
+The app offers four validators. `csaf-validator-lib` and `csaf-rs-wasm` run in the browser, and `csaf-validator-service` runs once a service URL is configured. The others are listed as unavailable with the reason until their adapters are added.
 
 Every adapter has capability data that is kept apart from the catalogue. Each record names the catalogue test or schema check, the adapter function, the execution mode, the evidence and the component version. A record is in one of three states:
 
-| State                | Meaning                                                                    |
-| -------------------- | -------------------------------------------------------------------------- |
-| `verified-supported` | Evidence shows the adapter runs this test correctly. Only these tests run. |
-| `known-unsupported`  | The adapter cannot run this test. A reason is recorded.                    |
-| `not-yet-verified`   | There is no evidence yet. The test does not run, and the reason is shown.  |
+| State                | Meaning                                                                   |
+| -------------------- | ------------------------------------------------------------------------- |
+| `verified-supported` | Evidence shows the adapter runs this test correctly. These tests run.     |
+| `known-unsupported`  | The adapter cannot run this test. A reason is recorded.                   |
+| `not-yet-verified`   | There is no evidence yet. The test does not run, and the reason is shown. |
+
+The one exception is a CSAF 2.1 check the user selected for the JavaScript service (see below). It is sent although it is `not-yet-verified`, and that status stays visible.
 
 A selected test that the adapter cannot run stays selected. It is shown as unavailable, with its reason, before and after the run. The app never infers support from the name of a library export.
 
@@ -197,11 +199,36 @@ The package ships TypeScript source that does not compile under this repository'
 
 The Vite build may print the same kind of externalization warnings for Node modules that the package imports only on paths the browser never takes.
 
+### The JavaScript service adapter
+
+`csaf-validator-service` sends the document and the exact selected tests to an externally operated [csaf-validator-service](https://github.com/secvisogram/csaf-validator-service). It is unavailable until a URL is set, either by the runtime configuration (`services.javascript`) or in the session controls.
+
+**Request.** One `POST <url>/api/v1/validate` with `{ "tests": [{ "name": "<test name>", "type": "test" }, ...], "document": ... }`. The names are the service's own test names, for example `mandatoryTest_6_1_1`. The app never sends a preset and never calls `GET /api/v1/tests` or `GET /health` to decide what is supported. The request carries no credentials, follows no redirect and sends no referrer.
+
+**Disclosure.** The selected service and the full endpoint stay visible beside the run button, with an inline note that the complete document and the request parameters go to that service, that its operator controls retention and logging, and that this app does not guarantee how the service handles the data. There is no confirmation dialog for the service. The confirmation for network-enabled tests stays.
+
+**Results.** Each returned test is mapped to its catalogue test through the reviewed mapping and shown as returned. HTTP success is not treated as validity: a test with `isValid: false` is shown as not valid, and the top-level `isValid` is shown as the service's own flag, not as a verdict. The service has no skipped state, so the app never shows one. A requested test that the completed response does not contain is shown as missing. A returned test that was not requested, or that appears twice, is shown as uncatalogued with its original name and details. An error without a text message keeps its location and has an empty message.
+
+**Failures.** These end the run as a service or request failure and are never test outcomes: an HTTP error status, a body that is not JSON or does not have the expected shape (no result of such a response is used), a network or CORS error, and the timeout. The app shows the HTTP status and, for an error status, the service's own message (shortened). For a request that gets no response it says that the browser does not report the reason, and does not guess. The operator of the service must allow the app's origin with CORS (an `Access-Control-Allow-Origin` header and an answer to the preflight for `POST` with `content-type`); the pinned image allows every origin. A service behind a redirect must be configured with its final URL, because the app does not follow redirects.
+
+**Timeout.** A request is aborted after 120 seconds (`SERVICE_TIMEOUT_MS` in `src/adapters/service/adapter.ts`). A full CSAF 2.0 run of 75 tests took about 13 seconds against the pinned image on loopback, so the value leaves room for a slow remote service and for network-enabled tests.
+
+**Cancel.** Cancel aborts the browser request, keeps the state so far, and ignores a response that arrives later. Aborting does not guarantee that the service stops processing.
+
+**Capability data.** `src/adapters/service/capabilities.json` maps catalogue tests to service test names, reviewed against the pinned image `ghcr.io/secvisogram/csaf-validator-service@sha256:e09b8a2b7c7715cce3de2144d73789a06df85a3d116ff07229199060f2e6e5db` (service 3.0.5, which uses `csaf-validator-lib` 3.0.3). That image supports CSAF 2.0 only.
+
+- CSAF 2.0: all 75 checks are `verified-supported`. The names equal the library's export names and the service returns each result under the name it was sent with. The schema check is the plain `csaf_2_0`, not `csaf_2_0_strict`. The spell check 6.3.8 runs on the service host, unlike in the browser.
+- CSAF 2.1: checks that have a library function are `not-yet-verified` and are sent under that function's name, because the user selected them. This is the only case where a check without verified support runs. Support stays unverified, the run panel says so, and only the actual response or error is shown. The pinned image does not know the 2.1-only names and answers a request that contains one with HTTP 400, which is shown as a failed run. Names it does know (such as `mandatoryTest_6_1_1`) run its CSAF 2.0 implementation, so those results are not confirmed to be the CSAF 2.1 checks. Checks without a library function are `known-unsupported`, because no service name is known for them.
+
+`pinned-image-tests.json` and `fixtures/` hold what was recorded from the pinned image (its test list, one full CSAF 2.0 response and one rejected request). The tests use them as evidence and as controlled service responses, so no live service is needed. They are never read at run time. To update the pin, run the new image, record the same three things again, review the mapping and change the `image` and `version` in `capabilities.json` together.
+
 ### Network-enabled tests
 
 Tests that may access external resources are classified per CSAF version in `src/catalogue/network.ts`. For CSAF 2.1 CSD04 this is the specification-defined `non-external-request-free` set. For CSAF 2.0 it is tool-defined (6.3.6 and 6.3.7). Before a run that includes any such test the app lists them and asks for confirmation. The tests are never started before the user confirms.
 
 With the browser library these tests are `not-yet-verified`: the browser applies CORS to their requests, so a blocked request cannot be told apart from an unreachable URL. They stay visible as unavailable with that reason.
+
+With the JavaScript service the same confirmation applies, because the service runs those tests on its host and contacts the external servers itself.
 
 ### Report
 

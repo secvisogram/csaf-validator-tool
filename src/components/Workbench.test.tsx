@@ -36,12 +36,12 @@ const fakeAdapter: ValidatorAdapter = {
 }
 
 vi.mock('../adapters/index.ts', () => ({
-  ADAPTERS: {
+  adaptersFor: () => ({
     'csaf-validator-lib': fakeAdapter,
     'csaf-rs-wasm': { ...fakeAdapter, id: 'csaf-rs-wasm' },
     'csaf-validator-service': { ...fakeAdapter, id: 'csaf-validator-service' },
     'csaf-service': { ...fakeAdapter, id: 'csaf-service' },
-  },
+  }),
 }))
 
 const { Workbench } = await import('./Workbench.tsx')
@@ -120,6 +120,24 @@ describe('Workbench', () => {
 
     act(() => last().emit({ type: 'completed' }))
     expect(screen.getByText('Run completed')).toBeTruthy()
+  })
+
+  it('shows the overall flag a validator returned, as returned', () => {
+    mount(loaded())
+    run()
+    act(() => last().emit({ type: 'completed', reportedValid: false }))
+    expect(
+      screen.getByText(
+        /validator reported isValid: false for the whole request/,
+      ),
+    ).toBeTruthy()
+  })
+
+  it('shows no overall flag when the validator returned none', () => {
+    mount(loaded())
+    run()
+    act(() => last().emit({ type: 'completed' }))
+    expect(screen.queryByText(/for the whole request/)).toBeNull()
   })
 
   it('keeps completed results when the user cancels, and marks the rest cancelled', () => {

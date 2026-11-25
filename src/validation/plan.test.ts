@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { CATALOGUES } from '../catalogue/catalogues.ts'
 import { initialSelection } from '../catalogue/selection.ts'
+import { libraryCapability } from '../adapters/library/capabilities.ts'
+import { serviceCapability } from '../adapters/service/capabilities.ts'
 import { analyzeSelection, planRun } from './plan.ts'
 import {
   FIXTURE_ADAPTER,
@@ -197,5 +199,58 @@ describe('network classification', () => {
         classified,
       )
     }
+  })
+})
+
+describe('an explicit CSAF 2.1 selection with the JavaScript service', () => {
+  const catalogue = CATALOGUES['csaf-2.1-csd04']
+  const service: ValidatorAdapter = {
+    id: 'csaf-validator-service',
+    availability: { available: true },
+    limitationKeys: [],
+    capability: serviceCapability,
+    start: () => ({ cancel: () => {} }),
+  }
+  const selection = {
+    tests: new Set(['csaf-2.1-csd04/6.1.1', 'csaf-2.1-csd04/6.1.48']),
+    schema: true,
+  }
+
+  it('runs the not-yet-verified checks that have a service test name, without a support gate', () => {
+    const analysis = analyzeSelection(catalogue, selection, service)
+    expect(analysis.runnable).toEqual([
+      'csaf-2.1-csd04/schema',
+      'csaf-2.1-csd04/6.1.1',
+    ])
+  })
+
+  it('keeps a check without a service test name selected as unavailable', () => {
+    const analysis = analyzeSelection(catalogue, selection, service)
+    expect(analysis.unavailable.map((entry) => entry.id)).toEqual([
+      'csaf-2.1-csd04/6.1.48',
+    ])
+  })
+
+  it('does not extend the exception to the library, which still runs only verified checks', () => {
+    const analysis = analyzeSelection(catalogue, selection, {
+      capability: libraryCapability,
+    })
+    for (const id of analysis.runnable) {
+      expect(libraryCapability(id).state).toBe('verified-supported')
+    }
+  })
+
+  it('still asks for confirmation of network-enabled tests', () => {
+    const plan = planRun({
+      catalogue,
+      selection: {
+        tests: new Set(['csaf-2.1-csd04/6.2.55']),
+        schema: false,
+      },
+      adapter: service,
+      document: FIXTURE_DOCUMENT,
+      networkConfirmed: false,
+    })
+    expect(plan.status).toBe('needs-confirmation')
   })
 })

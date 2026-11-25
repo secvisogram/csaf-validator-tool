@@ -61,6 +61,9 @@ export const RunPanel: React.FC<RunPanelProps> = ({
     analysis.runnable.length > 0
 
   const progress = run ? runProgress(run) : null
+  const unverifiedSent = analysis.runnable.filter(
+    (id) => adapter.capability(id).state !== 'verified-supported',
+  ).length
 
   return (
     <section aria-labelledby="run-heading">
@@ -69,7 +72,7 @@ export const RunPanel: React.FC<RunPanelProps> = ({
         {t('run.validatorLine', {
           validator: t(`validators.names.${adapter.id}`),
         })}
-        {adapter.componentVersion && (
+        {adapter.componentVersion && !adapter.remote && (
           <> ({t('run.version', { version: adapter.componentVersion })})</>
         )}
       </p>
@@ -87,7 +90,7 @@ export const RunPanel: React.FC<RunPanelProps> = ({
           <h3>{t('run.limitations')}</h3>
           <ul>
             {adapter.limitationKeys.map((key) => (
-              <li key={key}>{t(key)}</li>
+              <li key={key}>{t(key, { version: adapter.componentVersion })}</li>
             ))}
           </ul>
         </>
@@ -130,6 +133,22 @@ export const RunPanel: React.FC<RunPanelProps> = ({
 
       {document === null && <p>{t('run.noDocument')}</p>}
 
+      {adapter.remote && (
+        <section aria-labelledby="remote-heading" className="notice">
+          <h3 id="remote-heading">{t('run.remote.heading')}</h3>
+          <p>
+            {t('run.remote.destination', {
+              validator: t(`validators.names.${adapter.id}`),
+              endpoint: adapter.remote.endpoint,
+            })}
+          </p>
+          <p>{t('run.remote.disclosure')}</p>
+          {unverifiedSent > 0 && (
+            <p>{t('run.remote.unverified', { count: unverifiedSent })}</p>
+          )}
+        </section>
+      )}
+
       {confirming && needed?.status === 'needs-confirmation' && (
         <div
           role="alertdialog"
@@ -137,7 +156,10 @@ export const RunPanel: React.FC<RunPanelProps> = ({
           className="notice"
         >
           <h3 id="network-heading">{t('run.network.heading')}</h3>
-          <p>{t('run.network.body')}</p>
+          <p>
+            {t('run.network.body')}
+            {adapter.remote && <> {t('run.network.bodyRemote')}</>}
+          </p>
           <ul>
             {needed.networkTests.map((test) => (
               <li key={test.id}>
@@ -167,9 +189,11 @@ export const RunPanel: React.FC<RunPanelProps> = ({
           </button>
           <p>
             {t(
-              adapter.progress === 'indeterminate'
-                ? 'run.cancelNoteDiscarded'
-                : 'run.cancelNote',
+              adapter.remote
+                ? 'run.cancelNoteRemote'
+                : adapter.progress === 'indeterminate'
+                  ? 'run.cancelNoteDiscarded'
+                  : 'run.cancelNote',
             )}
           </p>
           {progress &&

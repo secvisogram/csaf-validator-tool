@@ -19,6 +19,8 @@ export type RunState = {
   results: ReadonlyMap<string, TestResultState>
   uncatalogued: readonly UncataloguedResult[]
   failure?: string
+  /** The validator's own overall flag, kept as returned. It decides nothing. */
+  reportedValid?: boolean
 }
 
 export function startRun(request: RunRequest): RunState {
@@ -68,7 +70,13 @@ export function reduceRun(state: RunState, event: RunEvent): RunState {
     case 'uncatalogued':
       return { ...state, uncatalogued: [...state.uncatalogued, event.result] }
     case 'completed':
-      return { ...state, phase: 'completed' }
+      return {
+        ...state,
+        phase: 'completed',
+        ...(event.reportedValid !== undefined && {
+          reportedValid: event.reportedValid,
+        }),
+      }
     case 'failed':
       return { ...state, phase: 'failed', failure: event.message }
     case 'cancelled':
