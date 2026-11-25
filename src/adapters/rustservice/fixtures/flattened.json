@@ -1,0 +1,57 @@
+{
+  "tag": "v0.7.3",
+  "commit": "cda82bfa4cf0b3e9e5a75ee7191ab31e035d2825",
+  "image": "sha256:7fbe3fbebe9516696d66454ed675a3ff31bf848b61add76f0e44c3b1491d7f54",
+  "recorded": "2026-11-25",
+  "request": {
+    "tests": [
+      {
+        "name": "6.1.1",
+        "type": "test"
+      },
+      {
+        "name": "6.3.6",
+        "type": "test"
+      },
+      {
+        "name": "does.not.exist",
+        "type": "test"
+      }
+    ],
+    "document": {
+      "document": {
+        "category": "csaf_base",
+        "csaf_version": "2.0",
+        "title": "Fixture document"
+      }
+    }
+  },
+  "status": 200,
+  "contentType": "application/json",
+  "response": {
+    "isValid": true,
+    "tests": [
+      {
+        "name": "6.1.1",
+        "isValid": true,
+        "errors": [],
+        "warnings": [],
+        "infos": []
+      },
+      {
+        "name": "6.3.6",
+        "isValid": true,
+        "errors": [],
+        "warnings": [],
+        "infos": []
+      },
+      {
+        "name": "does.not.exist",
+        "isValid": true,
+        "errors": [],
+        "warnings": [],
+        "infos": []
+      }
+    ]
+  }
+}

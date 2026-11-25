@@ -25,12 +25,18 @@ describe('SettingsPanel', () => {
     }
   })
 
-  it('shows validators that are not implemented as unavailable with the reason', () => {
-    const reasons =
-      markup.match(
-        /Unavailable: This validator is not implemented in this version of the tool yet\./g,
-      ) ?? []
-    expect(reasons).toHaveLength(1)
+  it('shows no validator as not implemented', () => {
+    expect(markup).not.toContain('not implemented')
+  })
+
+  it('shows the Rust service as unavailable until its URL is entered, then as available', () => {
+    const reason = /Unavailable: Enter a Rust service URL/
+    expect(markup).toMatch(reason)
+    const configured = render({
+      ...BUILT_IN_DEFAULTS,
+      services: { javascript: null, rust: 'http://127.0.0.1:8082' },
+    })
+    expect(configured).not.toMatch(reason)
   })
 
   it('shows the JavaScript service as unavailable until a URL is entered, then as available', () => {

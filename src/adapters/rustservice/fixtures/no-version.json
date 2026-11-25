@@ -1,0 +1,25 @@
+{
+  "tag": "v0.7.3",
+  "commit": "cda82bfa4cf0b3e9e5a75ee7191ab31e035d2825",
+  "image": "sha256:7fbe3fbebe9516696d66454ed675a3ff31bf848b61add76f0e44c3b1491d7f54",
+  "recorded": "2026-11-25",
+  "request": {
+    "tests": [
+      {
+        "name": "schema",
+        "type": "test"
+      }
+    ],
+    "document": {
+      "document": {}
+    }
+  },
+  "status": 400,
+  "contentType": "application/json",
+  "response": {
+    "error": "400 Bad Request",
+    "statusCode": 400,
+    "message": "Could not detect CSAF version. Make sure the document has a 'document.csaf_version' field",
+    "code": "PARSE_ERROR"
+  }
+}
