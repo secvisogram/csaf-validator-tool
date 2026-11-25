@@ -1,0 +1,30 @@
+# Local deployment: the app and the externally maintained JavaScript validator
+# service behind one loopback-only gateway. See README.md ("Local deployment").
+services:
+  app:
+    build:
+      context: .
+      dockerfile: deploy/app/Dockerfile
+    networks: [private]
+    restart: unless-stopped
+
+  validator-js:
+    # An immutable digest from .env, never built or patched here. Run
+    # scripts/compose-preflight.sh before `docker compose up -d`.
+    image: ${CSAF_VALIDATOR_IMAGE:?Set CSAF_VALIDATOR_IMAGE in .env (copy .env.example). It must be an immutable digest reference ending in @sha256:<64 hex characters>}
+    networks: [private]
+    restart: unless-stopped
+
+  gateway:
+    build:
+      context: deploy/gateway
+    # The only published port. Binding to anything but 127.0.0.1 is a deliberate
+    # local edit after an exposure review.
+    ports:
+      - 127.0.0.1:8080:80
+    depends_on: [app]
+    networks: [private]
+    restart: unless-stopped
+
+networks:
+  private: {}
