@@ -44,6 +44,7 @@ export const ReportSection: React.FC<ReportSectionProps> = ({
     [hints, catalogue, run.request.validator],
   )
   const progress = runProgress(run)
+  const resultNotes = adapter.resultNoteKeys ?? []
 
   const onKeyDown = (event: React.KeyboardEvent, current: ReportView) => {
     const index = REPORT_VIEWS.indexOf(current)
@@ -81,8 +82,18 @@ export const ReportSection: React.FC<ReportSectionProps> = ({
           </div>
         )}
       </div>
+      {resultNotes.length > 0 && (
+        <ul className="notice">
+          {resultNotes.map((key) => (
+            <li key={key}>{t(key)}</li>
+          ))}
+        </ul>
+      )}
       {run.reportedValid !== undefined && (
-        <p>{t('report.reportedValid', { value: String(run.reportedValid) })}</p>
+        <p>
+          {t('report.reportedValid', { value: String(run.reportedValid) })}
+          {resultNotes.length > 0 && <> {t('report.reportedValidFlattened')}</>}
+        </p>
       )}
       <p className="muted">{t('report.noVerdict')}</p>
 
