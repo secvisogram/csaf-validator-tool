@@ -1,6 +1,5 @@
 import type { ValidatorId } from '../../config/types.ts'
 import type {
-  Capability,
   RunEvent,
   RunRequest,
   ValidatorAdapter,
@@ -25,8 +24,7 @@ export type RemoteServiceProfile = {
   /** Notes shown next to the results of a run, where the service loses information. */
   resultNoteKeys?: string[]
   componentVersion?: string
-  capability: (id: string) => Capability
-  /** The name a catalogue check is sent under, or `undefined` if it cannot be sent. */
+  /** The name a catalogue check is sent under, or `undefined` if it has none. */
   testName: (id: string) => string | undefined
   noUrlReasonKey: string
   noUrlMessage: string
@@ -62,7 +60,6 @@ export function remoteServiceAdapter(
       componentVersion: profile.componentVersion,
     }),
     ...(endpoint && { remote: { endpoint } }),
-    capability: profile.capability,
     start(request: RunRequest, emit: (event: RunEvent) => void) {
       if (!endpoint) {
         emit({ type: 'failed', message: profile.noUrlMessage })
@@ -141,10 +138,15 @@ export function remoteServiceAdapter(
           return
         }
         if (!response.ok) {
-          const text =
+          const message =
             isRecord(body) && typeof body.message === 'string'
-              ? ` Service message: ${shorten(body.message)}`
-              : ''
+              ? body.message
+              : undefined
+          // A rejected request keeps the service's own message in full.
+          const text =
+            message === undefined
+              ? ''
+              : ` Service message: ${response.status === 400 ? message : shorten(message)}`
           finish({
             type: 'failed',
             message: `The service answered with ${status}.${text}`,

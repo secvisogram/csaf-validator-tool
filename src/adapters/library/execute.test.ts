@@ -3,19 +3,16 @@ import type { RunEvent } from '../../validation/types.ts'
 import {
   executeTests,
   normalizeLibraryResult,
-  type LibraryTestTarget,
   type ValidateFunction,
 } from './execute.ts'
 import { loadLibraryModule } from './loaders.ts'
 
-const target = (id: string, name: string): LibraryTestTarget => ({
-  id: `csaf-2.0/${id}`,
-  module: 'mandatoryTests.js',
-  export: name,
-})
+const A = 'csaf-2.0/6.1.1'
+const B = 'csaf-2.0/6.1.2'
+const C = 'csaf-2.0/6.1.3'
 
 async function collect(
-  tests: LibraryTestTarget[],
+  tests: string[],
   dependencies: Parameters<typeof executeTests>[1],
   document: unknown = {},
 ): Promise<RunEvent[]> {
@@ -130,26 +127,29 @@ describe('normalizeLibraryResult', () => {
 describe('executeTests', () => {
   it('runs each test on its own and streams started, then result', async () => {
     const events = await collect(
-      [target('6.1.1', 'a'), target('6.1.2', 'b')],
-      fakeLibrary({ a: () => ({}), b: () => ({ isValid: false, errors: [] }) }),
+      [A, B],
+      fakeLibrary({
+        mandatoryTest_6_1_1: () => ({}),
+        mandatoryTest_6_1_2: () => ({ isValid: false, errors: [] }),
+      }),
     )
     expect(events.map((e) => [e.type, 'id' in e ? e.id : null])).toEqual([
-      ['test-started', 'csaf-2.0/6.1.1'],
-      ['test-result', 'csaf-2.0/6.1.1'],
-      ['test-started', 'csaf-2.0/6.1.2'],
-      ['test-result', 'csaf-2.0/6.1.2'],
+      ['test-started', A],
+      ['test-result', A],
+      ['test-started', B],
+      ['test-result', B],
     ])
   })
 
   it('records a thrown test as an execution error and keeps running the others', async () => {
     const events = await collect(
-      [target('6.1.1', 'a'), target('6.1.2', 'b'), target('6.1.3', 'c')],
+      [A, B, C],
       fakeLibrary({
-        a: () => ({}),
-        b: () => {
+        mandatoryTest_6_1_1: () => ({}),
+        mandatoryTest_6_1_2: () => {
           throw new Error('exploded')
         },
-        c: () => ({}),
+        mandatoryTest_6_1_3: () => ({}),
       }),
     )
     const finished = events.filter((e) => e.type !== 'test-started')
@@ -160,58 +160,48 @@ describe('executeTests', () => {
     ])
     expect(finished[1]).toEqual({
       type: 'test-error',
-      id: 'csaf-2.0/6.1.2',
+      id: B,
       message: 'exploded',
     })
   })
 
   it('records a rejected promise and a thrown non-error as execution errors', async () => {
     const events = await collect(
-      [target('6.1.1', 'a'), target('6.1.2', 'b')],
+      [A, B],
       fakeLibrary({
-        a: () => Promise.reject(new Error('async failure')),
-        b: () => {
+        mandatoryTest_6_1_1: () => Promise.reject(new Error('async failure')),
+        mandatoryTest_6_1_2: () => {
           throw 'plain text'
         },
       }),
     )
     expect(events.filter((e) => e.type === 'test-error')).toEqual([
-      { type: 'test-error', id: 'csaf-2.0/6.1.1', message: 'async failure' },
-      { type: 'test-error', id: 'csaf-2.0/6.1.2', message: 'plain text' },
+      { type: 'test-error', id: A, message: 'async failure' },
+      { type: 'test-error', id: B, message: 'plain text' },
     ])
   })
 
-  it('records a missing export as an execution error without running anything', async () => {
-    const events = await collect(
-      [target('6.1.1', 'gone')],
-      fakeLibrary({ a: () => ({}) }),
-    )
-    expect(events[1]).toMatchObject({
-      type: 'test-error',
-      id: 'csaf-2.0/6.1.1',
-    })
-  })
-
-  it('records a module that fails to load as an execution error for that test only', async () => {
-    const events = await collect([target('6.1.1', 'a'), target('6.1.2', 'b')], {
+  it('records a module that fails to load as an execution error for that test only, not as a gap', async () => {
+    const events = await collect([A, B], {
       load: async () => {
         throw new Error('chunk failed')
       },
     })
     expect(events.filter((e) => e.type === 'test-error')).toHaveLength(2)
+    expect(events.filter((e) => e.type === 'test-gap')).toEqual([])
   })
 
   it('records a malformed library result as an execution error', async () => {
-    const events = await collect([target('6.1.1', 'a')], {
-      load: async () => ({ a: () => ({}) }),
+    const events = await collect([A], {
+      load: async () => ({ mandatoryTest_6_1_1: () => ({}) }),
       validate: async () => ({ tests: 'nope' }),
     })
     expect(events[1]?.type).toBe('test-error')
   })
 
   it('attaches the result to the invoked test whatever name the library gives the function', async () => {
-    const events = await collect([target('6.1.1', 'a')], {
-      load: async () => ({ a: () => ({}) }),
+    const events = await collect([A], {
+      load: async () => ({ mandatoryTest_6_1_1: () => ({}) }),
       validate: async () => ({
         tests: [
           {
@@ -225,7 +215,7 @@ describe('executeTests', () => {
       }),
     })
     expect(events.map((e) => e.type)).toEqual(['test-started', 'test-result'])
-    expect(events[1]).toMatchObject({ id: 'csaf-2.0/6.1.1' })
+    expect(events[1]).toMatchObject({ id: A })
   })
 
   it('emits nothing for an empty selection', async () => {
@@ -233,19 +223,73 @@ describe('executeTests', () => {
   })
 })
 
+describe('executeTests for a test the library has no function for', () => {
+  it('reports an implementation gap, and never runs or starts it', async () => {
+    const validated: unknown[] = []
+    const events = await collect([A], {
+      load: async () => ({}),
+      validate: async (tests) => {
+        validated.push(tests)
+        return {}
+      },
+    })
+    expect(events).toEqual([{ type: 'test-gap', id: A }])
+    expect(validated).toEqual([])
+  })
+
+  it('reports every gap when the run starts, before the first test runs', async () => {
+    const events = await collect(
+      [A, B, C],
+      fakeLibrary({
+        mandatoryTest_6_1_1: () => ({}),
+        mandatoryTest_6_1_3: () => ({}),
+      }),
+    )
+    expect(events.map((e) => [e.type, 'id' in e ? e.id : null])).toEqual([
+      ['test-gap', B],
+      ['test-started', A],
+      ['test-result', A],
+      ['test-started', C],
+      ['test-result', C],
+    ])
+  })
+
+  it('looks the function up by the name derived from the catalogue ID, in the module of its group and snapshot', async () => {
+    const asked: [string, string][] = []
+    await collect(
+      [
+        'csaf-2.0/6.2.3',
+        'csaf-2.1-csd04/6.2.3',
+        'csaf-2.1-csd04/6.3.21.2',
+        'csaf-2.1-csd04/schema',
+      ],
+      {
+        load: async (module) => {
+          asked.push([module, 'x'])
+          return {}
+        },
+      },
+    )
+    expect(asked.map(([module]) => module)).toEqual([
+      'optionalTests.js',
+      'csaf_2_1/recommendedTests.js',
+      'csaf_2_1/informativeTests.js',
+      'csaf_2_1/schemaTests.js',
+    ])
+  })
+
+  it('reports a gap for an ID the naming rule gives no function name', async () => {
+    const events = await collect(['csaf-2.0/6.9.9'], fakeLibrary({}))
+    expect(events).toEqual([{ type: 'test-gap', id: 'csaf-2.0/6.9.9' }])
+  })
+})
+
 // Loading the real library modules compiles large schemas, which is slow on a cold start.
 describe('executeTests with the pinned library', { timeout: 60_000 }, () => {
-  const run = async (
-    tests: LibraryTestTarget[],
-    document: unknown,
-  ): Promise<RunEvent[]> =>
+  const run = async (tests: string[], document: unknown): Promise<RunEvent[]> =>
     collect(tests, { load: loadLibraryModule }, document)
 
-  const schema: LibraryTestTarget = {
-    id: 'csaf-2.0/schema',
-    module: 'schemaTests.js',
-    export: 'csaf_2_0',
-  }
+  const schema = 'csaf-2.0/schema'
 
   it('reports the schema check of an empty document as failed with its errors', async () => {
     const events = await run([schema], {})
@@ -261,16 +305,9 @@ describe('executeTests with the pinned library', { timeout: 60_000 }, () => {
   })
 
   it('runs a mandatory test through the real library and attaches the result to the requested ID', async () => {
-    const events = await run(
-      [
-        {
-          id: 'csaf-2.0/6.1.1',
-          module: 'mandatoryTests.js',
-          export: 'mandatoryTest_6_1_1',
-        },
-      ],
-      { product_tree: { relationships: [{ product_reference: 'X' }] } },
-    )
+    const events = await run(['csaf-2.0/6.1.1'], {
+      product_tree: { relationships: [{ product_reference: 'X' }] },
+    })
     expect(events.map((e) => e.type)).toEqual(['test-started', 'test-result'])
     expect(events[1]).toMatchObject({
       type: 'test-result',
@@ -279,16 +316,7 @@ describe('executeTests with the pinned library', { timeout: 60_000 }, () => {
   })
 
   it('runs a CSAF 2.1 test from its own module', async () => {
-    const events = await run(
-      [
-        {
-          id: 'csaf-2.1-csd04/6.1.1',
-          module: 'csaf_2_1/mandatoryTests.js',
-          export: 'mandatoryTest_6_1_1',
-        },
-      ],
-      {},
-    )
+    const events = await run(['csaf-2.1-csd04/6.1.1'], {})
     expect(events[1]?.type).toBe('test-result')
   })
 })

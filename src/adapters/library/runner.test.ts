@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { RunEvent } from '../../validation/types.ts'
-import type { LibraryTestTarget } from './execute.ts'
 import { startLibraryRun, type WorkerLike } from './runner.ts'
 
 class FakeWorker implements WorkerLike {
@@ -20,9 +19,7 @@ class FakeWorker implements WorkerLike {
   }
 }
 
-const tests: LibraryTestTarget[] = [
-  { id: 'csaf-2.0/6.1.1', module: 'mandatoryTests.js', export: 'a' },
-]
+const tests = ['csaf-2.0/6.1.1']
 const input = { document: { a: 1 }, tests }
 
 function start() {

@@ -44,8 +44,8 @@ Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
 - `src/config/`: runtime configuration (loader, strict validation, settings precedence) and the settings hook
 - `src/hints/`: supplemental hints (YAML loader and hook, strict file check, exact matching)
 - `public/hints.yaml`: the hint file, served as a static asset next to the app
-- `src/validation/`: the shared validator model: capability states, run planning, run state, and the report model with its counts, without UI
-- `src/adapters/`: validator adapters. `src/adapters/library/` holds the browser library adapter (worker, runner, capability data), `src/adapters/csafrs/` holds the csaf-rs WebAssembly adapter, `src/adapters/service/` holds the JavaScript service adapter and the client core it shares with the Rust adapter (request, response check, capability data, recorded fixtures), and `src/adapters/rustservice/` holds the Rust service adapter (capability data, recorded fixtures)
+- `src/validation/`: the shared validator model: run planning, run state, and the report model with its counts, without UI
+- `src/adapters/`: validator adapters. `src/adapters/library/` holds the browser library adapter (worker, runner, pin), `src/adapters/csafrs/` holds the csaf-rs WebAssembly adapter, `src/adapters/service/` holds the JavaScript service adapter and the client core it shares with the Rust adapter (request, response check, reference build, recorded fixtures), and `src/adapters/rustservice/` holds the Rust service adapter (reference build, recorded fixtures). `src/adapters/naming.ts` holds the test naming rule that all adapters share
 - `src/components/`: React components
 - `src/util/`: small helpers such as the safe-link check
 - `scripts/`: maintainer scripts
@@ -144,21 +144,24 @@ Built-in defaults are `csaf-validator-lib`, `document` and `all-messages`, with 
 
 The user loads a document, chooses a validator, adjusts the selected tests and runs them. The report shows the outcome of every catalogue test.
 
-### Validators and capabilities
+### Validators and implementation gaps
 
 The app offers four validators. `csaf-validator-lib` and `csaf-rs-wasm` run in the browser. `csaf-validator-service` and `csaf-service` run once their service URL is configured, and are listed as unavailable with the reason until then.
 
-Every adapter has capability data that is kept apart from the catalogue. Each record names the catalogue test or schema check, the adapter function, the execution mode, the evidence and the component version. A record is in one of three states:
+The app keeps no per-test record of what a validator supports. Each adapter derives the name of a catalogue test by a naming rule and asks the validator for it. The rule is code in `src/adapters/naming.ts`: `<group>Test_<section with underscores>`, where the group is `mandatory` for 6.1, `optional` (CSAF 2.0) or `recommended` (CSAF 2.1) for 6.2 and `informative` for 6.3, and the schema checks are `csaf_2_0` and `csaf_2_1`. The library and the JavaScript service use these names. csaf-rs and the Rust service use the bare section (`6.1.1`) or `schema`.
 
-| State                | Meaning                                                                   |
-| -------------------- | ------------------------------------------------------------------------- |
-| `verified-supported` | Evidence shows the adapter runs this test correctly. These tests run.     |
-| `known-unsupported`  | The adapter cannot run this test. A reason is recorded.                   |
-| `not-yet-verified`   | There is no evidence yet. The test does not run, and the reason is shown. |
+A selected test that the validator is observed not to implement is an **implementation gap**. It is shown as unavailable, with the reason "validator does not implement this test", it has no validation outcome, it is not counted as valid or not valid, and it is listed apart from execution errors, skipped, missing, not selected and failed-run states. A gap is observed, not claimed:
 
-The one exception is a CSAF 2.1 check the user selected for the JavaScript service (see below). It is sent although it is `not-yet-verified`, and that status stays visible.
+| Validator                | How a gap is observed                                                                                                 |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| `csaf-validator-lib`     | The worker finds no function for the test in the pinned library when the run starts.                                  |
+| `csaf-rs-wasm`           | The package reports `NotFound` for a selected test. This appears when the run completes.                              |
+| `csaf-validator-service` | Not observed. The service fails a whole request with HTTP 400 on one unknown name, and that is shown as a failed run. |
+| `csaf-service`           | Not observed. The service shows an unimplemented test as valid, and that is shown as returned, with a disclosure.     |
 
-A selected test that the adapter cannot run stays selected. It is shown as unavailable, with its reason, before and after the run. The app never infers support from the name of a library export.
+Gaps appear per run only. The app has no overview before a run and no list of the gaps of a version. These are not implementation gaps: a known deviation of a validator, an environment limit (the library cannot start Hunspell for the spell check 6.3.8 in a browser), a network-enabled test that waits for confirmation, and a service that fails or flattens a request. A selected test that cannot run in this environment stays selected and is shown as unavailable, with its reason, before and after the run.
+
+A **pin** is a version the app ships, so it is true by construction. `src/adapters/library/pin.json` and `src/adapters/csafrs/pin.json` name the library and csaf-rs versions that are bundled, and the exact-pin tests check them against `package.json` and `node_modules`. A **reference build** is the build a remote service's fixtures and naming checks were recorded against. `src/adapters/service/reference.json` and `src/adapters/rustservice/reference.json` name it (the JavaScript service image, and the tag, commit and image of the Rust build). A reference build says nothing about the service the user connects to. The tool does not check which version that is, and the run panel says so. There is no check against the `tools/csaf-rs` gitlink.
 
 ### The browser library adapter
 
@@ -168,15 +171,11 @@ The Vite build prints warnings that `node:child_process`, `node:fs/promises` and
 
 The schema check uses the library's schema for the version (`csaf_2_0`, `csaf_2_1`), which is the schema published with the pinned specification. The library's stricter `_strict` variants are not offered, because the catalogue has no entry for them.
 
-The capability data is `src/adapters/library/capabilities.json`. It is edited by hand and reviewed like code. There is no generator. Each record maps a catalogue test or the schema check to one library function (`module` and `export`), or records why none can run:
+**Test functions.** The worker takes the catalogue IDs of the selected tests and resolves each to a function of the pinned library by the naming rule, in the module of its snapshot and group (`mandatoryTests.js`, `csaf_2_1/recommendedTests.js` and so on). It does this when the run starts. A test with no function is reported as an implementation gap. The app never infers support from a list. A test that exists in the library is run, whatever it returns. A test is not run in the browser in two cases that are environment limits and not gaps: the spell check 6.3.8 (Hunspell cannot be started) and the network-enabled tests, whose result is not verified because the browser applies CORS to their requests.
 
-- `verified-supported`: a reviewer mapped the test to an export that exists in the pinned library version. `capabilities.test.ts` checks that the export exists, that it belongs to the test's section and snapshot, and that no export is used twice. The app does not check whether the library's results agree with the OASIS reference documents. That is the validator component's job, not this app's.
-- `known-unsupported`: the library has no function for the test, or cannot run it in a browser (Hunspell, 6.3.8). The reason is recorded.
-- `not-yet-verified`: the test is mapped but must not run yet. This is the case for network-enabled tests until their behaviour in the browser is reviewed. The reason is recorded.
+`src/adapters/library/pin.json` names the library version. `src/adapters/library/deviations.json` keeps the evidence notes for known deviations of the pinned library (the schema check's `cpe` pattern, 6.1.21 and 6.3.12 of CSAF 2.1). A deviation is not a gap and does not stop a test from running. The app does not check whether the library's results agree with the OASIS reference documents. That is the validator component's job, not this app's.
 
-A record may carry an `evidence` note, for example a known deviation of the library that a reviewer saw. Without it, the evidence of a verified record is the reviewed mapping itself.
-
-When the library is updated, change the pin, the `version` in `capabilities.json` and the mapping together. The tests fail until the mapping and the installed library agree. Browser behaviour of the worker and the mapped functions is covered by the browser tests, not by a separate script.
+When the library is updated, change the pin in `package.json` and the lockfile and the `version` in `pin.json` and `deviations.json`. A test checks that the naming rule resolves every function that the installed library exports for a catalogue test, so a renamed export fails the tests. Nothing else needs a hand edit. Browser behaviour of the worker is covered by the browser tests.
 
 ### The csaf-rs WebAssembly adapter
 
@@ -188,17 +187,17 @@ The call is synchronous, so there is no per-test progress. The run shows an inde
 
 Result mapping:
 
-| csaf-rs status             | Shown as                                                                        |
-| -------------------------- | ------------------------------------------------------------------------------- |
-| `Success`                  | Succeeded                                                                       |
-| `Failure`                  | Failed, with every error, warning and info message and its instance path        |
-| `Skipped`                  | Skipped, as reported by the validator                                           |
-| `NotFound`                 | An execution error for that test, because capability data lists it as supported |
-| An ID not in the catalogue | Uncatalogued, with its original ID and details                                  |
+| csaf-rs status             | Shown as                                                                   |
+| -------------------------- | -------------------------------------------------------------------------- |
+| `Success`                  | Succeeded                                                                  |
+| `Failure`                  | Failed, with every error, warning and info message and its instance path   |
+| `Skipped`                  | Skipped, as reported by the validator                                      |
+| `NotFound`                 | An implementation gap for that selected test: unavailable, with no outcome |
+| An ID not in the catalogue | Uncatalogued, with its original ID and details                             |
 
 A selected test missing from the response is shown as missing. A malformed response, or an exception from the package, fails the whole run and gives no test outcome. The catalogue ID `<snapshot>/<section>` maps to the package ID `<section>`, and the schema check maps to `schema`.
 
-The capability data is `src/adapters/csafrs/capabilities.json`. It is edited by hand and reviewed like code, with no generator. The 3 CSAF 2.0 tests and 29 CSAF 2.1 tests that csaf-rs 0.7.3 reports as `NotFound` in every run over the OASIS validator test documents are `known-unsupported`. This includes all network-enabled tests. Every other test, and the schema check, is `verified-supported`. For the schema check, the strictness of the package schema is not verified. `capabilities.test.ts` compares the file with the identifiers of the installed package, so a package update fails the tests until the mapping is reviewed again. When updating the pin, also re-run the full set over the OASIS validator test documents to see which tests return `NotFound`, and re-check whether any network-enabled test has gained network behaviour. No test enforces this re-check. CSAF 2.1 support in the package is experimental.
+`src/adapters/csafrs/pin.json` names the exact package version, and the upstream tag and commit of that version. A test checks that the installed package lists a name for every catalogue test and schema check. The tests that csaf-rs 0.7.3 reports as `NotFound` in every run over the OASIS validator test documents (3 for CSAF 2.0, 29 for CSAF 2.1, including all network-enabled tests) are not listed anywhere: they appear as gaps when a run includes them. For the schema check, the strictness of the package schema is not verified. CSAF 2.1 support in the package is experimental.
 
 The package ships TypeScript source that does not compile under this repository's strict settings. `tsconfig.json` therefore maps it to a local declaration, `src/adapters/csafrs/csaf-rs.d.ts`, which declares only the part the adapter uses. A test checks that every declared function exists in the package. The fixtures in `src/adapters/csafrs/fixtures/` are unmodified OASIS example documents. A minimal document is not enough, because when it fails the schema check csaf-rs skips most tests.
 
@@ -208,24 +207,24 @@ The Vite build may print the same kind of externalization warnings for Node modu
 
 `csaf-validator-service` sends the document and the exact selected tests to an externally operated [csaf-validator-service](https://github.com/secvisogram/csaf-validator-service). It is unavailable until a URL is set, either by the runtime configuration (`services.javascript`) or in the session controls.
 
-**Request.** One `POST <url>/api/v1/validate` with `{ "tests": [{ "name": "<test name>", "type": "test" }, ...], "document": ... }`. The names are the service's own test names, for example `mandatoryTest_6_1_1`. The app never sends a preset and never calls `GET /api/v1/tests` or `GET /health` to decide what is supported. The request carries no credentials, follows no redirect and sends no referrer.
+**Request.** One `POST <url>/api/v1/validate` with `{ "tests": [{ "name": "<test name>", "type": "test" }, ...], "document": ... }`. The names are derived from the catalogue IDs by the naming rule, for example `mandatoryTest_6_1_1`, and every selected test is sent. The app never sends a preset and never calls `GET /api/v1/tests` or `GET /health`, and it holds no test list of the service. The request carries no credentials, follows no redirect and sends no referrer.
 
 **Disclosure.** The selected service and the full endpoint stay visible beside the run button, with an inline note that the complete document and the request parameters go to that service, that its operator controls retention and logging, and that this app does not guarantee how the service handles the data. There is no confirmation dialog for the service. The confirmation for network-enabled tests stays.
 
-**Results.** Each returned test is mapped to its catalogue test through the reviewed mapping and shown as returned. HTTP success is not treated as validity: a test with `isValid: false` is shown as not valid, and the top-level `isValid` is shown as the service's own flag, not as a verdict. The service has no skipped state, so the app never shows one. A requested test that the completed response does not contain is shown as missing. A returned test that was not requested, or that appears twice, is shown as uncatalogued with its original name and details. An error without a text message keeps its location and has an empty message.
+**Results.** Each returned test is mapped to the catalogue test that was sent under its name and shown as returned. HTTP success is not treated as validity: a test with `isValid: false` is shown as not valid, and the top-level `isValid` is shown as the service's own flag, not as a verdict. The service has no skipped state, so the app never shows one. A requested test that the completed response does not contain is shown as missing. A returned test that was not requested, or that appears twice, is shown as uncatalogued with its original name and details. An error without a text message keeps its location and has an empty message.
 
-**Failures.** These end the run as a service or request failure and are never test outcomes: an HTTP error status, a body that is not JSON or does not have the expected shape (no result of such a response is used), a network or CORS error, and the timeout. The app shows the HTTP status and, for an error status, the service's own message (shortened). For a request that gets no response it says that the browser does not report the reason, and does not guess. The operator of the service must allow the app's origin with CORS (an `Access-Control-Allow-Origin` header and an answer to the preflight for `POST` with `content-type`); the pinned image allows every origin. A service behind a redirect must be configured with its final URL, because the app does not follow redirects.
+**Failures.** These end the run as a service or request failure and are never test outcomes: an HTTP error status, a body that is not JSON or does not have the expected shape (no result of such a response is used), a network or CORS error, and the timeout. The app shows the HTTP status and, for an error status, the service's own message (shortened, except for an HTTP 400, which is shown in full and never rewritten). The app does not read the message to work out which test the service rejected, because its wording can change. A 400 is a failed run and is never reported as a gap. For a request that gets no response it says that the browser does not report the reason, and does not guess. The operator of the service must allow the app's origin with CORS (an `Access-Control-Allow-Origin` header and an answer to the preflight for `POST` with `content-type`); the pinned image allows every origin. A service behind a redirect must be configured with its final URL, because the app does not follow redirects.
 
-**Timeout.** A request is aborted after 120 seconds (`SERVICE_TIMEOUT_MS` in `src/adapters/service/adapter.ts`). A full CSAF 2.0 run of 75 tests took about 13 seconds against the pinned image on loopback, so the value leaves room for a slow remote service and for network-enabled tests.
+**Timeout.** A request is aborted after 120 seconds (`SERVICE_TIMEOUT_MS` in `src/adapters/service/adapter.ts`). A full CSAF 2.0 run of 75 tests took about 13 seconds against the reference image on loopback, so the value leaves room for a slow remote service and for network-enabled tests.
 
 **Cancel.** Cancel aborts the browser request, keeps the state so far, and ignores a response that arrives later. Aborting does not guarantee that the service stops processing.
 
-**Capability data.** `src/adapters/service/capabilities.json` maps catalogue tests to service test names, reviewed against the pinned image `ghcr.io/secvisogram/csaf-validator-service@sha256:e09b8a2b7c7715cce3de2144d73789a06df85a3d116ff07229199060f2e6e5db` (service 3.0.5, which uses `csaf-validator-lib` 3.0.3). That image supports CSAF 2.0 only.
+**Reference build.** `src/adapters/service/reference.json` names the image `ghcr.io/secvisogram/csaf-validator-service@sha256:e09b8a2b7c7715cce3de2144d73789a06df85a3d116ff07229199060f2e6e5db` (service 3.0.5, which uses `csaf-validator-lib` 3.0.3). That image supports CSAF 2.0 only. A service you connect may be another version.
 
-- CSAF 2.0: all 75 checks are `verified-supported`. The names equal the library's export names and the service returns each result under the name it was sent with. The schema check is the plain `csaf_2_0`, not `csaf_2_0_strict`. The spell check 6.3.8 runs on the service host, unlike in the browser.
-- CSAF 2.1: checks that have a library function are `not-yet-verified` and are sent under that function's name, because the user selected them. This is the only case where a check without verified support runs. Support stays unverified, the run panel says so, and only the actual response or error is shown. The pinned image does not know the 2.1-only names and answers a request that contains one with HTTP 400, which is shown as a failed run. Names it does know (such as `mandatoryTest_6_1_1`) run its CSAF 2.0 implementation, so those results are not confirmed to be the CSAF 2.1 checks. Checks without a library function are `known-unsupported`, because no service name is known for them.
+- CSAF 2.0: the derived names equal the library's export names, and the service returns each result under the name it was sent with. The schema check is the plain `csaf_2_0`, not `csaf_2_0_strict`. The spell check 6.3.8 runs on the service host, unlike in the browser.
+- CSAF 2.1: an explicit selection is sent like any other, with the disclosure that the service supports CSAF 2.0 only. The reference image does not know the 2.1-only names and answers a request that contains one with HTTP 400, which is shown as a failed run, so a CSAF 2.1 run can return no results at all. Names it does know (such as `mandatoryTest_6_1_1`) run its CSAF 2.0 implementation, so those results are not confirmed to be the CSAF 2.1 checks.
 
-`pinned-image-tests.json` and `fixtures/` hold what was recorded from the pinned image (its test list, one full CSAF 2.0 response and one rejected request). The tests use them as evidence and as controlled service responses, so no live service is needed. They are never read at run time. To update the pin, run the new image, record the same three things again, review the mapping and change the `image` and `version` in `capabilities.json` together.
+`fixtures/` holds what was recorded from the reference image (one full CSAF 2.0 response and one rejected request). The tests use them as evidence and as controlled service responses, so no live service is needed. They are never read at run time. To update the reference build, run the new image, record the same two things again and change the `image` and `version` in `reference.json`.
 
 ### The Rust service adapter
 
@@ -237,21 +236,21 @@ It shares the request, response check, timeout and cancel behavior of the JavaSc
 
 **Flattened results.** The service returns a flattened result. `Success`, `Skipped` and `NotFound` all come back as `isValid: true` with empty lists, and a test with only warnings or information also counts as valid. In the recorded build a request for `6.3.6`, `6.3.7`, `6.3.8` and an unknown name (`does.not.exist`) all returned HTTP 200 with `isValid: true`. So the app shows a returned `isValid: true` as valid and `isValid: false` as not valid, never shows a skipped result for this service, and says so next to the run and next to the report. The top-level `isValid` is shown as the service's own flag with the same caveat. See `fixtures/flattened.json`.
 
-**Capability data.** `src/adapters/rustservice/capabilities.json` is a hand-edited file for the upstream tag `v0.7.3` (commit `cda82bfa4cf0b3e9e5a75ee7191ab31e035d2825`, `csaf-service` 0.1.2, built from the repository `Dockerfile`). Upstream publishes no image, so the file records the ID of the image built from that commit. Because a test the service does not implement looks like a pass, a check is `verified-supported` only if csaf-rs 0.7.3 implements it. The tests that csaf-rs 0.7.3 reports as `NotFound` (6.3.6, 6.3.7 and 6.3.8 for CSAF 2.0, and 29 tests for CSAF 2.1) are `known-unsupported` and never sent, including all network-enabled tests, because csaf-rs has no HTTP client. There is no `not-yet-verified` record, so a user's selection never authorizes an attempt, also for CSAF 2.1. The service lists the unimplemented tests at `GET /api/v1/tests`, so that list is not evidence of support. Tests compare the file with the csaf-rs WebAssembly capability file of the same tag.
+**Reference build.** `src/adapters/rustservice/reference.json` names the upstream tag `v0.7.3`, its commit `cda82bfa4cf0b3e9e5a75ee7191ab31e035d2825`, `csaf-service` 0.1.2 (built from the repository `Dockerfile`) and the ID of the image built from that commit, because upstream publishes no image. These values are evidence from `npm run record:rust-service`, and a test checks that every recorded fixture carries them. All selected tests are sent, with no list. The service shows a test it does not implement (csaf-rs 0.7.3 reports 6.3.6, 6.3.7 and 6.3.8 for CSAF 2.0, and 29 tests for CSAF 2.1, as `NotFound`) as valid, so such a test can look valid. The disclosure says so, and the app reconstructs no status and reports no gap for this service. Network-enabled tests are sent after confirmation, although csaf-rs has no HTTP client.
 
 **Version.** The service validates by the version in `document.csaf_version` and ignores any other choice. If the selected CSAF version differs from the declared one, or the document declares none, nothing is sent and the run fails with that reason. The selected tests are shown as not run, not as test outcomes.
 
 **Failures.** These end the run as a service or request failure and are never test outcomes: an HTTP error status (a missing `csaf_version` is answered with HTTP 400 and a JSON message, and a wrongly shaped request with a plain-text HTTP 422), a body that is not JSON or does not have the expected shape, a network or CORS error, and the timeout. For a request without a response the app says that the browser does not report the reason.
 
-**CORS.** The service answers a browser only if CORS allows it, and the default allows no origin. In the pinned build an origin allowlist (`CSAF_SERVICE__CORS__ALLOWED_ORIGINS`, comma-separated) is not enough: the preflight for a `POST` with `content-type: application/json` is answered without `access-control-allow-headers`, so the browser blocks the request. A browser works only with `CSAF_SERVICE__CORS__PERMISSIVE=true`. That setting allows every origin and must not be used beyond local use. The alternative is to serve the app and the service from one origin behind a reverse proxy, so there is no cross-origin request. The local Compose gateway does exactly this and leaves the CORS settings unset. The app cannot diagnose a CORS block and reports it as a request without a response.
+**CORS.** The service answers a browser only if CORS allows it, and the default allows no origin. In the reference build an origin allowlist (`CSAF_SERVICE__CORS__ALLOWED_ORIGINS`, comma-separated) is not enough: the preflight for a `POST` with `content-type: application/json` is answered without `access-control-allow-headers`, so the browser blocks the request. A browser works only with `CSAF_SERVICE__CORS__PERMISSIVE=true`. That setting allows every origin and must not be used beyond local use. The alternative is to serve the app and the service from one origin behind a reverse proxy, so there is no cross-origin request. The local Compose gateway does exactly this and leaves the CORS settings unset. The app cannot diagnose a CORS block and reports it as a request without a response.
 
-**Recorded evidence.** `fixtures/` holds what was recorded from the pinned build: its test lists, a full CSAF 2.0 and CSAF 2.1 run, the flattened response, an empty request, and the 400 and 422 answers. The tests use them as controlled service responses, so no live service is needed, and they are never read at run time. `npm run record:rust-service` builds the image from the `tools/csaf-rs` submodule (`git submodule update --init tools/csaf-rs`, Docker required), runs it and records the same files again, so a reviewer can diff them. The Compose stack builds the same source. CI, the release workflow and the tests never build it and do not need the submodule. To update the pin, move the submodule to the new tag, record again, review the mapping and change `tag`, `commit` and `image` in `capabilities.json` together.
+**Recorded evidence.** `fixtures/` holds what was recorded from the reference build: a full CSAF 2.0 and CSAF 2.1 run, the flattened response, an empty request, and the 400 and 422 answers. The tests use them as controlled service responses, so no live service is needed, and they are never read at run time. `npm run record:rust-service` builds the image from the `tools/csaf-rs` submodule (`git submodule update --init tools/csaf-rs`, Docker required), runs it and records the same files again, so a reviewer can diff them. The Compose stack builds the same source. CI, the release workflow and the tests never run it or build the image and do not need the submodule. To update the pin, move the submodule to the new tag and record again. Then set `tag`, `commit` and `image` in `reference.json` to the values the script wrote into the fixtures. The reference test fails until they agree. It does not check the pin against the `tools/csaf-rs` gitlink.
 
 ### Network-enabled tests
 
 Tests that may access external resources are classified per CSAF version in `src/catalogue/network.ts`. For CSAF 2.1 CSD04 this is the specification-defined `non-external-request-free` set. For CSAF 2.0 it is tool-defined (6.3.6 and 6.3.7). Before a run that includes any such test the app lists them and asks for confirmation. The tests are never started before the user confirms.
 
-With the browser library these tests are `not-yet-verified`: the browser applies CORS to their requests, so a blocked request cannot be told apart from an unreachable URL. They stay visible as unavailable with that reason.
+With the browser library these tests do not run: the browser applies CORS to their requests, so a blocked request cannot be told apart from an unreachable URL, and their result is not verified. They stay visible as unavailable with that reason. This is an environment limit and not an implementation gap.
 
 With the JavaScript service the same confirmation applies, because the service runs those tests on its host and contacts the external servers itself.
 
@@ -259,7 +258,7 @@ With the JavaScript service the same confirmation applies, because the service r
 
 The report is table-first. It shows the status counts, a "Needs attention" list, and three in-page views (Summary, All messages, Detailed report). The Detailed report lists every catalogue test, selected or not.
 
-Execution states and validator outcomes are kept apart. A row can be not selected, unavailable, queued, running, valid or not valid as reported by the validator, skipped (only if the validator says so), missing from a completed response, an execution error, a run failure, or not run because the run was cancelled. A returned result that cannot be mapped to a catalogue test is shown as uncatalogued with its original ID and details. Only results the validator returned are counted as valid or not valid. The app does not infer a pass or a fail for anything else, and it shows no single verdict.
+Execution states and validator outcomes are kept apart. A row can be not selected, unavailable (it cannot run here, or the validator does not implement it, which is an implementation gap), queued, running, valid or not valid as reported by the validator, skipped (only if the validator says so), missing from a completed response, an execution error, a run failure, or not run because the run was cancelled. A returned result that cannot be mapped to a catalogue test is shown as uncatalogued with its original ID and details. Only results the validator returned are counted as valid or not valid. The app does not infer a pass or a fail for anything else, and it shows no single verdict.
 
 All text from documents and validators is rendered as escaped text. Links are created only for valid absolute `http:` and `https:` URLs and open with `rel="noopener noreferrer"`. Anything else is shown as plain text.
 
@@ -369,7 +368,7 @@ The digest is changed only after a review:
 1. Review the new release of [csaf-validator-service](https://github.com/secvisogram/csaf-validator-service) and the `csaf-validator-lib` version it uses.
 2. Start the new image on loopback only and check `/health`, `GET /api/v1/tests` and a `POST /api/v1/validate` request. The service must listen on `8082` and keep the `/api/v1/*` contract.
 3. Set the new digest in `compose.yaml` (always a digest, never a tag), and repeat the smoke test below. Resolve a tag to its digest with `docker buildx imagetools inspect <image:tag>`.
-4. Update the capability data (`src/adapters/service/capabilities.json`: `image`, `version`, the recorded test list and fixtures) and, if the supported CSAF versions changed, this README. A test fails when `compose.yaml` and `capabilities.json` name different images, and when the image is not a digest.
+4. Update the reference build (`src/adapters/service/reference.json`: `image` and `version`, and the recorded fixtures) and, if the supported CSAF versions changed, this README. A test fails when `compose.yaml` and `reference.json` name different images, and when the image is not a digest.
 
 ### Troubleshooting
 
@@ -393,7 +392,7 @@ The upstream project publishes no image, so Compose builds `validator-rust` from
 - The JavaScript service stays the default selection. Choose `csaf-service` in the app to use the Rust service.
 - When it is stopped, built wrongly or unreachable, the app shows a service failure for the Rust run and never a test result. The app, the gateway and the JavaScript service keep working.
 - The Rust service flattens `Skipped` and `NotFound` to valid, so a returned `isValid: true` can mean "not implemented". The app shows the results as returned and says so next to the run and the report (see "The Rust service adapter").
-- To move to a newer upstream tag, change the submodule, record the fixtures again (`npm run record:rust-service`), review the capability data and repeat the smoke test.
+- To move to a newer upstream tag, change the submodule, record the fixtures again (`npm run record:rust-service`), update `reference.json` to the recorded values and repeat the smoke test.
 
 ### Smoke test
 

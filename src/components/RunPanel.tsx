@@ -61,9 +61,6 @@ export const RunPanel: React.FC<RunPanelProps> = ({
     analysis.runnable.length > 0
 
   const progress = run ? runProgress(run) : null
-  const unverifiedSent = analysis.runnable.filter(
-    (id) => adapter.capability(id).state !== 'verified-supported',
-  ).length
 
   return (
     <section aria-labelledby="run-heading">
@@ -113,7 +110,7 @@ export const RunPanel: React.FC<RunPanelProps> = ({
             {t('run.cannotRun.summary', { count: analysis.unavailable.length })}
           </summary>
           <ul className="cannot-run">
-            {analysis.unavailable.map(({ id, capability }) => {
+            {analysis.unavailable.map(({ id, reason }) => {
               const test = catalogue.tests.find((entry) => entry.id === id)
               return (
                 <li key={id} data-row-id={id}>
@@ -122,8 +119,7 @@ export const RunPanel: React.FC<RunPanelProps> = ({
                   </strong>
                   {test && <> {test.title}</>}
                   {': '}
-                  {t(`run.cannotRun.state.${capability.state}`)}.{' '}
-                  {capability.reason ?? t('run.cannotRun.noReason')}
+                  {reason || t('run.cannotRun.noReason')}
                 </li>
               )
             })}
@@ -143,9 +139,6 @@ export const RunPanel: React.FC<RunPanelProps> = ({
             })}
           </p>
           <p>{t('run.remote.disclosure')}</p>
-          {unverifiedSent > 0 && (
-            <p>{t('run.remote.unverified', { count: unverifiedSent })}</p>
-          )}
         </section>
       )}
 

@@ -1,8 +1,8 @@
 import { CATALOGUES } from '../../catalogue/catalogues.ts'
 import type { RunEvent, ValidatorAdapter } from '../../validation/types.ts'
 import { startWorkerRun, type WorkerLike } from '../library/runner.ts'
-import { CSAF_RS_CAPABILITY_FILE, csafRsCapability } from './capabilities.ts'
 import type { CsafRsInput } from './execute.ts'
+import pin from './pin.json'
 
 /** The worker, and with it the 15.6 MB WASM module, is created only when a run starts. */
 export function createCsafRsWorker(): WorkerLike<CsafRsInput> {
@@ -19,13 +19,12 @@ export const csafRsAdapter = (
   limitationKeys: [
     'validators.csafRs.runsLocally',
     'validators.csafRs.fullSetFiltered',
-    'validators.csafRs.onlyVerified',
+    'validators.csafRs.gapsObserved',
     'validators.csafRs.noProgress',
     'validators.csafRs.csaf21Experimental',
   ],
-  componentVersion: CSAF_RS_CAPABILITY_FILE.version,
+  componentVersion: pin.version,
   progress: 'indeterminate',
-  capability: csafRsCapability,
   start(request, emit) {
     const catalogue = CATALOGUES[request.snapshot]
     // The package call returns every result at once. Holding them back until
@@ -35,6 +34,7 @@ export const csafRsAdapter = (
       if (
         event.type === 'test-result' ||
         event.type === 'test-error' ||
+        event.type === 'test-gap' ||
         event.type === 'uncatalogued'
       ) {
         held.push(event)

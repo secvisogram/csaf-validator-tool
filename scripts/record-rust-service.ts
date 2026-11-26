@@ -27,7 +27,7 @@ const docker = (...args: string[]) =>
 
 const read = (path: string) => JSON.parse(readFileSync(root(path), 'utf8'))
 const document20 = read(
-  'src/adapters/service/fixtures/pinned-image-csaf-2.0-run.json',
+  'src/adapters/service/fixtures/reference-image-csaf-2.0-run.json',
 ).request.document
 const document21 = read('src/adapters/csafrs/fixtures/valid-csaf-2.1.json')
 
@@ -96,8 +96,6 @@ async function main() {
         throw new Error(`The service lists no CSAF ${version} tests.`)
       return tests
     }
-    await save('pinned-build-tests.json', { ...header, tests: listed })
-
     const run = async (file: string, tests: string[], document: unknown) => {
       const request = { tests: names(tests), document }
       await save(file, {

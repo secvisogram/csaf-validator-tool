@@ -48,22 +48,22 @@ describe('RunPanel before a run', () => {
     expect(markup).toContain('Runs in this browser in a Web Worker')
   })
 
-  it('states how many selected tests can run', () => {
+  it('states how many selected tests are sent to the validator', () => {
     expect(markup).toContain(
-      '2 of 4 selected tests can run with this validator.',
+      '3 of 4 selected tests are sent to this validator.',
     )
   })
 
-  it('lists the selected tests that cannot run, with state and reason', () => {
-    expect(markup).toContain('2 selected tests cannot run')
+  it('lists the selected tests that cannot run here, with the reason', () => {
+    expect(markup).toContain('1 selected tests cannot run')
     expect(markup).toContain('data-row-id="csaf-2.0/6.3.7"')
-    expect(markup).toContain('Not supported')
     expect(markup).toContain(
-      'The fixture adapter does not implement this test.',
+      'The fixture adapter cannot run this test in this environment.',
     )
-    expect(markup).toContain('data-row-id="csaf-2.0/6.3.8"')
-    expect(markup).toContain('Not verified')
-    expect(markup).toContain('No evidence for this test yet.')
+  })
+
+  it('does not list a test the validator may not implement, because that is only found by the run', () => {
+    expect(markup).not.toContain('data-row-id="csaf-2.0/6.3.8"')
   })
 
   it('offers a run button that is enabled', () => {
@@ -82,12 +82,12 @@ describe('RunPanel when a run cannot start', () => {
   })
 
   it('disables the button and explains when nothing selected can run', () => {
-    const markup = render({ selection: select(['6.3.7', '6.3.8'], false) })
-    expect(markup).toContain('None of the selected tests can run')
+    const markup = render({ selection: select(['6.3.7'], false) })
+    expect(markup).toContain('None of the selected tests can be sent')
     expect(markup).toMatch(
       /<button type="button" disabled="">Run selected tests/,
     )
-    expect(markup).toContain('2 selected tests cannot run')
+    expect(markup).toContain('1 selected tests cannot run')
   })
 
   it('shows the reason and disables the button for an unavailable validator', () => {
@@ -105,7 +105,7 @@ describe('RunPanel when a run cannot start', () => {
     expect(markup).toMatch(
       /<button type="button" disabled="">Run selected tests/,
     )
-    expect(markup).not.toContain('selected tests can run with this validator')
+    expect(markup).not.toContain('selected tests are sent to this validator')
   })
 
   it('does not hide selected tests when the selection is empty', () => {
@@ -123,8 +123,8 @@ describe('RunPanel during a run', () => {
     expect(markup).toContain(
       'Cancelling stops the validation worker immediately',
     )
-    expect(markup).toContain('0 of 9 tests finished')
-    expect(markup).toMatch(/<progress value="0" max="9">/)
+    expect(markup).toContain('0 of 10 tests finished')
+    expect(markup).toMatch(/<progress value="0" max="10">/)
   })
 
   it('does not allow starting another run', () => {

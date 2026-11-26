@@ -1,11 +1,6 @@
-import type { RunEvent, ValidatorAdapter } from '../../validation/types.ts'
-import {
-  LIBRARY_CAPABILITY_FILE,
-  LIBRARY_RECORDS,
-  libraryCapability,
-} from './capabilities.ts'
-import type { LibraryTestTarget } from './execute.ts'
-import { isLibraryModuleKey } from './modules.ts'
+import type { ValidatorAdapter } from '../../validation/types.ts'
+import { libraryUnavailableReason } from './environment.ts'
+import pin from './pin.json'
 import { startLibraryRun, type WorkerLike } from './runner.ts'
 
 export const libraryAdapter = (
@@ -15,27 +10,14 @@ export const libraryAdapter = (
   availability: { available: true },
   limitationKeys: [
     'validators.library.runsLocally',
-    'validators.library.onlyVerified',
+    'validators.library.gapsObserved',
     'validators.library.csaf21Experimental',
   ],
-  componentVersion: LIBRARY_CAPABILITY_FILE.version,
-  capability: libraryCapability,
+  componentVersion: pin.version,
+  unavailableReason: libraryUnavailableReason,
   start(request, emit) {
-    const tests: LibraryTestTarget[] = []
-    for (const id of request.runnable) {
-      const target = LIBRARY_RECORDS.get(id)?.target
-      if (!target || !isLibraryModuleKey(target.module)) {
-        const failed: RunEvent = {
-          type: 'failed',
-          message: `The capability data names no library function for ${id}.`,
-        }
-        emit(failed)
-        return { cancel: () => {} }
-      }
-      tests.push({ id, module: target.module, export: target.export })
-    }
     return startLibraryRun(
-      { document: request.document, tests },
+      { document: request.document, tests: request.runnable },
       emit,
       createWorker,
     )

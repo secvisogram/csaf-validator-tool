@@ -3,7 +3,6 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import '../../i18n/i18n.ts'
 import {
-  FIXTURE_ADAPTER,
   FIXTURE_CATALOGUE,
   FIXTURE_REQUEST,
   outcome,
@@ -42,6 +41,7 @@ const events: RunEvent[] = [
     outcome: outcome('succeeded', { warnings: ['javascript:alert(1)'] }),
   },
   { type: 'test-error', id: 'csaf-2.0/6.3.4', message: `threw ${IMG}` },
+  { type: 'test-gap', id: 'csaf-2.0/6.3.8' },
   { type: 'test-result', id: 'csaf-2.0/6.3.2', outcome: outcome('skipped') },
   {
     type: 'uncatalogued',
@@ -51,11 +51,7 @@ const events: RunEvent[] = [
 ]
 
 const run = events.reduce(reduceRun, startRun(FIXTURE_REQUEST))
-const report: Report = buildReport(
-  FIXTURE_CATALOGUE,
-  run,
-  FIXTURE_ADAPTER.capability,
-)
+const report: Report = buildReport(FIXTURE_CATALOGUE, run)
 const html = (element: ReactElement) => renderToStaticMarkup(element)
 
 const views: [string, () => string][] = [
@@ -67,7 +63,6 @@ const views: [string, () => string][] = [
       html(
         createElement(DetailedTab, {
           report,
-          capability: FIXTURE_ADAPTER.capability,
         }),
       ),
   ],
@@ -97,6 +92,7 @@ describe('Summary view', () => {
       'Not valid',
       'Skipped by the validator',
       'Unavailable',
+      'Unavailable: not implemented',
       'Queued or running',
       'Missing result',
       'Execution error',
@@ -116,6 +112,12 @@ describe('Summary view', () => {
     expect(markup).toMatch(
       /data-count="missing"[^>]*><dt>Missing result<\/dt><dd>/,
     )
+    expect(markup).toMatch(
+      /data-count="implementationGap"[^>]*><dt>Unavailable: not implemented<\/dt><dd>1<\/dd>/,
+    )
+    expect(markup).toMatch(
+      /data-count="unavailable"[^>]*><dt>Unavailable<\/dt><dd>1<\/dd>/,
+    )
   })
 
   it('lists what needs attention and the message totals', () => {
@@ -124,6 +126,7 @@ describe('Summary view', () => {
       'Returned messages: 1 errors, 1 warnings, 1 information.',
     )
     expect(markup).toContain('data-row-id="csaf-2.0/6.3.7"')
+    expect(markup).toContain('data-row-id="csaf-2.0/6.3.8"')
     expect(markup).not.toContain('data-row-id="csaf-2.0/6.1.1"')
     expect(markup).not.toContain('data-row-id="csaf-2.0/6.3.9"')
   })
@@ -176,20 +179,29 @@ describe('Detailed report view', () => {
     }
     expect(markup).toContain('data-status="not-selected"')
     expect(markup).toContain('data-status="unavailable"')
+    expect(markup).toContain('data-status="implementation-gap"')
     expect(markup).toContain('data-status="missing"')
     expect(markup).toContain('data-status="execution-error"')
     expect(markup).toContain('data-status="skipped"')
   })
 
-  it('shows the capability for the validator that ran', () => {
-    expect(markup).toContain('Supported')
-    expect(markup).toContain('Not supported')
-    expect(markup).toContain('Not verified')
+  it('shows no support column, because no support is claimed beforehand', () => {
+    expect(markup).not.toContain('Supported')
+    expect(markup).not.toContain('Not verified')
+  })
+
+  it('shows an implementation gap as unavailable because the validator does not implement it', () => {
+    const row = markup.match(
+      /<tr data-row-id="csaf-2.0\/6.3.8"[\s\S]*?<\/tr>/,
+    )?.[0]
+    expect(row).toContain('Unavailable: not implemented')
+    expect(row).toContain('validator does not implement this test')
+    expect(row).not.toContain('Valid')
   })
 
   it('shows the reason an unavailable test cannot run', () => {
     expect(markup).toContain(
-      'The fixture adapter does not implement this test.',
+      'The fixture adapter cannot run this test in this environment.',
     )
   })
 
@@ -215,12 +227,7 @@ describe('links from untrusted URLs', () => {
         specificationUrl: 'javascript:alert(1)',
       })),
     }
-    const markup = html(
-      createElement(DetailedTab, {
-        report: unsafe,
-        capability: FIXTURE_ADAPTER.capability,
-      }),
-    )
+    const markup = html(createElement(DetailedTab, { report: unsafe }))
     expect(markup).not.toContain('<a ')
     expect(markup).not.toMatch(/href=/i)
   })

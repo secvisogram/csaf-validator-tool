@@ -9,7 +9,8 @@ import type {
   ValidatorMessage,
   ValidatorOutcome,
 } from '../../validation/types.ts'
-import { csafRsTestId } from './capabilities.ts'
+
+export const CSAF_RS_PACKAGE = '@csaf-rs/csaf-rs'
 
 export type CsafRsVersion = '2.0' | '2.1'
 
@@ -142,8 +143,9 @@ function errorMessage(error: unknown): string {
 /**
  * Runs the package once and keeps only what was selected. The call is
  * synchronous, so every selected test is marked running first and the results
- * follow together. A selected test the response lacks is simply not reported,
- * which the report shows as missing. Results for tests that were not selected
+ * follow together. A selected test the package reports as NotFound is an
+ * implementation gap. A selected test the response lacks is simply not
+ * reported, which the report shows as missing. Results for tests that were not selected
  * are discarded; a result that no catalogue ID matches stays uncatalogued.
  */
 export function executeCsafRs(
@@ -186,15 +188,8 @@ export function executeCsafRs(
     if (!selected.has(id) || reported.has(id)) continue
     reported.add(id)
     const outcome = outcomeOf(result)
-    if (outcome) {
-      emit({ type: 'test-result', id, outcome })
-    } else {
-      emit({
-        type: 'test-error',
-        id,
-        message: `csaf-rs reported NotFound for ${csafRsTestId(id)}, although the capability data lists it as supported.`,
-      })
-    }
+    if (outcome) emit({ type: 'test-result', id, outcome })
+    else emit({ type: 'test-gap', id })
   }
   emit({ type: 'completed' })
 }

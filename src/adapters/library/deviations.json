@@ -1,0 +1,17 @@
+{
+  "version": "3.0.3",
+  "deviations": [
+    {
+      "id": "csaf-2.0/schema",
+      "note": "The library anchors the cpe pattern as a whole, the published schema does not."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.1.21",
+      "note": "The library reported no finding for OASIS failing document 6-1-21-08."
+    },
+    {
+      "id": "csaf-2.1-csd04/6.3.12",
+      "note": "The library reported a finding for OASIS passing document 6-3-12-16."
+    }
+  ]
+}

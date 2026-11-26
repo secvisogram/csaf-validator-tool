@@ -1,5 +1,4 @@
 import type { RunEvent, RunHandle } from '../../validation/types.ts'
-import type { LibraryTestTarget } from './execute.ts'
 import type { WorkerRequest } from './protocol.ts'
 
 export type WorkerLike<Request = WorkerRequest> = {
@@ -14,6 +13,7 @@ const EVENT_TYPES = new Set([
   'test-started',
   'test-result',
   'test-error',
+  'test-gap',
   'uncatalogued',
   'completed',
   'failed',
@@ -106,7 +106,7 @@ export function startWorkerRun<Request>(
 }
 
 export function startLibraryRun(
-  input: { document: unknown; tests: LibraryTestTarget[] },
+  input: WorkerRequest,
   emit: (event: RunEvent) => void,
   createWorker: () => WorkerLike = createLibraryWorker,
 ): RunHandle {

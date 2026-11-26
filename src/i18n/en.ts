@@ -57,8 +57,8 @@ export default {
     library: {
       runsLocally:
         'Runs in this browser in a Web Worker. The document stays on this page.',
-      onlyVerified:
-        'Only tests with verified support run. A selected test that the library does not implement, cannot run in a browser or has no verified support stays selected and is shown as unavailable.',
+      gapsObserved:
+        'Every selected test is requested from the library when the run starts. A test the library has no function for is shown as unavailable, because the library does not implement it. The spell check and network-enabled tests cannot run in a browser and are shown as unavailable before the run.',
       csaf21Experimental: 'CSAF 2.1 support in this library is experimental.',
     },
     csafRs: {
@@ -66,8 +66,8 @@ export default {
         'Runs in this browser in a Web Worker. The document stays on this page. The 15.6 MB WebAssembly module loads when a run starts.',
       fullSetFiltered:
         'csaf-rs cannot run individual tests. It always runs the complete set for the selected CSAF version, and results for tests you did not select are discarded.',
-      onlyVerified:
-        'Only tests with verified support are shown with a result. A selected test that csaf-rs does not implement, or that has no verified support, stays selected and is shown as unavailable.',
+      gapsObserved:
+        'A selected test that csaf-rs reports as NotFound is shown as unavailable after the run, because csaf-rs does not implement it.',
       noProgress:
         'The validation is one call, so there is no per-test progress. Cancelling stops the worker, and no results of that run are kept.',
       csaf21Experimental: 'CSAF 2.1 support in this package is experimental.',
@@ -79,20 +79,18 @@ export default {
         'The Rust service returns flattened results. It cannot tell a passed test from a skipped test or from a test it does not implement, and a test with only warnings or information counts as valid. Results are shown as returned and are never reconstructed, and this app never shows a skipped result for this service.',
       versionFromDocument:
         'The service validates by the version the document declares and ignores any other choice. If the selected version differs from the declared one, nothing is sent and the run fails with that reason.',
-      onlyVerified:
-        'Only tests the pinned build implements are sent. Any other selected test, including network-enabled tests and tests with no verified support, stays selected and is shown as unavailable, because the service would show it as valid.',
-      verifiedBuild:
-        'Test names and the response mapping were verified against csaf-rs {{version}}, built from source. The configured service may be a different build.',
+      referenceBuild:
+        'The reference build is csaf-rs {{version}}, built from source. Test names and the response mapping were checked against it only. The tool does not check which build the configured service is, and it may differ.',
     },
     service: {
       noUrl:
         'Enter a JavaScript service URL in the service URLs setting to use this validator.',
       csaf20Only:
-        'The verified service supports CSAF 2.0 only. A CSAF 2.1 request you select is still sent. Its support stays not verified, and only the actual response or request error is shown. A test name the service does not know makes the whole request fail.',
+        'The reference build supports CSAF 2.0 only, and the configured service may differ. A CSAF 2.1 request you select is sent like any other, and only the actual response or request error is shown. A test name the service does not know makes the whole request fail, so such a run can return no results at all.',
       resultsAsReturned:
         'Results are shown as returned. HTTP success does not mean the document is valid, and a failing test is shown as failing. A selected test the response does not contain is shown as missing.',
-      verifiedVersion:
-        'Test names and the response mapping were verified against csaf-validator-service {{version}}. The configured service may be a different version.',
+      referenceVersion:
+        'The reference build is csaf-validator-service {{version}}. Test names and the response mapping were checked against it only. The tool does not check which version the configured service is, and it may differ.',
     },
   },
   settings: {
@@ -123,15 +121,11 @@ export default {
     adapterUnavailable: 'This validator is unavailable: {{reason}}',
     limitations: 'Limitations',
     runnable:
-      '{{runnable}} of {{selected}} selected tests can run with this validator.',
+      '{{runnable}} of {{selected}} selected tests are sent to this validator.',
     nothingToRun:
-      'None of the selected tests can run with this validator. Select other tests or choose another validator.',
+      'None of the selected tests can be sent to this validator. Select other tests or choose another validator.',
     cannotRun: {
-      summary: '{{count}} selected tests cannot run',
-      state: {
-        'known-unsupported': 'Not supported',
-        'not-yet-verified': 'Not verified',
-      },
+      summary: '{{count}} selected tests cannot run here',
       noReason: 'No reason is recorded.',
     },
     start: 'Run selected tests',
@@ -143,10 +137,6 @@ export default {
       destination: 'Validator: {{validator}}. Destination: {{endpoint}}',
       disclosure:
         'Running sends the complete document and the request parameters to this service. The operator of the service controls retention and logging. This app does not guarantee how the service handles your data.',
-      unverified_one:
-        '{{count}} selected check is not verified for this service. It is still sent, and only the actual response or error is shown.',
-      unverified_other:
-        '{{count}} selected checks are not verified for this service. They are still sent, and only the actual response or error is shown.',
     },
     cancelNote:
       'Cancelling stops the validation worker immediately. Results that were already returned are kept.',
@@ -201,6 +191,7 @@ export default {
       failed: 'Not valid',
       skipped: 'Skipped by the validator',
       unavailable: 'Unavailable',
+      implementationGap: 'Unavailable: not implemented',
       pending: 'Queued or running',
       missing: 'Missing result',
       executionError: 'Execution error',
@@ -219,6 +210,7 @@ export default {
     status: {
       'not-selected': 'Not selected',
       unavailable: 'Unavailable',
+      'implementation-gap': 'Unavailable: not implemented',
       queued: 'Queued',
       running: 'Running',
       succeeded: 'Valid',
@@ -231,7 +223,9 @@ export default {
     },
     note: {
       'not-selected': 'This test is not selected.',
-      unavailable: 'Selected, but the validator cannot run it.',
+      unavailable: 'Selected, but it cannot run here.',
+      'implementation-gap':
+        'Selected, but unavailable: validator does not implement this test.',
       queued: 'Waiting to run.',
       running: 'Running now.',
       succeeded: 'The validator reported success.',
@@ -242,11 +236,6 @@ export default {
       'execution-error': 'Running this test failed.',
       'run-failed': 'No result: the run failed before this test returned.',
       cancelled: 'No result: the run was cancelled before this test finished.',
-    },
-    capability: {
-      'verified-supported': 'Supported',
-      'known-unsupported': 'Not supported',
-      'not-yet-verified': 'Not verified',
     },
     severity: { error: 'Error', warning: 'Warning', info: 'Information' },
     table: {
@@ -369,7 +358,8 @@ export default {
       notSelected: 'schema check not selected',
     },
     table: {
-      support: 'Support with the chosen validator',
+      availability: 'Availability with the chosen validator',
+      unavailable: 'Unavailable',
       network: 'May access external resources',
       select: 'Select',
       section: 'Section',

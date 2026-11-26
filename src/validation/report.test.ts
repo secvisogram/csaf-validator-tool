@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
-  FIXTURE_ADAPTER,
   FIXTURE_CATALOGUE,
   FIXTURE_REQUEST,
+  FIXTURE_UNAVAILABLE_REASON,
   outcome,
 } from './fixtures.ts'
 import { buildReport, type Report, type RowKind } from './report.ts'
@@ -13,8 +13,7 @@ function play(events: RunEvent[], state = startRun(FIXTURE_REQUEST)): RunState {
   return events.reduce(reduceRun, state)
 }
 
-const build = (state: RunState): Report =>
-  buildReport(FIXTURE_CATALOGUE, state, FIXTURE_ADAPTER.capability)
+const build = (state: RunState): Report => buildReport(FIXTURE_CATALOGUE, state)
 
 const kindOf = (report: Report, section: string): RowKind | undefined =>
   report.rows.find((row) => (row.section ?? 'schema') === section)?.status.kind
@@ -49,6 +48,7 @@ const completedRun: RunEvent[] = [
   },
   { type: 'test-result', id: 'csaf-2.0/6.3.2', outcome: outcome('skipped') },
   { type: 'test-error', id: 'csaf-2.0/6.3.4', message: 'boom' },
+  { type: 'test-gap', id: 'csaf-2.0/6.3.8' },
   {
     type: 'uncatalogued',
     result: {
@@ -82,25 +82,27 @@ describe('report rows for a completed run', () => {
       '6.3.5': 'missing',
       '6.3.6': 'not-selected',
       '6.3.7': 'unavailable',
-      '6.3.8': 'unavailable',
+      '6.3.8': 'implementation-gap',
       '6.3.9': 'not-selected',
     })
   })
 
-  it('keeps the reason and capability state for unavailable rows', () => {
+  it('keeps the reason for unavailable rows', () => {
     const row = report.rows.find((entry) => entry.section === '6.3.7')
     expect(row?.status).toEqual({
       kind: 'unavailable',
-      capability: {
-        state: 'known-unsupported',
-        reason: 'The fixture adapter does not implement this test.',
-      },
+      reason: FIXTURE_UNAVAILABLE_REASON,
     })
-    const unverified = report.rows.find((entry) => entry.section === '6.3.8')
-    expect(
-      unverified?.status.kind === 'unavailable' &&
-        unverified.status.capability.state,
-    ).toBe('not-yet-verified')
+  })
+
+  it('shows an implementation gap with no outcome, apart from every other non-result state', () => {
+    const row = report.rows.find((entry) => entry.section === '6.3.8')
+    expect(row?.status).toEqual({ kind: 'implementation-gap' })
+    expect(report.counts.implementationGap).toBe(1)
+    expect(report.counts.unavailable).toBe(1)
+    expect(report.counts.missing).toBe(2)
+    expect(report.counts.executionError).toBe(1)
+    expect(report.counts.skipped).toBe(1)
   })
 
   it('keeps all returned messages with their severity and path', () => {
@@ -125,7 +127,8 @@ describe('report rows for a completed run', () => {
       succeeded: 4,
       failed: 1,
       skipped: 1,
-      unavailable: 2,
+      unavailable: 1,
+      implementationGap: 1,
       pending: 0,
       missing: 2,
       executionError: 1,
@@ -179,12 +182,12 @@ describe('report during a run', () => {
   it('shows queued and running tests without a result', () => {
     expect(kindOf(report, '6.1.1')).toBe('running')
     expect(kindOf(report, '6.1.2')).toBe('queued')
-    expect(report.counts.pending).toBe(8)
+    expect(report.counts.pending).toBe(9)
     expect(report.counts.missing).toBe(0)
   })
 
   it('reports progress against the runnable selection', () => {
-    expect(runProgress(state)).toEqual({ done: 1, total: 9 })
+    expect(runProgress(state)).toEqual({ done: 1, total: 10 })
   })
 
   it('does not report unavailable tests as pending', () => {
@@ -215,7 +218,7 @@ describe('cancelled run', () => {
     expect(kindOf(report, '6.1.1')).toBe('cancelled')
     expect(kindOf(report, '6.3.5')).toBe('cancelled')
     expect(report.counts.skipped).toBe(0)
-    expect(report.counts.cancelled).toBe(7)
+    expect(report.counts.cancelled).toBe(8)
     expect(report.counts.missing).toBe(0)
   })
 
@@ -248,7 +251,7 @@ describe('failed run', () => {
 
   it('marks the tests without a result as run failures, not as passes or failures', () => {
     expect(kindOf(report, '6.1.1')).toBe('run-failed')
-    expect(report.counts.runFailed).toBe(8)
+    expect(report.counts.runFailed).toBe(9)
     expect(report.counts.failed).toBe(0)
     expect(report.counts.succeeded).toBe(1)
     expect(report.failure).toBe('The worker crashed')
@@ -315,7 +318,7 @@ describe('run state', () => {
 
   it('does not infer a result for a requested test the response lacks', () => {
     const report = build(play([{ type: 'completed' }]))
-    expect(report.counts.missing).toBe(9)
+    expect(report.counts.missing).toBe(10)
     expect(report.counts.succeeded).toBe(0)
     expect(report.counts.failed).toBe(0)
     expect(report.counts.returned).toBe(0)
@@ -324,10 +327,64 @@ describe('run state', () => {
   it('does not change a finished report when the selection is edited later', () => {
     const state = play([{ type: 'completed' }])
     const first = build(state)
-    const second = buildReport(FIXTURE_CATALOGUE, state, () => ({
-      state: 'verified-supported',
-    }))
+    const second = buildReport(FIXTURE_CATALOGUE, state)
     expect(kinds(second)).toEqual(kinds(first))
+  })
+})
+
+describe('implementation gaps', () => {
+  it('count as progress, and keep results that other tests returned', () => {
+    const state = play([
+      { type: 'test-gap', id: 'csaf-2.0/6.3.8' },
+      {
+        type: 'test-result',
+        id: 'csaf-2.0/6.1.1',
+        outcome: outcome('succeeded'),
+      },
+    ])
+    expect(runProgress(state)).toEqual({ done: 2, total: 10 })
+    expect(kindOf(build(state), '6.3.8')).toBe('implementation-gap')
+    expect(kindOf(build(state), '6.1.1')).toBe('succeeded')
+  })
+
+  it('are never counted as valid or not valid', () => {
+    const report = build(
+      play([{ type: 'test-gap', id: 'csaf-2.0/6.3.8' }, { type: 'completed' }]),
+    )
+    expect(report.counts.returned).toBe(0)
+    expect(report.counts.succeeded).toBe(0)
+    expect(report.counts.failed).toBe(0)
+    expect(report.counts.implementationGap).toBe(1)
+  })
+
+  it('stay gaps after a cancel or a failure, because they were observed', () => {
+    const cancelled = play([
+      { type: 'test-gap', id: 'csaf-2.0/6.3.8' },
+      { type: 'cancelled' },
+    ])
+    expect(kindOf(build(cancelled), '6.3.8')).toBe('implementation-gap')
+    expect(kindOf(build(cancelled), '6.1.1')).toBe('cancelled')
+    const failed = play([
+      { type: 'test-gap', id: 'csaf-2.0/6.3.8' },
+      { type: 'failed', message: 'x' },
+    ])
+    expect(kindOf(build(failed), '6.3.8')).toBe('implementation-gap')
+    expect(kindOf(build(failed), '6.1.1')).toBe('run-failed')
+  })
+
+  it('are ignored for a test that was not requested, and keep the first answer for a test', () => {
+    const ignored = play([{ type: 'test-gap', id: 'csaf-2.0/6.3.7' }])
+    expect(ignored.uncatalogued).toEqual([])
+    expect(kindOf(build(ignored), '6.3.7')).toBe('unavailable')
+    const first = play([
+      {
+        type: 'test-result',
+        id: 'csaf-2.0/6.1.1',
+        outcome: outcome('succeeded'),
+      },
+      { type: 'test-gap', id: 'csaf-2.0/6.1.1' },
+    ])
+    expect(kindOf(build(first), '6.1.1')).toBe('succeeded')
   })
 })
 

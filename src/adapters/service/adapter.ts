@@ -1,14 +1,11 @@
+import { derivedTestName } from '../naming.ts'
 import type { ValidatorAdapter } from '../../validation/types.ts'
-import {
-  SERVICE_CAPABILITY_FILE,
-  SERVICE_RECORDS,
-  serviceCapability,
-} from './capabilities.ts'
 import {
   remoteServiceAdapter,
   type RemoteServiceOptions,
   type RemoteServiceProfile,
 } from './remote.ts'
+import reference from './reference.json'
 
 export { SERVICE_TIMEOUT_MS } from './remote.ts'
 
@@ -19,11 +16,10 @@ const JAVASCRIPT_SERVICE: RemoteServiceProfile = {
   limitationKeys: [
     'validators.service.csaf20Only',
     'validators.service.resultsAsReturned',
-    'validators.service.verifiedVersion',
+    'validators.service.referenceVersion',
   ],
-  componentVersion: SERVICE_CAPABILITY_FILE.version,
-  capability: serviceCapability,
-  testName: (id) => SERVICE_RECORDS.get(id)?.target?.name,
+  componentVersion: reference.version,
+  testName: derivedTestName,
   noUrlReasonKey: 'validators.service.noUrl',
   noUrlMessage: 'No JavaScript service URL is configured, so nothing was sent.',
 }

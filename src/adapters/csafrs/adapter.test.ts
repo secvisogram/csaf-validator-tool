@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { CATALOGUES } from '../../catalogue/catalogues.ts'
+import { analyzeSelection } from '../../validation/plan.ts'
 import type { RunEvent, RunRequest } from '../../validation/types.ts'
 import type { WorkerLike } from '../library/runner.ts'
 import { csafRsAdapter } from './adapter.ts'
@@ -27,6 +28,7 @@ const request = (extra: Partial<RunRequest> = {}): RunRequest => ({
   snapshot: 'csaf-2.0',
   runnable: ['csaf-2.0/schema', 'csaf-2.0/6.1.1'],
   selected: ['csaf-2.0/schema', 'csaf-2.0/6.1.1', 'csaf-2.0/6.3.6'],
+  unavailable: [],
   document: { document: { csaf_version: '2.0' } },
   ...extra,
 })
@@ -49,9 +51,14 @@ describe('the csaf-rs adapter', () => {
 
   it('creates no worker until a run starts, so the WASM does not load earlier', () => {
     const { createWorker, adapter } = setup()
+    analyzeSelection(
+      CATALOGUES['csaf-2.0'],
+      { tests: new Set(['csaf-2.0/6.1.1']), schema: true },
+      adapter,
+    )
     expect(createWorker).not.toHaveBeenCalled()
-    adapter.capability('csaf-2.0/6.1.1')
-    expect(createWorker).not.toHaveBeenCalled()
+    adapter.start(request(), () => {})
+    expect(createWorker).toHaveBeenCalledTimes(1)
   })
 
   it('shows its progress as indeterminate because the package call is synchronous', () => {
@@ -64,12 +71,16 @@ describe('the csaf-rs adapter', () => {
     )
   })
 
-  it('reads capability from its own records', () => {
+  it('plans every selected test as runnable, because a gap is only found by the run', () => {
     const { adapter } = setup()
-    expect(adapter.capability('csaf-2.0/6.1.1').state).toBe(
-      'verified-supported',
+    const catalogue = CATALOGUES['csaf-2.1-csd04']
+    const analysis = analyzeSelection(
+      catalogue,
+      { tests: new Set(catalogue.tests.map((test) => test.id)), schema: true },
+      adapter,
     )
-    expect(adapter.capability('csaf-2.0/6.3.6').state).toBe('known-unsupported')
+    expect(analysis.unavailable).toEqual([])
+    expect(analysis.runnable).toHaveLength(catalogue.tests.length + 1)
   })
 
   it('sends the document, the snapshot, the runnable tests and the catalogue IDs to one worker', () => {
@@ -90,13 +101,13 @@ describe('the csaf-rs adapter', () => {
     ])
   })
 
-  it('does not send unavailable tests to the worker', () => {
+  it('sends exactly the requested tests to the worker', () => {
     const { worker, adapter, events } = setup()
     adapter.start(request(), (event) => events.push(event))
-    expect(JSON.stringify(worker.posted)).not.toContain('6.3.6"]')
-    expect((worker.posted[0] as CsafRsInput).tests).not.toContain(
-      'csaf-2.0/6.3.6',
-    )
+    expect((worker.posted[0] as CsafRsInput).tests).toEqual([
+      'csaf-2.0/schema',
+      'csaf-2.0/6.1.1',
+    ])
   })
 
   it('forwards worker events and terminates the worker when the run completes', () => {
@@ -154,6 +165,26 @@ describe('the csaf-rs adapter', () => {
       'test-result',
       'completed',
     ])
+  })
+
+  it('delivers gaps with the results when the run completes', () => {
+    const { worker, adapter, events } = setup()
+    adapter.start(request(), (event) => events.push(event))
+    worker.emit({ type: 'test-gap', id: 'csaf-2.0/6.1.1' })
+    expect(events).toEqual([])
+    worker.emit({ type: 'completed' })
+    expect(events).toEqual([
+      { type: 'test-gap', id: 'csaf-2.0/6.1.1' },
+      { type: 'completed' },
+    ])
+  })
+
+  it('discards buffered gaps when the run is cancelled', () => {
+    const { worker, adapter, events } = setup()
+    const handle = adapter.start(request(), (event) => events.push(event))
+    worker.emit({ type: 'test-gap', id: 'csaf-2.0/6.1.1' })
+    handle.cancel()
+    expect(events).toEqual([{ type: 'cancelled' }])
   })
 
   it('discards buffered results when the run fails', () => {
