@@ -22,11 +22,12 @@ type Compose = {
 const compose = parse(read('compose.yaml')) as Compose
 
 describe('compose.yaml', () => {
-  it('defines exactly app, validator-js and gateway', () => {
+  it('defines exactly app, validator-js, validator-rust and gateway', () => {
     expect(Object.keys(compose.services).sort()).toEqual([
       'app',
       'gateway',
       'validator-js',
+      'validator-rust',
     ])
   })
 
@@ -34,10 +35,11 @@ describe('compose.yaml', () => {
     expect(compose.services['gateway']?.ports).toEqual(['127.0.0.1:8080:80'])
     expect(compose.services['app']).not.toHaveProperty('ports')
     expect(compose.services['validator-js']).not.toHaveProperty('ports')
+    expect(compose.services['validator-rust']).not.toHaveProperty('ports')
   })
 
   it('does not expose the app or validator ports in any other way', () => {
-    for (const name of ['app', 'validator-js', 'gateway']) {
+    for (const name of Object.keys(compose.services)) {
       expect(compose.services[name]).not.toHaveProperty('expose')
       expect(compose.services[name]).not.toHaveProperty('network_mode')
     }
@@ -74,21 +76,60 @@ describe('compose.yaml', () => {
     expect(image).toMatch(/^[^\s@:]+(\/[^\s@:]+)*@sha256:[0-9a-f]{64}$/)
   })
 
-  it('starts the app and the gateway without waiting for the validator', () => {
-    for (const name of ['app', 'gateway']) {
-      expect(
-        JSON.stringify(compose.services[name]?.depends_on ?? {}),
-      ).not.toContain('validator-js')
+  it('starts every service without waiting for a validator', () => {
+    for (const service of Object.values(compose.services)) {
+      const dependencies = JSON.stringify(service.depends_on ?? {})
+      expect(dependencies).not.toContain('validator-js')
+      expect(dependencies).not.toContain('validator-rust')
     }
   })
 
   it('starts the gateway after the app', () => {
     expect(compose.services['gateway']?.depends_on).toEqual(['app'])
   })
+})
 
-  it('does not publish a Rust service', () => {
-    expect(Object.keys(compose.services)).not.toContain('csaf-service')
-    expect(JSON.stringify(compose)).not.toContain('csaf-service')
+describe('validator-rust', () => {
+  const rust = compose.services['validator-rust']
+
+  it('is in the default stack, not behind a profile', () => {
+    expect(rust).toBeDefined()
+    expect(rust).not.toHaveProperty('profiles')
+  })
+
+  it('is built from the submodule root with its repository Dockerfile', () => {
+    expect(rust?.build).toEqual({ context: 'tools/csaf-rs' })
+    expect(rust).not.toHaveProperty('image')
+  })
+
+  it('is not patched or wrapped', () => {
+    expect(rust).not.toHaveProperty('volumes')
+    expect(rust).not.toHaveProperty('command')
+    expect(rust).not.toHaveProperty('entrypoint')
+    expect(rust).not.toHaveProperty('healthcheck')
+    expect(rust).not.toHaveProperty('user')
+  })
+
+  it('sets no CORS or other service setting, because the browser stays same-origin', () => {
+    expect(rust).not.toHaveProperty('environment')
+    expect(rust).not.toHaveProperty('env_file')
+    expect(JSON.stringify(rust)).not.toContain('CORS')
+  })
+
+  it('does not offer the app a way to reach it other than the gateway', () => {
+    expect(rust?.networks).toEqual(Object.keys(compose.networks))
+  })
+
+  it('keeps the submodule out of the app build context', () => {
+    expect(compose.services['app']?.build).toEqual({
+      context: '.',
+      dockerfile: 'deploy/app/Dockerfile',
+    })
+    expect(
+      read('.dockerignore')
+        .split('\n')
+        .map((line) => line.trim()),
+    ).toContain('tools')
   })
 })
 
