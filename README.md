@@ -32,7 +32,7 @@ See [docs/spec.md](docs/spec.md) for the full specification (context and scope, 
 - Ajv 8 (development only) for validating the catalogue data against its JSON schema in CI
 - oxlint and oxfmt for linting and formatting
 - Playwright for browser tests in latest-stable Chrome and Firefox (planned)
-- Docker Compose for the local deployment (planned)
+- Docker Compose and nginx for the local deployment
 
 Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
 
@@ -49,10 +49,11 @@ Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
 - `src/components/`: React components
 - `src/util/`: small helpers such as the safe-link check
 - `scripts/`: maintainer scripts
+- `compose.yaml`, `deploy/`: the local Docker Compose deployment (`deploy/app/` is the static build server and the Compose runtime config, `deploy/gateway/` is the gateway)
 - `tools/csaf-rs`: a git submodule, pinned to the upstream csaf-rs tag `v0.7.3`, used only by `npm run record:rust-service` (see the Rust service adapter). Nothing else uses it
 - `src/i18n/`: i18next setup and the English dictionary
 - `docs/`: specification
-- `.github/workflows/ci.yml`: CI (install, lint, format check, typecheck, unit tests, build)
+- `.github/workflows/ci.yml`: CI (install, lint, format check, typecheck, unit tests, build, Compose configuration check)
 
 ## Getting started
 
@@ -289,3 +290,104 @@ At most one of `messageCode` and `messageText` may be set. `validator` is option
 **Where they appear.** In the Detailed report the general hint appears in the messages cell of the test, and a code or text hint appears beside its message. In All messages a code or text hint appears beside its message, and the general hint appears once, with the first message of the test. The Summary view shows no hints.
 
 The report belongs to the document it was run on. Loading another document clears it. Settings, selections, results and the document stay in page memory only.
+
+## Local deployment
+
+Docker Compose runs the app and the externally maintained JavaScript validator service behind one gateway on your own machine. The browser talks to a single origin, so the service needs no CORS setup.
+
+| Service        | Role                                                                                                                        |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `app`          | nginx serving the production build. Built from this repository (`deploy/app/`).                                             |
+| `validator-js` | The external `csaf-validator-service` image, pinned by digest in `compose.yaml`. It is never built, forked or patched here. |
+| `gateway`      | nginx, the only service reachable from the host. Built from this repository (`deploy/gateway/`).                            |
+
+All three are on one private Compose network. Only the gateway is published, as `127.0.0.1:8080:80`. The app and validator ports are not published. The JavaScript service currently supports CSAF 2.0 only. For CSAF 2.1 the app shows what the service answers (see "The JavaScript service adapter").
+
+### Start
+
+Needs Docker with Compose v2 and access to `ghcr.io`.
+
+```bash
+docker compose up -d
+```
+
+Then open <http://127.0.0.1:8080/>. The Compose runtime configuration names this address as the service URL, so open the app there. Another host name (such as `localhost`) would make the service requests cross-origin.
+
+The validator image is pinned in `compose.yaml` by an immutable digest (`name@sha256:<64 hex characters>`), never by a tag such as `latest`. Compose pulls it from `ghcr.io` on the first start.
+
+| Command                                       | Purpose                                        |
+| --------------------------------------------- | ---------------------------------------------- |
+| `docker compose ps`                           | Status and health of the services              |
+| `docker compose logs -f gateway validator-js` | Follow the gateway and validator logs          |
+| `docker compose down`                         | Stop and remove the containers and the network |
+| `docker compose up -d --build`                | Rebuild the app and the gateway after a change |
+
+### What the gateway does
+
+| Path          | Behaviour                                                                                                  |
+| ------------- | ---------------------------------------------------------------------------------------------------------- |
+| `/api/v1/*`   | Proxied to `validator-js:8082`, path unchanged. Waits up to 130 s. The gateway accepts bodies up to 50 MB. |
+| `/health`     | Proxied to the validator's `/health`. It reports the validator.                                            |
+| `/healthz`    | Answered by the gateway itself (`200 ok`). It reports the gateway only.                                    |
+| Anything else | Served by the `app` service. Unknown paths answer 404 (no fallback to `index.html`).                       |
+
+The gateway proxies nothing else. Document URLs entered in the app are fetched by the browser directly and never pass through the gateway.
+
+The gateway resolves `app` and `validator-js` for each request. `app` and `gateway` start without waiting for the validator, and the gateway finds the validator again after a restart. When the validator is stopped or its name cannot be resolved, `/api/v1/*` and `/health` answer `502` with `{"message":"The validator service is not reachable through the gateway."}`. When it accepts the connection but does not answer in time (5 s to connect, 10 s on `/health`, 130 s on `/api/v1/*`), they answer `504` with `{"message":"The validator service did not answer through the gateway in time."}`. The app stays usable and shows the message as a failed run. `/healthz` still answers `200`, so the two checks tell the gateway and the validator apart.
+
+### Runtime configuration
+
+The `app` image contains `.well-known/appspecific/runtime-config.json` from `deploy/app/runtime-config.json`. It selects `csaf-validator-service` and sets `services.javascript` to `http://127.0.0.1:8080`. The file is not in `public/`, so the GitHub Pages build never contains it. A Rust service is not configured.
+
+### Security notes
+
+- The default binding is loopback. Publishing the gateway on another interface needs a deliberate local edit of `compose.yaml` after you have reviewed who can then reach the validator. It is not a setting.
+- The pinned validator answers every origin with `Access-Control-Allow-Origin: *`, and the gateway passes that through. While the stack runs, any web page open in your browser can send requests to `http://127.0.0.1:8080/api/v1/` and make the validator run, including network-enabled tests from your machine. Stop the stack when you do not use it.
+- The validator may contact external servers for network-enabled tests. The Compose network is therefore not isolated from the internet.
+- The validator has no authentication. Do not expose it.
+
+### Updating the validator image
+
+The digest is changed only after a review:
+
+1. Review the new release of [csaf-validator-service](https://github.com/secvisogram/csaf-validator-service) and the `csaf-validator-lib` version it uses.
+2. Start the new image on loopback only and check `/health`, `GET /api/v1/tests` and a `POST /api/v1/validate` request. The service must listen on `8082` and keep the `/api/v1/*` contract.
+3. Set the new digest in `compose.yaml` (always a digest, never a tag), and repeat the smoke test below. Resolve a tag to its digest with `docker buildx imagetools inspect <image:tag>`.
+4. Update the capability data (`src/adapters/service/capabilities.json`: `image`, `version`, the recorded test list and fixtures) and, if the supported CSAF versions changed, this README. A test fails when `compose.yaml` and `capabilities.json` name different images, and when the image is not a digest.
+
+### Troubleshooting
+
+| Symptom                                          | Check                                                                                                                                                                 |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Port 8080 is already in use                      | Stop the other program. Changing the port also changes the origin, so the `services.javascript` URL in `deploy/app/runtime-config.json` must follow.                  |
+| The run fails with `HTTP 502`                    | The validator is stopped or not reachable. Check `docker compose ps` and `docker compose logs validator-js`. `/healthz` answering does not prove the validator works. |
+| The run fails with `HTTP 400` for CSAF 2.1       | The pinned service supports CSAF 2.0 only.                                                                                                                            |
+| The run fails after 120 s                        | The app aborts a request after 120 s. Network-enabled tests can be slow.                                                                                              |
+| The app does not use the service                 | Open `/.well-known/appspecific/runtime-config.json` on the gateway. A runtime configuration notice in the app lists any problem.                                      |
+| A change to the app or the gateway has no effect | Run `docker compose up -d --build`.                                                                                                                                   |
+
+### Rust service
+
+A Rust `csaf-service` is optional and not part of this stack. It is not built, published, proxied or health-checked here. An operator who runs it separately sets `services.rust` in a runtime configuration (or in the session settings) to its URL, which the browser must be able to reach, and allows the exact app origin (`http://127.0.0.1:8080`) in the service's CORS settings.
+
+### Smoke test
+
+The Compose smoke test is manual, because it needs Docker and the external image. Repeat it after every change of the digest, the gateway or the Compose files.
+
+1. `docker compose up -d --build` starts three containers and `docker compose ps` shows `validator-js` as `healthy`.
+2. <http://127.0.0.1:8080/> loads, `csaf-validator-service` is selected and the service URL is `http://127.0.0.1:8080`.
+3. `curl -i http://127.0.0.1:8080/healthz` answers `200`, and `curl -i http://127.0.0.1:8080/health` answers `200` with the validator's status.
+4. Load a valid CSAF 2.0 document and run the selected tests. `POST /api/v1/validate` answers `200`, and the results are shown as returned, including any failing test and the service's own `isValid` flag.
+5. `docker compose stop validator-js`: the page still loads, `/healthz` answers `200`, `/health` answers `502`, and a new run fails with the `502` message.
+6. `docker compose start validator-js`: `/health` answers `200` again, without restarting the gateway.
+7. `docker ps` and `ss -ltn` show only `127.0.0.1:8080` published, and the host's LAN address does not answer on port 8080.
+
+**Result of 2026-11-25** (Docker 29.10 with Compose 5.8, Chrome, image `csaf-validator-service` 3.0.5, `linux/amd64`, the digest in `compose.yaml`): all steps passed.
+
+- The services started without waiting for each other's health, and `validator-js` became `healthy`.
+- `/healthz` answered `200 ok` and `/health` answered `200`.
+- A CSAF 2.0 request through `/api/v1/validate` answered `200`. In the browser, a run of the 73 tests selected by default on the CSAF 2.0 OASIS example document returned all 73 results, with the service's `isValid: true` shown as its own flag.
+- A validator that accepted the connection but never answered gave a `504` with the JSON message (tested with a stub upstream).
+- With `validator-js` stopped, the page loaded, `/healthz` answered `200`, `/health` answered `502`, and the run ended as "Run failed: the service answered with HTTP 502 Bad Gateway" with the gateway message.
+- After `docker compose start validator-js`, `/health` answered `200` again within about 8 s.
+- Only `127.0.0.1:8080` was published. The LAN address did not answer on port 8080.

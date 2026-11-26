@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "services": {
+    "javascript": "http://127.0.0.1:8080"
+  },
+  "defaults": {
+    "validator": "csaf-validator-service"
+  }
+}
