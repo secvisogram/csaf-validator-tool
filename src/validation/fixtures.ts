@@ -1,10 +1,5 @@
 import type { Catalogue } from '../catalogue/types.ts'
-import type {
-  Capability,
-  RunRequest,
-  ValidatorAdapter,
-  ValidatorOutcome,
-} from './types.ts'
+import type { RunRequest, ValidatorAdapter, ValidatorOutcome } from './types.ts'
 
 /**
  * A small catalogue and adapter used to drive every result and non-result
@@ -33,8 +28,8 @@ export const FIXTURE_CATALOGUE: Catalogue = {
     ['6.3.4', 'Threw while running', 'informative'],
     ['6.3.5', 'Not run because of cancellation', 'informative'],
     ['6.3.6', 'Network test', 'informative'],
-    ['6.3.7', 'Not supported', 'informative'],
-    ['6.3.8', 'Not verified', 'informative'],
+    ['6.3.7', 'Cannot run here', 'informative'],
+    ['6.3.8', 'Not implemented', 'informative'],
     ['6.3.9', 'Not selected', 'informative'],
   ].map(([section, title, group], index) => ({
     id: `csaf-2.0/${section}`,
@@ -49,22 +44,15 @@ export const FIXTURE_CATALOGUE: Catalogue = {
   obsoleteSections: [],
 }
 
-const CAPABILITIES: Record<string, Capability> = {
-  'csaf-2.0/6.3.7': {
-    state: 'known-unsupported',
-    reason: 'The fixture adapter does not implement this test.',
-  },
-  'csaf-2.0/6.3.8': {
-    state: 'not-yet-verified',
-    reason: 'No evidence for this test yet.',
-  },
-}
+export const FIXTURE_UNAVAILABLE_REASON =
+  'The fixture adapter cannot run this test in this environment.'
 
 export const FIXTURE_ADAPTER: ValidatorAdapter = {
   id: 'csaf-validator-lib',
   availability: { available: true },
   limitationKeys: [],
-  capability: (id) => CAPABILITIES[id] ?? { state: 'verified-supported' },
+  unavailableReason: (id) =>
+    id === 'csaf-2.0/6.3.7' ? FIXTURE_UNAVAILABLE_REASON : undefined,
   start: () => ({ cancel: () => {} }),
 }
 
@@ -96,7 +84,9 @@ export const FIXTURE_REQUEST: RunRequest = {
     'csaf-2.0/6.3.3',
     'csaf-2.0/6.3.4',
     'csaf-2.0/6.3.5',
+    'csaf-2.0/6.3.8',
   ],
+  unavailable: [{ id: 'csaf-2.0/6.3.7', reason: FIXTURE_UNAVAILABLE_REASON }],
   document: FIXTURE_DOCUMENT,
 }
 

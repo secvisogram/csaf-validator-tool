@@ -9,6 +9,7 @@ const request = (over: Partial<RunRequest> = {}): RunRequest => ({
   snapshot: 'csaf-2.0',
   selected: ['csaf-2.0/schema', 'csaf-2.0/6.1.1', 'csaf-2.0/6.2.2'],
   runnable: ['csaf-2.0/schema', 'csaf-2.0/6.1.1', 'csaf-2.0/6.2.2'],
+  unavailable: [],
   document: { document: { csaf_version: '2.0' } },
   ...over,
 })
@@ -229,6 +230,35 @@ describe('snapshot-specific names', () => {
   })
 })
 
+describe('an explicit CSAF 2.1 selection', () => {
+  it('is sent like any other, under names derived by the naming rule and with no test list consulted', async () => {
+    const { calls, fetchFn } = fakeFetch(() =>
+      json({ isValid: true, tests: [] }),
+    )
+    const ids = [
+      'csaf-2.1-csd04/6.1.48',
+      'csaf-2.1-csd04/6.2.20',
+      'csaf-2.1-csd04/6.3.26.1',
+    ]
+    await runToEnd(
+      serviceAdapter({ url: URL_BASE, fetchFn }),
+      request({ snapshot: 'csaf-2.1-csd04', selected: ids, runnable: ids }),
+    )
+    expect(calls).toHaveLength(1)
+    expect(JSON.parse(String(calls[0]?.init.body)).tests).toEqual([
+      { name: 'mandatoryTest_6_1_48', type: 'test' },
+      { name: 'recommendedTest_6_2_20', type: 'test' },
+      { name: 'informativeTest_6_3_26_1', type: 'test' },
+    ])
+  })
+
+  it('discloses before the run that the service supports CSAF 2.0 only', () => {
+    expect(serviceAdapter({ url: URL_BASE }).limitationKeys).toContain(
+      'validators.service.csaf20Only',
+    )
+  })
+})
+
 describe('service and request failures', () => {
   const failureOf = async (
     respond: () => Promise<Response> | Response,
@@ -259,6 +289,45 @@ describe('service and request failures', () => {
     const message = (events[0] as { message: string }).message
     expect(message).toContain('HTTP 400')
     expect(message).toContain('body/tests/1/name must be equal')
+  })
+
+  it('keeps the HTTP 400 message unchanged, adding nothing from our own request', async () => {
+    const serverMessage =
+      'body/tests/1/name must be equal to one of the allowed values, body/tests/1/name must be equal to one of the allowed values, body/tests/1 must match exactly one schema in oneOf'
+    const { fetchFn } = fakeFetch(() =>
+      json(
+        {
+          statusCode: 400,
+          code: 'FST_ERR_VALIDATION',
+          error: 'Bad Request',
+          message: serverMessage,
+        },
+        { status: 400, statusText: 'Bad Request' },
+      ),
+    )
+    const events = await runToEnd(
+      serviceAdapter({ url: URL_BASE, fetchFn }),
+      request(),
+    )
+    expect(events).toEqual([
+      {
+        type: 'failed',
+        message: `The service answered with HTTP 400 Bad Request. Service message: ${serverMessage}`,
+      },
+    ])
+  })
+
+  it('does not shorten an HTTP 400 message', async () => {
+    const message = `body/tests/1 ${'x'.repeat(1000)}`
+    const events = await failureOf(() => json({ message }, { status: 400 }))
+    expect((events[0] as { message: string }).message).toContain(message)
+  })
+
+  it('reports no implementation gap for an HTTP 400', async () => {
+    const events = await failureOf(() =>
+      json({ message: 'body/tests/1 is bad' }, { status: 400 }),
+    )
+    expect(events.some((event) => event.type === 'test-gap')).toBe(false)
   })
 
   it('shows the status of a 5xx answer with a body that is not JSON', async () => {
@@ -515,11 +584,11 @@ describe('availability and destination', () => {
     expect(serviceAdapter({ url: URL_BASE }).limitationKeys).toEqual([
       'validators.service.csaf20Only',
       'validators.service.resultsAsReturned',
-      'validators.service.verifiedVersion',
+      'validators.service.referenceVersion',
     ])
   })
 
-  it('names the service version its mapping was verified against', () => {
+  it('names the service version its request was checked against', () => {
     expect(serviceAdapter({ url: URL_BASE }).componentVersion).toBe('3.0.5')
   })
 

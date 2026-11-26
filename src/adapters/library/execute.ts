@@ -5,14 +5,7 @@ import type {
   ValidatorOutcome,
 } from '../../validation/types.ts'
 import type { ModuleLoader } from './loaders.ts'
-import type { LibraryModuleKey } from './modules.ts'
-
-export type LibraryTestTarget = {
-  /** Catalogue ID of the test. */
-  id: string
-  module: LibraryModuleKey
-  export: string
-}
+import { libraryTarget } from './modules.ts'
 
 type TestFunction = Parameters<typeof validateWithLibrary>[0][number]
 export type ValidateFunction = (
@@ -89,48 +82,67 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
 
+type Resolved =
+  | { kind: 'test'; id: string; test: TestFunction }
+  | { kind: 'gap'; id: string }
+  | { kind: 'error'; id: string; message: string }
+
 /**
- * Runs each target on its own and reports every result as soon as it is
+ * Looks up the function of a catalogue test in the library: the naming rule
+ * gives the module and the export. No function means the library does not
+ * implement the test. A module that cannot be loaded is not a gap.
+ */
+async function resolve(id: string, load: ModuleLoader): Promise<Resolved> {
+  const target = libraryTarget(id)
+  if (!target) return { kind: 'gap', id }
+  try {
+    const test = (await load(target.module))[target.export]
+    return typeof test === 'function'
+      ? { kind: 'test', id, test: test as TestFunction }
+      : { kind: 'gap', id }
+  } catch (error) {
+    return { kind: 'error', id, message: errorMessage(error) }
+  }
+}
+
+/**
+ * Resolves the function of every test when the run starts and reports the
+ * tests the library has no function for as implementation gaps. Then it runs
+ * each remaining test on its own and reports every result as soon as it is
  * available. A test that throws becomes an execution error for that test
  * only, and the remaining tests still run. Each result belongs to the test
  * that was invoked. The library's own function name is not used, because a
  * minified build renames functions.
  */
 export async function executeTests(
-  input: { document: unknown; tests: readonly LibraryTestTarget[] },
+  input: { document: unknown; tests: readonly string[] },
   dependencies: ExecuteDependencies,
   emit: (event: RunEvent) => void,
 ): Promise<void> {
   const validate: ValidateFunction =
     dependencies.validate ?? (validateWithLibrary as ValidateFunction)
 
-  for (const target of input.tests) {
-    emit({ type: 'test-started', id: target.id })
+  const runnable: Extract<Resolved, { kind: 'test' }>[] = []
+  for (const id of input.tests) {
+    const resolved = await resolve(id, dependencies.load)
+    if (resolved.kind === 'test') runnable.push(resolved)
+    else if (resolved.kind === 'gap') emit({ type: 'test-gap', id })
+    else emit({ type: 'test-error', id, message: resolved.message })
+  }
+
+  for (const { id, test } of runnable) {
+    emit({ type: 'test-started', id })
     try {
-      const library = await dependencies.load(target.module)
-      const test = library[target.export]
-      if (typeof test !== 'function') {
-        emit({
-          type: 'test-error',
-          id: target.id,
-          message: `The library module ${target.module} has no function ${target.export}.`,
-        })
-        continue
-      }
       const normalized = normalizeLibraryResult(
-        await validate([test as TestFunction], input.document),
+        await validate([test], input.document),
       )
       if (!normalized.ok) {
-        emit({ type: 'test-error', id: target.id, message: normalized.message })
+        emit({ type: 'test-error', id, message: normalized.message })
       } else {
-        emit({
-          type: 'test-result',
-          id: target.id,
-          outcome: normalized.outcome,
-        })
+        emit({ type: 'test-result', id, outcome: normalized.outcome })
       }
     } catch (error) {
-      emit({ type: 'test-error', id: target.id, message: errorMessage(error) })
+      emit({ type: 'test-error', id, message: errorMessage(error) })
     }
   }
 }

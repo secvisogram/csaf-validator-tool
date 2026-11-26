@@ -1,7 +1,6 @@
 import type { Catalogue } from '../catalogue/types.ts'
 import type { RunState } from './runState.ts'
 import type {
-  Capability,
   UncataloguedResult,
   ValidatorMessage,
   ValidatorOutcome,
@@ -17,7 +16,10 @@ export type ReportMessage = ValidatorMessage & { severity: MessageSeverity }
  */
 export type RowStatus =
   | { kind: 'not-selected' }
-  | { kind: 'unavailable'; capability: Capability }
+  /** The test cannot run in this environment, for the stated reason. It is not an implementation gap. */
+  | { kind: 'unavailable'; reason: string }
+  /** The validator does not implement the test. It has no outcome and no reason beyond that. */
+  | { kind: 'implementation-gap' }
   | { kind: 'queued' }
   | { kind: 'running' }
   | { kind: 'succeeded'; messages: ReportMessage[] }
@@ -50,6 +52,8 @@ export type ReportCounts = {
   failed: number
   skipped: number
   unavailable: number
+  /** Selected tests the validator was observed not to implement. They have no outcome. */
+  implementationGap: number
   pending: number
   missing: number
   executionError: number
@@ -68,7 +72,7 @@ export type Report = {
   uncatalogued: readonly UncataloguedResult[]
   counts: ReportCounts
   messageCounts: MessageCounts
-  /** Rows that need a look: findings, unavailable, missing, errors, failures and cancellation gaps. */
+  /** Rows that need a look: findings, unavailable, gaps, missing, errors, failures and cancellation gaps. */
   attention: ReportRow[]
 }
 
@@ -94,18 +98,16 @@ export function rowMessages(status: RowStatus): ReportMessage[] {
     : []
 }
 
-function statusOf(
-  id: string,
-  selected: boolean,
-  run: RunState,
-  capability: (id: string) => Capability,
-): RowStatus {
+function statusOf(id: string, selected: boolean, run: RunState): RowStatus {
   if (!selected) return { kind: 'not-selected' }
   if (!run.request.runnable.includes(id)) {
-    return { kind: 'unavailable', capability: capability(id) }
+    const reason =
+      run.request.unavailable.find((entry) => entry.id === id)?.reason ?? ''
+    return { kind: 'unavailable', reason }
   }
 
   const result = run.results.get(id)
+  if (result?.kind === 'gap') return { kind: 'implementation-gap' }
   if (result?.kind === 'execution-error') {
     return { kind: 'execution-error', message: result.message }
   }
@@ -130,6 +132,7 @@ const NEEDS_ATTENTION: ReadonlySet<RowKind> = new Set([
   'failed',
   'skipped',
   'unavailable',
+  'implementation-gap',
   'missing',
   'execution-error',
   'run-failed',
@@ -141,11 +144,7 @@ const NEEDS_ATTENTION: ReadonlySet<RowKind> = new Set([
  * not, and counts only what each state actually is. The selection recorded in
  * the run is used, so later edits do not change a finished report.
  */
-export function buildReport(
-  catalogue: Catalogue,
-  run: RunState,
-  capability: (id: string) => Capability,
-): Report {
+export function buildReport(catalogue: Catalogue, run: RunState): Report {
   const selected = new Set(run.request.selected)
   const entries = [
     {
@@ -168,7 +167,7 @@ export function buildReport(
     title: entry.title,
     ...(entry.specificationUrl && { specificationUrl: entry.specificationUrl }),
     selected: selected.has(entry.id),
-    status: statusOf(entry.id, selected.has(entry.id), run, capability),
+    status: statusOf(entry.id, selected.has(entry.id), run),
   }))
 
   const counts: ReportCounts = {
@@ -178,6 +177,7 @@ export function buildReport(
     failed: 0,
     skipped: 0,
     unavailable: 0,
+    implementationGap: 0,
     pending: 0,
     missing: 0,
     executionError: 0,
@@ -197,6 +197,9 @@ export function buildReport(
         break
       case 'unavailable':
         counts.unavailable += 1
+        break
+      case 'implementation-gap':
+        counts.implementationGap += 1
         break
       case 'queued':
       case 'running':

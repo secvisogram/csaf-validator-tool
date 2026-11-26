@@ -205,15 +205,49 @@ test.describe('the validator library in a worker', () => {
   test('shows progress, and cancelling keeps what was returned', async ({
     page,
   }) => {
+    // The library answers all tests within a few milliseconds, so the page
+    // drops every worker message after the first result, as if the worker
+    // were slow. The run is then cancelled with exactly one result received.
+    await page.addInitScript(() => {
+      const Native = window.Worker
+      const onmessage = Object.getOwnPropertyDescriptor(
+        Native.prototype,
+        'onmessage',
+      )
+      if (!onmessage?.set || !onmessage.get) throw new Error('no onmessage')
+      const { get, set } = onmessage
+      window.Worker = class extends Native {
+        constructor(...args: ConstructorParameters<typeof Native>) {
+          super(...args)
+          let results = 0
+          Object.defineProperty(this, 'onmessage', {
+            configurable: true,
+            get: () => get.call(this),
+            set: (handler: ((event: MessageEvent) => void) | null) => {
+              set.call(
+                this,
+                handler &&
+                  ((event: MessageEvent) => {
+                    if (results >= 1) return
+                    if (event.data?.type === 'test-result') results++
+                    handler.call(this, event)
+                  }),
+              )
+            },
+          })
+        }
+      }
+    })
     await openWithText(page, DOCUMENT_20)
     await runButton(page).click()
     await expect(runState(page, 'Running')).toBeVisible()
-    await expect(page.getByText(/[1-9]\d* of \d+ tests finished/)).toBeVisible()
+    await expect(page.getByText(/1 of \d+ tests finished/)).toBeVisible({
+      timeout: 60_000,
+    })
     await page.getByRole('button', { name: 'Cancel run' }).click()
 
-    const cancelled = runState(page, 'Run cancelled')
-    await expect(cancelled).toHaveText(
-      /Run cancelled\s+[1-9]\d* of \d+ selected tests returned a result before the run was cancelled/,
+    await expect(runState(page, 'Run cancelled')).toHaveText(
+      /Run cancelled\s+1 of \d+ selected tests returned a result before the run was cancelled/,
     )
     await page.getByRole('tab', { name: 'Detailed report' }).click()
     await expect(
@@ -345,7 +379,7 @@ test.describe('a validator that cannot run', () => {
       page.getByRole('heading', { name: 'Limitations' }),
     ).toBeVisible()
     await expect(
-      page.getByText(/A CSAF 2\.1 request you select is still sent/),
+      page.getByText(/A CSAF 2\.1 request you select is sent like any other/),
     ).toBeVisible()
   })
 })

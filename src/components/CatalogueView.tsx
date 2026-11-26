@@ -9,27 +9,31 @@ import {
 import { SafeLink } from './SafeLink.tsx'
 import { isNetworkEnabled } from '../catalogue/network.ts'
 import type { Catalogue, CatalogueTest } from '../catalogue/types.ts'
-import type { Capability, ValidatorAdapter } from '../validation/types.ts'
+import type { ValidatorAdapter } from '../validation/types.ts'
 
 type CatalogueViewProps = {
   catalogue: Catalogue
-  adapter: Pick<ValidatorAdapter, 'capability'>
+  adapter: Pick<ValidatorAdapter, 'unavailableReason'>
   selection: Selection
   onChange: (selection: Selection) => void
   onReset: () => void
 }
 
-const CapabilityCell: React.FC<{
-  capability: Capability
+const AvailabilityCell: React.FC<{
+  reason: string | undefined
   network?: boolean
-}> = ({ capability, network = false }) => {
+}> = ({ reason, network = false }) => {
   const { t } = useTranslation()
   return (
     <>
-      <span className={`capability capability-${capability.state}`}>
-        {t(`report.capability.${capability.state}`)}
-      </span>
-      {capability.reason && <div className="reason">{capability.reason}</div>}
+      {reason !== undefined && (
+        <>
+          <span className="availability availability-unavailable">
+            {t('catalogue.table.unavailable')}
+          </span>
+          <div className="reason">{reason}</div>
+        </>
+      )}
       {network && <div className="reason">{t('catalogue.table.network')}</div>}
     </>
   )
@@ -101,7 +105,9 @@ export const CatalogueView: React.FC<CatalogueViewProps> = ({
           {t('catalogue.schema.label')}
         </label>
         <div data-row-id={schemaCheck.id}>
-          <CapabilityCell capability={adapter.capability(schemaCheck.id)} />
+          <AvailabilityCell
+            reason={adapter.unavailableReason?.(schemaCheck.id)}
+          />
         </div>
         <p>
           {t('catalogue.schema.note')}
@@ -137,7 +143,7 @@ export const CatalogueView: React.FC<CatalogueViewProps> = ({
                   <th scope="col">{t('catalogue.table.select')}</th>
                   <th scope="col">{t('catalogue.table.section')}</th>
                   <th scope="col">{t('catalogue.table.title')}</th>
-                  <th scope="col">{t('catalogue.table.support')}</th>
+                  <th scope="col">{t('catalogue.table.availability')}</th>
                   <th scope="col">{t('catalogue.link.open')}</th>
                   <th scope="col">{t('catalogue.table.presets')}</th>
                 </tr>
@@ -167,8 +173,8 @@ export const CatalogueView: React.FC<CatalogueViewProps> = ({
                     <td>{test.section}</td>
                     <td>{test.title}</td>
                     <td>
-                      <CapabilityCell
-                        capability={adapter.capability(test.id)}
+                      <AvailabilityCell
+                        reason={adapter.unavailableReason?.(test.id)}
                         network={isNetworkEnabled(
                           catalogue.snapshot,
                           test.section,

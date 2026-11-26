@@ -92,7 +92,9 @@ describe('the JavaScript service in the app', () => {
     enterUrl('https://validator.example/svc/')
     expect(screen.queryByRole('alert')).toBeNull()
     expect(
-      screen.getByText(/verified against csaf-validator-service 3\.0\.5/),
+      screen.getByText(
+        /reference build is csaf-validator-service 3\.0\.5.*may differ/,
+      ),
     ).toBeTruthy()
     expect(runButton()).toHaveProperty('disabled', false)
     expect(
@@ -162,10 +164,10 @@ describe('the JavaScript service in the app', () => {
     ).toBe('missing')
   })
 
-  it('sends an explicitly selected CSAF 2.1 request, with its names, without a gate', async () => {
+  it('sends an explicitly selected CSAF 2.1 request like any other, and says beforehand that the service supports CSAF 2.0 only', async () => {
     render(<Harness document={document21} />)
     enterUrl('https://validator.example')
-    expect(screen.getByText(/not verified for this service/)).toBeTruthy()
+    expect(screen.getByText(/supports CSAF 2\.0 only/)).toBeTruthy()
     answer({ isValid: true, tests: [] })
     fireEvent.click(runButton())
 
@@ -188,9 +190,12 @@ describe('the JavaScript service in the app', () => {
     fireEvent.click(runButton())
 
     await screen.findByText('Run failed', { selector: 'strong' })
-    expect(screen.getByRole('alert').textContent).toMatch(
-      /HTTP 400 Bad Request/,
-    )
+    const alert = screen.getByRole('alert').textContent
+    expect(alert).toMatch(/HTTP 400 Bad Request/)
+    expect(alert).toContain('body/tests/1/name must be equal')
+    expect(
+      document.querySelector('tr[data-status="implementation-gap"]'),
+    ).toBeNull()
     expect(document.querySelector('tr[data-status="succeeded"]')).toBeNull()
     expect(document.querySelector('tr[data-status="failed"]')).toBeNull()
   })

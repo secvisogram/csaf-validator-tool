@@ -23,10 +23,8 @@ const fakeAdapter: ValidatorAdapter = {
   id: 'csaf-validator-lib',
   availability: { available: true },
   limitationKeys: [],
-  capability: (id) =>
-    id === 'csaf-2.0/6.3.8'
-      ? { state: 'known-unsupported', reason: 'Needs a native program.' }
-      : { state: 'verified-supported' },
+  unavailableReason: (id) =>
+    id === 'csaf-2.0/6.3.8' ? 'Needs a native program.' : undefined,
   start: (request, emit) => {
     started.push({ request, emit })
     return {
@@ -173,6 +171,29 @@ describe('Workbench', () => {
     expect(row('csaf-2.0/6.3.6')?.getAttribute('data-status')).toBe(
       'not-selected',
     )
+  })
+
+  it('shows a test the validator does not implement as unavailable with that reason, and counts no outcome for it', () => {
+    mount(loaded(), { ...BUILT_IN_DEFAULTS, reportView: 'detailed' })
+    run()
+    act(() => {
+      last().emit({ type: 'test-gap', id: 'csaf-2.0/6.1.2' })
+      last().emit({
+        type: 'test-result',
+        id: 'csaf-2.0/6.1.1',
+        outcome: outcome('succeeded'),
+      })
+      last().emit({ type: 'completed' })
+    })
+    const gap = document.querySelector(
+      'tr[data-status="implementation-gap"][data-row-id="csaf-2.0/6.1.2"]',
+    )
+    expect(gap?.textContent).toContain('Unavailable: not implemented')
+    expect(gap?.textContent).toContain('validator does not implement this test')
+    expect(
+      document.querySelectorAll('tr[data-status="implementation-gap"]'),
+    ).toHaveLength(1)
+    expect(screen.getByText(/1 of \d+ selected tests returned/)).toBeTruthy()
   })
 
   it('ignores results that arrive after the cancel', () => {

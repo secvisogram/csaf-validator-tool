@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { CATALOGUES } from '../../catalogue/catalogues.ts'
 import type { SnapshotId } from '../../catalogue/types.ts'
+import { analyzeSelection } from '../../validation/plan.ts'
 import type { RunEvent, RunRequest } from '../../validation/types.ts'
 import { rustServiceAdapter } from './adapter.ts'
-import { rustCapability } from './capabilities.ts'
 import run20 from './fixtures/csaf-2.0-run.json'
 import run21 from './fixtures/csaf-2.1-run.json'
 import flattened from './fixtures/flattened.json'
@@ -16,10 +16,6 @@ const allIds = (snapshot: SnapshotId) => [
   CATALOGUES[snapshot].schemaCheck.id,
   ...CATALOGUES[snapshot].tests.map((test) => test.id),
 ]
-const runnableIds = (snapshot: SnapshotId) =>
-  allIds(snapshot).filter(
-    (id) => rustCapability(id).state === 'verified-supported',
-  )
 
 const requestFor = (
   snapshot: SnapshotId,
@@ -29,7 +25,8 @@ const requestFor = (
   validator: 'csaf-service',
   snapshot,
   selected: allIds(snapshot),
-  runnable: runnableIds(snapshot),
+  runnable: allIds(snapshot),
+  unavailable: [],
   document,
   ...over,
 })
@@ -101,12 +98,22 @@ describe('the Rust service adapter', () => {
     expect(adapter.resultNoteKeys).toContain('validators.rust.flattenedResults')
   })
 
-  it('never nominates a check without verified support', () => {
+  it('plans every selected test as sendable, with no list of tests', () => {
     const adapter = rustServiceAdapter({ url: URL_BASE })
-    expect(adapter.capability('csaf-2.0/6.3.8').state).toBe('known-unsupported')
-    expect(adapter.capability('csaf-2.0/6.1.1')).toEqual({
-      state: 'verified-supported',
-    })
+    const catalogue = CATALOGUES['csaf-2.1-csd04']
+    const analysis = analyzeSelection(
+      catalogue,
+      { tests: new Set(catalogue.tests.map((test) => test.id)), schema: true },
+      adapter,
+    )
+    expect(analysis.unavailable).toEqual([])
+    expect(analysis.runnable).toHaveLength(catalogue.tests.length + 1)
+  })
+
+  it('names the reference build tag', () => {
+    expect(rustServiceAdapter({ url: URL_BASE }).componentVersion).toBe(
+      'v0.7.3',
+    )
   })
 })
 
@@ -138,7 +145,7 @@ describe('a request to the Rust service', () => {
     })
   })
 
-  it('sends every verified CSAF 2.0 check and none of the others', async () => {
+  it('sends every selected CSAF 2.0 check under its bare section, as the recorded run did', async () => {
     const { sent, fetchFn } = fakeFetch(answerFrom(run20))
     await runToEnd(
       rustServiceAdapter({ url: URL_BASE, fetchFn }),
@@ -150,14 +157,11 @@ describe('a request to the Rust service', () => {
       }
     ).tests.map((test) => test.name)
     expect(names.toSorted()).toEqual(
-      run20.request.tests
-        .map((test) => test.name)
-        .filter((name) => !['6.3.6', '6.3.7', '6.3.8'].includes(name))
-        .toSorted(),
+      run20.request.tests.map((test) => test.name).toSorted(),
     )
   })
 
-  it('does not send a request with no verified check, which the service would answer with the schema check', async () => {
+  it('does not send a request with no check, which the service would answer with the schema check', async () => {
     const { sent, fetchFn } = fakeFetch(answerFrom(run20))
     const events = await runToEnd(
       rustServiceAdapter({ url: URL_BASE, fetchFn }),
@@ -167,14 +171,18 @@ describe('a request to the Rust service', () => {
     expect(events).toEqual([expect.objectContaining({ type: 'failed' })])
   })
 
-  it('sends nothing for a selection of unverified checks, also in CSAF 2.1', async () => {
+  it('sends an explicit CSAF 2.1 selection like any other', async () => {
     const { sent, fetchFn } = fakeFetch(answerFrom(run21))
-    const events = await runToEnd(
+    await runToEnd(
       rustServiceAdapter({ url: URL_BASE, fetchFn }),
-      requestFor('csaf-2.1-csd04', document21, { runnable: [] }),
+      requestFor('csaf-2.1-csd04', document21, {
+        runnable: ['csaf-2.1-csd04/6.2.49', 'csaf-2.1-csd04/6.3.25'],
+      }),
     )
-    expect(sent).toEqual([])
-    expect(events.at(-1)?.type).toBe('failed')
+    expect(JSON.parse(String(sent[0]?.init.body)).tests).toEqual([
+      { name: '6.2.49', type: 'test' },
+      { name: '6.3.25', type: 'test' },
+    ])
   })
 
   it('does not send when the selected version differs from the one the document declares', async () => {
@@ -208,7 +216,7 @@ describe('a request to the Rust service', () => {
   })
 })
 
-describe('results recorded from the pinned build', () => {
+describe('results recorded from the reference build', () => {
   it('maps a full CSAF 2.0 run to its catalogue tests with nothing missing or uncatalogued', async () => {
     const { fetchFn } = fakeFetch(answerFrom(run20))
     const request = requestFor('csaf-2.0', document20)
@@ -253,11 +261,23 @@ describe('results recorded from the pinned build', () => {
     expect(outcomes.some((outcome) => outcome.status === 'skipped')).toBe(false)
     const returnedInvalid = run20.response.tests.filter((test) => !test.isValid)
     const failed = outcomes.filter((outcome) => outcome.status === 'failed')
-    expect(failed.length).toBe(
-      returnedInvalid.filter(
-        (test) => !['6.3.6', '6.3.7', '6.3.8'].includes(test.name),
-      ).length,
+    expect(failed.length).toBe(returnedInvalid.length)
+  })
+
+  it('shows a test the build does not implement as valid, as returned, and reports no gap', async () => {
+    const { fetchFn } = fakeFetch(answerFrom(run20))
+    const events = await runToEnd(
+      rustServiceAdapter({ url: URL_BASE, fetchFn }),
+      requestFor('csaf-2.0', document20),
     )
+    for (const id of ['csaf-2.0/6.3.6', 'csaf-2.0/6.3.7', 'csaf-2.0/6.3.8']) {
+      expect(events).toContainEqual({
+        type: 'test-result',
+        id,
+        outcome: { status: 'succeeded', errors: [], warnings: [], infos: [] },
+      })
+    }
+    expect(events.some((event) => event.type === 'test-gap')).toBe(false)
   })
 
   it('shows a flattened result as returned and keeps what was not requested uncatalogued', async () => {
@@ -281,6 +301,7 @@ describe('results recorded from the pinned build', () => {
     )
     expect(uncatalogued.toSorted()).toEqual(['6.3.6', 'does.not.exist'])
     expect(events.some((event) => event.type === 'test-error')).toBe(false)
+    expect(events.some((event) => event.type === 'test-gap')).toBe(false)
   })
 })
 
@@ -310,7 +331,7 @@ describe('failures of the Rust service run', () => {
     ])
   })
 
-  it('shows the recorded 400 with the service message as a failed run', async () => {
+  it('shows the recorded 400 with the service message as a failed run, and no gap', async () => {
     const events = await failureOf(() => json(noVersion.response, 400))
     expect(events).toEqual([
       {
