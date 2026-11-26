@@ -96,12 +96,17 @@ describe('the environment limits of the library', () => {
     const limited = SNAPSHOT_IDS.flatMap(idsOf).filter(
       (id) => libraryUnavailableReason(id) !== undefined,
     )
-    expect(limited).toHaveLength(
-      SNAPSHOT_IDS.length +
-        SNAPSHOT_IDS.reduce(
-          (sum, snapshot) => sum + NETWORK_ENABLED_SECTIONS[snapshot].length,
-          0,
-        ),
+    expect(limited.toSorted()).toEqual(
+      [
+        'csaf-2.0/6.3.6',
+        'csaf-2.0/6.3.7',
+        'csaf-2.0/6.3.8',
+        'csaf-2.1-csd04/6.2.55',
+        'csaf-2.1-csd04/6.3.6',
+        'csaf-2.1-csd04/6.3.7',
+        'csaf-2.1-csd04/6.3.8',
+        'csaf-2.1-csd04/6.3.24',
+      ].toSorted(),
     )
   })
 })
@@ -147,6 +152,40 @@ describe(
         }
       }
       expect(missed).toEqual([])
+    })
+
+    it('resolves every catalogue test the library implements to the export it has for it', async () => {
+      const exportsBySection = new Map<string, string[]>()
+      for (const module of LIBRARY_MODULE_KEYS) {
+        const library = await loadLibraryModule(module)
+        for (const name of Object.keys(library)) {
+          const match = /^\w+Test_(\d+(?:_\d+)+)$/.exec(name)
+          if (!match || typeof library[name] !== 'function') continue
+          const key = `${module.startsWith('csaf_2_1/') ? 'csaf-2.1-csd04' : 'csaf-2.0'}/${(match[1] as string).replaceAll('_', '.')}`
+          exportsBySection.set(key, [
+            ...(exportsBySection.get(key) ?? []),
+            `${module}#${name}`,
+          ])
+        }
+      }
+
+      expect(exportsBySection.has('csaf-2.0/6.1.1')).toBe(true)
+      expect(exportsBySection.has('csaf-2.1-csd04/6.1.1')).toBe(true)
+      const mismatched: string[] = []
+      for (const snapshot of SNAPSHOT_IDS) {
+        for (const test of CATALOGUES[snapshot].tests) {
+          const exported = exportsBySection.get(test.id)
+          if (!exported) continue
+          const target = libraryTarget(test.id)
+          const resolved = target && `${target.module}#${target.export}`
+          if (!resolved || !exported.includes(resolved)) {
+            mismatched.push(
+              `${test.id} resolves to ${resolved}, the library exports ${exported.join(', ')}`,
+            )
+          }
+        }
+      }
+      expect(mismatched).toEqual([])
     })
 
     it('finds every test it resolves in the module of its own snapshot and group', async () => {

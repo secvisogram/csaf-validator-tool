@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { CATALOGUES } from '../../catalogue/catalogues.ts'
+import { analyzeSelection } from '../../validation/plan.ts'
 import type { RunEvent, RunRequest } from '../../validation/types.ts'
 import type { WorkerLike } from '../library/runner.ts'
 import { csafRsAdapter } from './adapter.ts'
@@ -49,8 +50,15 @@ describe('the csaf-rs adapter', () => {
   })
 
   it('creates no worker until a run starts, so the WASM does not load earlier', () => {
-    const { createWorker } = setup()
+    const { createWorker, adapter } = setup()
+    analyzeSelection(
+      CATALOGUES['csaf-2.0'],
+      { tests: new Set(['csaf-2.0/6.1.1']), schema: true },
+      adapter,
+    )
     expect(createWorker).not.toHaveBeenCalled()
+    adapter.start(request(), () => {})
+    expect(createWorker).toHaveBeenCalledTimes(1)
   })
 
   it('shows its progress as indeterminate because the package call is synchronous', () => {
@@ -63,9 +71,16 @@ describe('the csaf-rs adapter', () => {
     )
   })
 
-  it('knows no test it cannot run beforehand: a gap is only found by the run', () => {
+  it('plans every selected test as runnable, because a gap is only found by the run', () => {
     const { adapter } = setup()
-    expect(adapter.unavailableReason).toBeUndefined()
+    const catalogue = CATALOGUES['csaf-2.1-csd04']
+    const analysis = analyzeSelection(
+      catalogue,
+      { tests: new Set(catalogue.tests.map((test) => test.id)), schema: true },
+      adapter,
+    )
+    expect(analysis.unavailable).toEqual([])
+    expect(analysis.runnable).toHaveLength(catalogue.tests.length + 1)
   })
 
   it('sends the document, the snapshot, the runnable tests and the catalogue IDs to one worker', () => {

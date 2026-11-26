@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { CATALOGUES } from '../../catalogue/catalogues.ts'
 import type { SnapshotId } from '../../catalogue/types.ts'
+import { analyzeSelection } from '../../validation/plan.ts'
 import type { RunEvent, RunRequest } from '../../validation/types.ts'
 import { rustServiceAdapter } from './adapter.ts'
 import run20 from './fixtures/csaf-2.0-run.json'
@@ -97,9 +98,16 @@ describe('the Rust service adapter', () => {
     expect(adapter.resultNoteKeys).toContain('validators.rust.flattenedResults')
   })
 
-  it('knows no test it cannot send, and holds no list of tests', () => {
+  it('plans every selected test as sendable, with no list of tests', () => {
     const adapter = rustServiceAdapter({ url: URL_BASE })
-    expect(adapter.unavailableReason).toBeUndefined()
+    const catalogue = CATALOGUES['csaf-2.1-csd04']
+    const analysis = analyzeSelection(
+      catalogue,
+      { tests: new Set(catalogue.tests.map((test) => test.id)), schema: true },
+      adapter,
+    )
+    expect(analysis.unavailable).toEqual([])
+    expect(analysis.runnable).toHaveLength(catalogue.tests.length + 1)
   })
 
   it('names the reference build tag', () => {

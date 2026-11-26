@@ -16,7 +16,7 @@ const JAVASCRIPT_SERVICE: RemoteServiceProfile = {
   limitationKeys: [
     'validators.service.csaf20Only',
     'validators.service.resultsAsReturned',
-    'validators.service.verifiedVersion',
+    'validators.service.referenceVersion',
   ],
   componentVersion: reference.version,
   testName: derivedTestName,

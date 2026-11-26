@@ -584,7 +584,7 @@ describe('availability and destination', () => {
     expect(serviceAdapter({ url: URL_BASE }).limitationKeys).toEqual([
       'validators.service.csaf20Only',
       'validators.service.resultsAsReturned',
-      'validators.service.verifiedVersion',
+      'validators.service.referenceVersion',
     ])
   })
 

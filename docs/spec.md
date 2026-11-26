@@ -224,6 +224,8 @@ An implementation gap is a selected catalogue test that the validator is observe
 
 Known deviations, environment limits (Hunspell 6.3.8 in the browser), network-enabled tests that need confirmation or whose result is not verified, and services that fail or flatten a request are not gaps. Support is never inferred from a library export, a service-discovery endpoint, a result identifier, or a package README. Gaps show per run only. There is no gap matrix and no list-based guard.
 
+Network-enabled tests behave differently per adapter, and the confirmation applies to all of them. The library keeps them unavailable as an environment limit, so nothing is sent. The remote services have no per-test list any more, so a confirmed network-enabled test is sent like any other. csaf-rs 0.7.3 reports every network-enabled test as `NotFound`, so the Rust service answers with a flattened "valid" that says nothing about the external resources. The confirmation prompt therefore also guards a request to the Rust service whose result cannot reflect the network. Before this change those tests were recorded as `known-unsupported` and not sent.
+
 Returned results map to catalogue tests only through the name that was requested for them, per snapshot. The adapter's original identifier, subtest suffixes, and schema identity are preserved. A result that matches no requested name stays visible as uncatalogued with its original ID and unmodified details. A response that lacks a requested result is not automatically skipped or passed.
 
 | Adapter                  | Execution and request behavior                                                                                                                                                               | Known limitations and required verification                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -430,7 +432,7 @@ The prototype illustrates hierarchy and layout only. It is not normative for cou
 
 **Context**: Users need progress, and need to cancel without losing finished work. The csaf-rs adapter is an exception (see ADR 4).
 
-**Decision**: Browser adapters run selected tests individually in a Web Worker, report progress against the runnable selected tests, and deliver each result as soon as it completes. Cancelling terminates the worker immediately, keeps received results, and marks unfinished selected tests "not run — cancelled". A thrown test is recorded as an execution error and independent tests continue. Remote cancellation aborts the request where supported, ignores late responses, and states that server-side work may continue.
+**Decision**: Browser adapters run selected tests individually in a Web Worker, report progress against the selected tests that are not already unavailable in this environment (a test the library has no function for is found when the run starts and counts as done), and deliver each result as soon as it completes. Cancelling terminates the worker immediately, keeps received results, and marks unfinished selected tests "not run — cancelled". A thrown test is recorded as an execution error and independent tests continue. Remote cancellation aborts the request where supported, ignores late responses, and states that server-side work may continue.
 
 **Consequences**:
 
@@ -439,7 +441,7 @@ The prototype illustrates hierarchy and layout only. It is not normative for cou
 
 ### ADR 6: Table-first report with truthful result states
 
-**Context**: A prototype compared three report layouts using mixed validator output, including an error and a cancelled run. Reports must make returned, missing, skipped, unavailable, unselected, and uncatalogued states distinguishable.
+**Context**: A prototype compared three report layouts using mixed validator output, including an error and a cancelled run. Reports must make returned, missing, skipped, unavailable, implementation-gap, unselected, and uncatalogued states distinguishable.
 
 **Decision**: Choose the table-first layout: status counts, a "Needs attention" summary, in-page Summary / All messages (default) / Detailed report tabs, and a detailed table that makes every catalogue state explicit. Validator selection sits beside the run controls. No client-side routes. No single pass/fail verdict is inferred.
 
@@ -645,7 +647,7 @@ Ordered by priority (highest first):
 | Network-enabled test    | A test that may access external resources. Requires explicit confirmation before it runs.                                                          |
 | Adapter                 | The integration for one validator: execution, request shape, test naming, and result mapping.                                                      |
 | Implementation gap      | A catalogue test a validator is observed not to implement. Shown as unavailable, with no outcome. Found at run time, never recorded per test.      |
-| Uncatalogued result     | A returned result with no exact verified mapping to a catalogue test. Shown with its original ID and details.                                      |
+| Uncatalogued result     | A returned result that matches no requested test name. Shown with its original ID and details.                                                     |
 | Test hint               | Supplemental guidance for a catalogue test or validator message. It is not a validation result.                                                    |
 | Web Worker              | Browser background thread used for validation. Terminated on cancel.                                                                               |
 | Gateway                 | The reverse proxy in the Compose stack, the only service reachable from the host.                                                                  |

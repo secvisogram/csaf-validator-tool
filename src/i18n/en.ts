@@ -79,7 +79,7 @@ export default {
         'The Rust service returns flattened results. It cannot tell a passed test from a skipped test or from a test it does not implement, and a test with only warnings or information counts as valid. Results are shown as returned and are never reconstructed, and this app never shows a skipped result for this service.',
       versionFromDocument:
         'The service validates by the version the document declares and ignores any other choice. If the selected version differs from the declared one, nothing is sent and the run fails with that reason.',
-      verifiedBuild:
+      referenceBuild:
         'The reference build is csaf-rs {{version}}, built from source. Test names and the response mapping were checked against it only. The tool does not check which build the configured service is, and it may differ.',
     },
     service: {
@@ -89,7 +89,7 @@ export default {
         'The reference build supports CSAF 2.0 only, and the configured service may differ. A CSAF 2.1 request you select is sent like any other, and only the actual response or request error is shown. A test name the service does not know makes the whole request fail, so such a run can return no results at all.',
       resultsAsReturned:
         'Results are shown as returned. HTTP success does not mean the document is valid, and a failing test is shown as failing. A selected test the response does not contain is shown as missing.',
-      verifiedVersion:
+      referenceVersion:
         'The reference build is csaf-validator-service {{version}}. Test names and the response mapping were checked against it only. The tool does not check which version the configured service is, and it may differ.',
     },
   },

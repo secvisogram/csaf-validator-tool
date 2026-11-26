@@ -30,7 +30,7 @@ const RUST_SERVICE: RemoteServiceProfile = {
   limitationKeys: [
     'validators.rust.flattenedResults',
     'validators.rust.versionFromDocument',
-    'validators.rust.verifiedBuild',
+    'validators.rust.referenceBuild',
   ],
   resultNoteKeys: ['validators.rust.flattenedResults'],
   componentVersion: reference.tag,

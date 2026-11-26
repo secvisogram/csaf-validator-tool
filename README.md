@@ -45,7 +45,7 @@ Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
 - `src/hints/`: supplemental hints (YAML loader and hook, strict file check, exact matching)
 - `public/hints.yaml`: the hint file, served as a static asset next to the app
 - `src/validation/`: the shared validator model: run planning, run state, and the report model with its counts, without UI
-- `src/adapters/`: validator adapters. `src/adapters/library/` holds the browser library adapter (worker, runner, pin), `src/adapters/csafrs/` holds the csaf-rs WebAssembly adapter, `src/adapters/service/` holds the JavaScript service adapter and the client core it shares with the Rust adapter (request, response check, pin, recorded fixtures), and `src/adapters/rustservice/` holds the Rust service adapter (pin, recorded fixtures). `src/adapters/naming.ts` holds the test naming rule that all adapters share
+- `src/adapters/`: validator adapters. `src/adapters/library/` holds the browser library adapter (worker, runner, pin), `src/adapters/csafrs/` holds the csaf-rs WebAssembly adapter, `src/adapters/service/` holds the JavaScript service adapter and the client core it shares with the Rust adapter (request, response check, reference build, recorded fixtures), and `src/adapters/rustservice/` holds the Rust service adapter (reference build, recorded fixtures). `src/adapters/naming.ts` holds the test naming rule that all adapters share
 - `src/components/`: React components
 - `src/util/`: small helpers such as the safe-link check
 - `scripts/`: maintainer scripts
