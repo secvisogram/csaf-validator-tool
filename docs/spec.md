@@ -27,7 +27,7 @@ The csaf-rs CLI cannot be called from a browser and is not an adapter.
 | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Static, backend-free application                     | Everything runs in the browser. Remote validators are reached directly by the browser; the tool adds no proxy and no server component.                                                             |
 | React + TypeScript, Vite, npm                        | English UI with i18next. Node is pinned for contributors and CI, `npm ci` is used with a committed lockfile, and browser dependencies use exact versions.                                          |
-| Vitest and Playwright                                | Vitest for unit tests, Playwright for browser automation against latest-stable desktop Google Chrome and Firefox.                                                                                  |
+| Vitest and Playwright                                | Vitest for unit tests, Playwright for browser automation against the stable Chrome channel and the Firefox build of the Playwright version.                                                        |
 | csaf-rs WASM runs only in a Web Worker               | The 15.6 MB module fails main-thread synchronous instantiation in Chrome (limit 8 MB).                                                                                                             |
 | GitHub Pages cannot set custom HTTP response headers | Security must not depend on headers; untrusted data is rendered safely regardless. Assets, module workers, and WASM resolve relative to the deployed app path, including repository project paths. |
 | Remote validators need CORS                          | A remote service is usable only if the user's browser can reach it and it allows the app origin. The tool cannot fix or diagnose this.                                                             |
@@ -124,6 +124,8 @@ The csaf-rs CLI cannot be called from a browser and is not an adapter.
 
 - The static app is deployed at the repository's Pages URL, including project paths such as `https://<org>.github.io/<repo>/`.
 - Deployment happens only when a GitHub Release is published and requires the full check suite to pass for the release commit. PR and `main` builds are never deployed.
+- The tool is published at `https://secvisogram.github.io/csaf-validator-tool/`. The project path `/csaf-validator-tool/` is the native GitHub Pages path of the repository. There is no custom domain, 404 fallback or base path in the build.
+- Each release follows [release-checklist.md](release-checklist.md): the manual Safari smoke test and the Compose smoke test are recorded before publishing, and the published assets are checked after the deployment.
 - Browser-local validators work without any remote service. A remote service works only if the user's browser can reach it and it allows the app origin via CORS.
 - The JavaScript service currently supports CSAF 2.0, not 2.1. The app does not claim support the configured endpoint has not demonstrated.
 
@@ -466,11 +468,13 @@ The prototype illustrates hierarchy and layout only. It is not normative for cou
 
 **Context**: The build must handle project base paths, Web Worker and WASM assets, and both Pages and Compose deployment.
 
-**Decision**: Use Vite with React and TypeScript, npm with a committed lockfile, a pinned Node version, Vitest, and Playwright on Chromium and Firefox. CI runs on pull requests and pushes to `main` and does not deploy. GitHub Pages deploys only when a GitHub Release is published. The app is a single-page workflow without path-based routing, so report views stay in-page. Configure relative generated asset URLs and Vite-compatible worker references, and verify the built output under a Pages project subpath and the Compose root.
+**Decision**: Use Vite with React and TypeScript, npm with a committed lockfile, a pinned Node version, Vitest, and Playwright on the stable Chrome channel and Firefox. CI runs on pull requests and pushes to `main` and does not deploy. GitHub Pages deploys only when a GitHub Release is published: the release workflow calls the CI workflow as a reusable workflow for the commit of the release, and builds and deploys only if it passes. The site is served at the native project path `/csaf-validator-tool/` of GitHub Pages. The app is a single-page workflow without path-based routing, so report views stay in-page. Configure relative generated asset URLs and Vite-compatible worker references, and verify the one built output under a Pages project subpath and at the root, each served by its own server so that a root-absolute URL fails.
 
 **Consequences**:
 
 - Positive: one build serves both deployment modes without root-relative URLs.
+- Positive: the checks that gate a release are the checks that gate a pull request.
+- Negative: Playwright cannot drive a stock Firefox, so Firefox is the Playwright-pinned build and is as current as the Playwright version.
 - Negative: Safari has no automation, so a manual smoke test gates every release.
 
 ### ADR 10: Loopback-only Compose gateway with digest-pinned image
@@ -555,7 +559,7 @@ The prototype illustrates hierarchy and layout only. It is not normative for cou
 3. Users can supply text, a file, or a credential-free HTTP(S) document URL. Input validation and failures follow the input contract, with no app-level size cap and no URL proxy.
 4. The complete fixed-snapshot catalogue validates against the checked-in manifest baselines (74 IDs and groups for 2.0, 218 for 2.1 CSD04). Default checked tests follow the correct `external-request-free` definition, users can edit tests and the separate schema check, and runs execute exact selections with no preset-run mode.
 5. All four adapters have separate explicit mapping and capability records. WASM 0.7.3 is exact-pinned and worker-only. Adapter behavior, request shape, identifier mapping, status semantics, and capability limits are verified against exact dependency and service versions before support is marked verified.
-6. Browser tests run in latest-stable Chrome and Firefox. WASM initializes and a representative validation succeeds in both. CI records the browser versions.
+6. Browser tests run in the stable Chrome channel and the Firefox build of the Playwright version. WASM initializes and a representative validation succeeds in both. CI records the browser versions.
 7. The Summary, All messages, and Detailed report views faithfully retain statuses, findings, unavailable, missing, and uncatalogued outcomes, failures, and cancelled partial results.
 8. Remote submissions disclose the selected endpoint before the run, no extra service confirmation modal is shown, and the app sends no telemetry or automatic diagnostics. No document, result, or session data persists.
 9. Untrusted document, response, and hint strings cannot inject markup or script. Links use only safe HTTP(S) targets. Malformed responses and service errors are not test results.
@@ -566,15 +570,15 @@ The prototype illustrates hierarchy and layout only. It is not normative for cou
 
 ### Browser and release test matrix
 
-| Area               | Automated on PRs and `main`                                                                                                                                         | Manual before release or local operation                                             |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Browser versions   | Latest-stable desktop Chrome and Firefox, with versions recorded. Playwright's bundled Chromium alone does not count as Chrome coverage.                            | Latest-stable desktop Safari, with version, date, and outcome recorded.              |
-| Input              | Text, file, valid and invalid URL fetch, mocked CORS failure guidance, malformed JSON, and non-object payloads.                                                     | Safari text, upload, and URL fetch smoke. Real-source failures are not required.     |
-| Selection          | Declared and explicit CSAF 2.0/2.1, initial `external-request-free` checks, individual edits, schema-check selection, network-test confirmation, capability states. | Verify configured endpoints and services as available.                               |
-| Reports            | Three report views, all result and non-result states, missing and uncatalogued results, and no invented status.                                                     | Safari report navigation and representative states.                                  |
-| Execution          | Worker progress, per-test messages, cancel with retained results, 0.7.3 WASM load and fixture validation, errors, and malformed service responses.                  | Safari WASM worker validation; Compose with the real image.                          |
-| Runtime and deploy | Missing and invalid config, precedence, and relative asset, worker, and WASM loading under a project prefix and at the app root.                                    | Published Pages asset smoke; local Compose start, health, request, and failure flow. |
-| Privacy / security | No persistence or telemetry, safe text and link rendering, remote disclosure, and network-test confirmation.                                                        | Review the actual service URL disclosure before a local run.                         |
+| Area               | Automated on PRs and `main`                                                                                                                                                       | Manual before release or local operation                                             |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Browser versions   | The stable desktop Chrome channel and the Firefox build of the Playwright version, with versions recorded. Playwright's bundled Chromium alone does not count as Chrome coverage. | Latest-stable desktop Safari, with version, date, and outcome recorded.              |
+| Input              | Text, file, valid and invalid URL fetch, mocked CORS failure guidance, malformed JSON, and non-object payloads.                                                                   | Safari text, upload, and URL fetch smoke. Real-source failures are not required.     |
+| Selection          | Declared and explicit CSAF 2.0/2.1, initial `external-request-free` checks, individual edits, schema-check selection, network-test confirmation, capability states.               | Verify configured endpoints and services as available.                               |
+| Reports            | Three report views, all result and non-result states, missing and uncatalogued results, and no invented status.                                                                   | Safari report navigation and representative states.                                  |
+| Execution          | Worker progress, per-test messages, cancel with retained results, 0.7.3 WASM load and fixture validation, errors, and malformed service responses.                                | Safari WASM worker validation; Compose with the real image.                          |
+| Runtime and deploy | Missing and invalid config, precedence, and relative asset, worker, and WASM loading under a project prefix and at the app root.                                                  | Published Pages asset smoke; local Compose start, health, request, and failure flow. |
+| Privacy / security | No persistence or telemetry, safe text and link rendering, remote disclosure, and network-test confirmation.                                                                      | Review the actual service URL disclosure before a local run.                         |
 
 CI uses deterministic document fixtures and controlled or local mock validator services. It does not require a live external service.
 

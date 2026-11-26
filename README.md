@@ -2,8 +2,7 @@
 
 Browser-based validation of CSAF security advisories.
 
-> **[!HEADS UP]**
-> This project is under construction and not yet usable.
+The tool is deployed at <https://secvisogram.github.io/csaf-validator-tool/>.
 
 ## Overview
 
@@ -31,7 +30,7 @@ See [docs/spec.md](docs/spec.md) for the full specification (context and scope, 
 - `@csaf-rs/csaf-rs` 0.7.3 (exact pin, unpatched) as the in-browser WebAssembly validator, run in a module Web Worker
 - Ajv 8 (development only) for validating the catalogue data against its JSON schema in CI
 - oxlint and oxfmt for linting and formatting
-- Playwright for browser tests in latest-stable Chrome and Firefox (planned)
+- Playwright 1.65.1 (exact pin) for browser tests in the stable Chrome channel and Firefox
 - Docker Compose and nginx for the local deployment
 
 Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
@@ -48,12 +47,15 @@ Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
 - `src/adapters/`: validator adapters. `src/adapters/library/` holds the browser library adapter (worker, runner, capability data), `src/adapters/csafrs/` holds the csaf-rs WebAssembly adapter, `src/adapters/service/` holds the JavaScript service adapter and the client core it shares with the Rust adapter (request, response check, capability data, recorded fixtures), and `src/adapters/rustservice/` holds the Rust service adapter (capability data, recorded fixtures)
 - `src/components/`: React components
 - `src/util/`: small helpers such as the safe-link check
-- `scripts/`: maintainer scripts
+- `e2e/`: the Playwright browser tests, run against the production build (see Browser tests)
+- `scripts/`: maintainer scripts. `scripts/serve-dist.ts` serves `dist` like GitHub Pages does, for the browser tests and the Safari smoke test
 - `compose.yaml`, `deploy/`: the local Docker Compose deployment (`deploy/app/` is the static build server and the Compose runtime config, `deploy/gateway/` is the gateway)
 - `tools/csaf-rs`: a git submodule, pinned to the upstream csaf-rs tag `v0.7.3`. It is the build source of the Rust service in the local Compose stack and of `npm run record:rust-service` (see the Rust service adapter). The app, CI, the release workflow and the tests never need it
 - `src/i18n/`: i18next setup and the English dictionary
 - `docs/`: specification
-- `.github/workflows/ci.yml`: CI (install, lint, format check, typecheck, unit tests, build, Compose configuration check)
+- `.github/workflows/ci.yml`: CI (install, lint, format check, typecheck, unit tests, build, Compose configuration check, and the browser tests in Chrome and Firefox)
+- `.github/workflows/release.yml`: runs the CI workflow for a published GitHub Release and then deploys to GitHub Pages
+- `docs/release-checklist.md`: the checklist and records of each release, including the manual Safari smoke test
 
 ## Getting started
 
@@ -71,11 +73,43 @@ npm run dev
 | `npm run preview`      | Serve the production build locally           |
 | `npm run typecheck`    | Run the TypeScript compiler without emitting |
 | `npm test`             | Run the Vitest unit tests                    |
+| `npm run test:e2e`     | Build, then run the Playwright browser tests |
 | `npm run lint`         | Run oxlint                                   |
 | `npm run format:check` | Check formatting with oxfmt                  |
 | `npm run format`       | Format the sources with oxfmt                |
 
 The build uses relative asset URLs (`base: './'`) so it can be served from a repository project path.
+
+## Browser tests
+
+The browser tests in `e2e/` run the production build in real browsers. `npm run test:e2e` builds the app first, so the tests never run against a stale `dist/`:
+
+```bash
+npx playwright install chrome firefox   # once, and after every Playwright update
+npm run test:e2e                        # both browsers
+npm run test:e2e -- --project=firefox   # one browser
+```
+
+Installing `chrome` needs permission to install system packages (`--with-deps` on Linux). No live service is needed. Validator services and document hosts are small mock servers that the tests start on their own ports, so the browser applies real CORS rules to them. The runtime configuration and the hint file are provided per test.
+
+What they cover, in both browsers:
+
+- the deployment: `dist` is served by `scripts/serve-dist.ts` at the root and under the project path `/csaf-validator-tool/`, each by its own server. Every page, script, style, worker, WASM file, `hints.yaml` and runtime configuration request must stay under that path and succeed. A validation with the library and with csaf-rs WebAssembly runs in both
+- input (text, file, URL, CORS failure, malformed JSON, non-object), selection, execution (progress, cancel, errors, malformed service responses), reports, runtime configuration and hints
+- security and privacy: hostile strings (HTML, scripts, `javascript:` URLs) in document values, validator messages, hints and configuration problems are shown as text, every link is an HTTP(S) link, nothing is written to local or session storage, IndexedDB, Cache Storage or cookies, and no request leaves the app's origin and the chosen service
+- keyboard operation of input, selection, run, cancel and the report tabs
+
+Chrome runs as the installed stable channel (`channel: 'chrome'`), not as Playwright's bundled Chromium. Playwright cannot drive a stock Firefox, so Firefox is the Firefox build of the Playwright version in `package-lock.json`. CI installs the newest Chrome stable on every run. Updating Playwright updates Firefox. Each run prints and records the exact browser version (the "Browser under test" summary of each CI job). A new browser release that breaks a test is a normal failure to fix, and no browser version is pinned to avoid it.
+
+Safari is a supported browser, but it is a manual gate and has no automated CI coverage. The manual Safari smoke test is part of the [release checklist](docs/release-checklist.md).
+
+## Release and GitHub Pages
+
+The app is a static site at the project path `https://secvisogram.github.io/csaf-validator-tool/`. It uses the native GitHub Pages routing of a project site: there is no custom domain, no `404.html` fallback and no base path in the build, because every asset, the worker, the WASM file, the runtime configuration and the hints are loaded relative to the page.
+
+`.github/workflows/release.yml` runs only when a GitHub Release is published. It runs the whole CI workflow for the commit of the release (unit tests, browser tests in Chrome and Firefox, production build), then builds `dist` and deploys it with the GitHub Pages actions. Nothing is deployed for a pull request or for a push to `main`. If any check fails, nothing is deployed.
+
+The setup needs three one-time repository settings: the Pages source `GitHub Actions`, a `github-pages` environment rule that allows the release tags, and required status checks on `main` (`test`, `browser (chrome)`, `browser (firefox)`), without which a failing check does not block merging. They and the steps of a release, including the Safari smoke test, are in [docs/release-checklist.md](docs/release-checklist.md). Publish a release only after the checklist is done, and create it as a draft until then.
 
 ## Test catalogue
 
