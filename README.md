@@ -14,7 +14,7 @@ The app offers four validators:
 - `csaf-validator-lib`, running in the browser
 - `csaf-rs-wasm` (`@csaf-rs/csaf-rs@0.7.3`), running in the browser in a Web Worker
 - `csaf-validator-service`, an externally operated JavaScript HTTP service
-- `csaf-service`, an optional, externally operated Rust HTTP service
+- `csaf-service`, a Rust HTTP service owned upstream. The local Compose stack builds it from a submodule, and it can be operated separately
 
 The app has no backend and no URL proxy, and it sends no telemetry. It stores nothing in the browser. It is deployed as a static site on GitHub Pages when a GitHub Release is published, and it can also run locally with Docker Compose together with the JavaScript validator service.
 
@@ -50,7 +50,7 @@ Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
 - `src/util/`: small helpers such as the safe-link check
 - `scripts/`: maintainer scripts
 - `compose.yaml`, `deploy/`: the local Docker Compose deployment (`deploy/app/` is the static build server and the Compose runtime config, `deploy/gateway/` is the gateway)
-- `tools/csaf-rs`: a git submodule, pinned to the upstream csaf-rs tag `v0.7.3`, used only by `npm run record:rust-service` (see the Rust service adapter). Nothing else uses it
+- `tools/csaf-rs`: a git submodule, pinned to the upstream csaf-rs tag `v0.7.3`. It is the build source of the Rust service in the local Compose stack and of `npm run record:rust-service` (see the Rust service adapter). The app, CI, the release workflow and the tests never need it
 - `src/i18n/`: i18next setup and the English dictionary
 - `docs/`: specification
 - `.github/workflows/ci.yml`: CI (install, lint, format check, typecheck, unit tests, build, Compose configuration check)
@@ -229,7 +229,7 @@ The Vite build may print the same kind of externalization warnings for Node modu
 
 ### The Rust service adapter
 
-`csaf-service` sends the document and the exact selected tests to an externally operated Rust [csaf-service](https://github.com/csaf-rs/csaf/tree/main/csaf-service) from the csaf-rs repository. It is unavailable until a URL is set, either by the runtime configuration (`services.rust`) or in the session controls. The service stays separately operated: the app does not build, publish, proxy or maintain it, and it is not part of the Compose stack. Its default address is `http://localhost:8082`.
+`csaf-service` sends the document and the exact selected tests to a Rust [csaf-service](https://github.com/csaf-rs/csaf/tree/main/csaf-service) from the csaf-rs repository. It is unavailable until a URL is set, either by the runtime configuration (`services.rust`) or in the session controls. The service is owned upstream: the app does not fork, patch or operate it. The local Compose stack builds it from the `tools/csaf-rs` submodule and reaches it through the gateway at `http://127.0.0.1:8080/rust` (see "Local deployment"). Its default address elsewhere is `http://localhost:8082`.
 
 It shares the request, response check, timeout and cancel behavior of the JavaScript adapter: one `POST <url>/api/v1/validate`, no credentials, no redirect, no referrer, a timeout of 120 seconds, and the same remote disclosure beside the run button. Cancel aborts the browser request and a late response is ignored. Aborting does not guarantee that the service stops processing.
 
@@ -243,9 +243,9 @@ It shares the request, response check, timeout and cancel behavior of the JavaSc
 
 **Failures.** These end the run as a service or request failure and are never test outcomes: an HTTP error status (a missing `csaf_version` is answered with HTTP 400 and a JSON message, and a wrongly shaped request with a plain-text HTTP 422), a body that is not JSON or does not have the expected shape, a network or CORS error, and the timeout. For a request without a response the app says that the browser does not report the reason.
 
-**CORS.** The service answers a browser only if CORS allows it, and the default allows no origin. In the pinned build an origin allowlist (`CSAF_SERVICE__CORS__ALLOWED_ORIGINS`, comma-separated) is not enough: the preflight for a `POST` with `content-type: application/json` is answered without `access-control-allow-headers`, so the browser blocks the request. A browser works only with `CSAF_SERVICE__CORS__PERMISSIVE=true`. That setting allows every origin and must not be used beyond local use. The alternative is to serve the app and the service from one origin behind a reverse proxy, so there is no cross-origin request. The app cannot diagnose a CORS block and reports it as a request without a response.
+**CORS.** The service answers a browser only if CORS allows it, and the default allows no origin. In the pinned build an origin allowlist (`CSAF_SERVICE__CORS__ALLOWED_ORIGINS`, comma-separated) is not enough: the preflight for a `POST` with `content-type: application/json` is answered without `access-control-allow-headers`, so the browser blocks the request. A browser works only with `CSAF_SERVICE__CORS__PERMISSIVE=true`. That setting allows every origin and must not be used beyond local use. The alternative is to serve the app and the service from one origin behind a reverse proxy, so there is no cross-origin request. The local Compose gateway does exactly this and leaves the CORS settings unset. The app cannot diagnose a CORS block and reports it as a request without a response.
 
-**Recorded evidence.** `fixtures/` holds what was recorded from the pinned build: its test lists, a full CSAF 2.0 and CSAF 2.1 run, the flattened response, an empty request, and the 400 and 422 answers. The tests use them as controlled service responses, so no live service is needed, and they are never read at run time. `npm run record:rust-service` builds the image from the `tools/csaf-rs` submodule (`git submodule update --init tools/csaf-rs`, Docker required), runs it and records the same files again, so a reviewer can diff them. CI, the release workflow and the tests never run it and do not need the submodule. To update the pin, move the submodule to the new tag, record again, review the mapping and change `tag`, `commit` and `image` in `capabilities.json` together.
+**Recorded evidence.** `fixtures/` holds what was recorded from the pinned build: its test lists, a full CSAF 2.0 and CSAF 2.1 run, the flattened response, an empty request, and the 400 and 422 answers. The tests use them as controlled service responses, so no live service is needed, and they are never read at run time. `npm run record:rust-service` builds the image from the `tools/csaf-rs` submodule (`git submodule update --init tools/csaf-rs`, Docker required), runs it and records the same files again, so a reviewer can diff them. The Compose stack builds the same source. CI, the release workflow and the tests never build it and do not need the submodule. To update the pin, move the submodule to the new tag, record again, review the mapping and change `tag`, `commit` and `image` in `capabilities.json` together.
 
 ### Network-enabled tests
 
@@ -293,58 +293,74 @@ The report belongs to the document it was run on. Loading another document clear
 
 ## Local deployment
 
-Docker Compose runs the app and the externally maintained JavaScript validator service behind one gateway on your own machine. The browser talks to a single origin, so the service needs no CORS setup.
+Docker Compose runs the app, the externally maintained JavaScript validator service and the Rust validator service behind one gateway on your own machine. The browser talks to a single origin, so neither service needs CORS setup.
 
-| Service        | Role                                                                                                                        |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `app`          | nginx serving the production build. Built from this repository (`deploy/app/`).                                             |
-| `validator-js` | The external `csaf-validator-service` image, pinned by digest in `compose.yaml`. It is never built, forked or patched here. |
-| `gateway`      | nginx, the only service reachable from the host. Built from this repository (`deploy/gateway/`).                            |
+| Service          | Role                                                                                                                              |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `app`            | nginx serving the production build. Built from this repository (`deploy/app/`).                                                   |
+| `validator-js`   | The external `csaf-validator-service` image, pinned by digest in `compose.yaml`. It is never built, forked or patched here.       |
+| `validator-rust` | The Rust `csaf-service`, built from the `tools/csaf-rs` submodule (upstream tag `v0.7.3`) with its own `Dockerfile`. Not patched. |
+| `gateway`        | nginx, the only service reachable from the host. Built from this repository (`deploy/gateway/`).                                  |
 
-All three are on one private Compose network. Only the gateway is published, as `127.0.0.1:8080:80`. The app and validator ports are not published. The JavaScript service currently supports CSAF 2.0 only. For CSAF 2.1 the app shows what the service answers (see "The JavaScript service adapter").
+All four are on one private Compose network. Only the gateway is published, as `127.0.0.1:8080:80`. The app and validator ports are not published. The JavaScript service currently supports CSAF 2.0 only. For CSAF 2.1 the app shows what the service answers (see "The JavaScript service adapter").
 
 ### Start
 
-Needs Docker with Compose v2 and access to `ghcr.io`.
+Needs Docker with Compose v2, access to `ghcr.io`, and the `tools/csaf-rs` submodule, because Compose builds the Rust service from it.
 
 ```bash
+git clone --recurse-submodules https://github.com/secvisogram/csaf-validator-tool.git
+# or, in an existing clone:
+git submodule update --init tools/csaf-rs
+
 docker compose up -d
 ```
+
+The first start builds the Rust service from source, which takes several minutes. Later starts reuse the cached image. A failed Rust build aborts `docker compose up -d`.
+
+Without the submodule, `tools/csaf-rs` is an empty directory and the build stops with `failed to read dockerfile: open Dockerfile: no such file or directory`. Nothing is started. Either initialise the submodule, or skip the Rust service:
+
+```bash
+docker compose up -d app gateway validator-js
+```
+
+Then the Rust service is simply not running, and its runs fail like any unreachable service (see "Rust service").
 
 Then open <http://127.0.0.1:8080/>. The Compose runtime configuration names this address as the service URL, so open the app there. Another host name (such as `localhost`) would make the service requests cross-origin.
 
 The validator image is pinned in `compose.yaml` by an immutable digest (`name@sha256:<64 hex characters>`), never by a tag such as `latest`. Compose pulls it from `ghcr.io` on the first start.
 
-| Command                                       | Purpose                                        |
-| --------------------------------------------- | ---------------------------------------------- |
-| `docker compose ps`                           | Status and health of the services              |
-| `docker compose logs -f gateway validator-js` | Follow the gateway and validator logs          |
-| `docker compose down`                         | Stop and remove the containers and the network |
-| `docker compose up -d --build`                | Rebuild the app and the gateway after a change |
+| Command                                                      | Purpose                                                  |
+| ------------------------------------------------------------ | -------------------------------------------------------- |
+| `docker compose ps`                                          | Status and health of the services                        |
+| `docker compose logs -f gateway validator-js validator-rust` | Follow the gateway and validator logs                    |
+| `docker compose down`                                        | Stop and remove the containers and the network           |
+| `docker compose up -d --build`                               | Rebuild the app, gateway and Rust service after a change |
 
 ### What the gateway does
 
-| Path          | Behaviour                                                                                                  |
-| ------------- | ---------------------------------------------------------------------------------------------------------- |
-| `/api/v1/*`   | Proxied to `validator-js:8082`, path unchanged. Waits up to 130 s. The gateway accepts bodies up to 50 MB. |
-| `/health`     | Proxied to the validator's `/health`. It reports the validator.                                            |
-| `/healthz`    | Answered by the gateway itself (`200 ok`). It reports the gateway only.                                    |
-| Anything else | Served by the `app` service. Unknown paths answer 404 (no fallback to `index.html`).                       |
+| Path             | Behaviour                                                                                                                                                                                           |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/api/v1/*`      | Proxied to `validator-js:8082`, path unchanged. Waits up to 130 s. The gateway accepts bodies up to 50 MB.                                                                                          |
+| `/health`        | Proxied to the JavaScript validator's `/health`. It reports that validator.                                                                                                                         |
+| `/rust/api/v1/*` | Proxied to `validator-rust:8082` with the `/rust` prefix stripped, so `/rust/api/v1/validate` and `/rust/api/v1/health` reach the same paths upstream. Same body limit and timeouts as `/api/v1/*`. |
+| `/healthz`       | Answered by the gateway itself (`200 ok`). It reports the gateway only.                                                                                                                             |
+| Anything else    | Served by the `app` service. Unknown paths answer 404 (no fallback to `index.html`).                                                                                                                |
 
 The gateway proxies nothing else. Document URLs entered in the app are fetched by the browser directly and never pass through the gateway.
 
-The gateway resolves `app` and `validator-js` for each request. `app` and `gateway` start without waiting for the validator, and the gateway finds the validator again after a restart. When the validator is stopped or its name cannot be resolved, `/api/v1/*` and `/health` answer `502` with `{"message":"The validator service is not reachable through the gateway."}`. When it accepts the connection but does not answer in time (5 s to connect, 10 s on `/health`, 130 s on `/api/v1/*`), they answer `504` with `{"message":"The validator service did not answer through the gateway in time."}`. The app stays usable and shows the message as a failed run. `/healthz` still answers `200`, so the two checks tell the gateway and the validator apart.
+The gateway resolves `app`, `validator-js` and `validator-rust` for each request. Nothing waits for a validator: `app`, `gateway` and `validator-js` start without `validator-rust`, and the gateway finds a validator again after a restart. When a validator is stopped or its name cannot be resolved, `/api/v1/*`, `/rust/api/v1/*` and `/health` answer `502` with `{"message":"The validator service is not reachable through the gateway."}`. When it accepts the connection but does not answer in time (5 s to connect, 10 s on `/health`, 130 s on `/api/v1/*` and `/rust/api/v1/*`), they answer `504` with `{"message":"The validator service did not answer through the gateway in time."}`. The app stays usable and shows the message as a failed run. `/healthz` still answers `200`, so the two checks tell the gateway and the validator apart.
 
 ### Runtime configuration
 
-The `app` image contains `.well-known/appspecific/runtime-config.json` from `deploy/app/runtime-config.json`. It selects `csaf-validator-service` and sets `services.javascript` to `http://127.0.0.1:8080`. The file is not in `public/`, so the GitHub Pages build never contains it. A Rust service is not configured.
+The `app` image contains `.well-known/appspecific/runtime-config.json` from `deploy/app/runtime-config.json`. It selects `csaf-validator-service` and sets `services.javascript` to `http://127.0.0.1:8080` and `services.rust` to `http://127.0.0.1:8080/rust`. The JavaScript service stays the default selection. The file is not in `public/`, so the GitHub Pages build never contains it, and the Pages runtime configuration is unchanged.
 
 ### Security notes
 
 - The default binding is loopback. Publishing the gateway on another interface needs a deliberate local edit of `compose.yaml` after you have reviewed who can then reach the validator. It is not a setting.
-- The pinned validator answers every origin with `Access-Control-Allow-Origin: *`, and the gateway passes that through. While the stack runs, any web page open in your browser can send requests to `http://127.0.0.1:8080/api/v1/` and make the validator run, including network-enabled tests from your machine. Stop the stack when you do not use it.
+- The pinned validator answers every origin with `Access-Control-Allow-Origin: *`, and the gateway passes that through. While the stack runs, any web page open in your browser can send requests to `http://127.0.0.1:8080/api/v1/` and make a validator run, including network-enabled tests from your machine. The Rust service is less exposed: the stack leaves `CSAF_SERVICE__CORS__*` unset, so it answers no origin, and the preflight for a JSON `POST` carries no `access-control-allow-origin`. A request from another page that avoids the preflight is rejected with `415`. This was checked with `curl` on 2026-11-26. Stop the stack when you do not use it.
 - The validator may contact external servers for network-enabled tests. The Compose network is therefore not isolated from the internet.
-- The validator has no authentication. Do not expose it.
+- Neither validator has authentication. Do not expose them.
 
 ### Updating the validator image
 
@@ -357,37 +373,50 @@ The digest is changed only after a review:
 
 ### Troubleshooting
 
-| Symptom                                          | Check                                                                                                                                                                 |
-| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Port 8080 is already in use                      | Stop the other program. Changing the port also changes the origin, so the `services.javascript` URL in `deploy/app/runtime-config.json` must follow.                  |
-| The run fails with `HTTP 502`                    | The validator is stopped or not reachable. Check `docker compose ps` and `docker compose logs validator-js`. `/healthz` answering does not prove the validator works. |
-| The run fails with `HTTP 400` for CSAF 2.1       | The pinned service supports CSAF 2.0 only.                                                                                                                            |
-| The run fails after 120 s                        | The app aborts a request after 120 s. Network-enabled tests can be slow.                                                                                              |
-| The app does not use the service                 | Open `/.well-known/appspecific/runtime-config.json` on the gateway. A runtime configuration notice in the app lists any problem.                                      |
-| A change to the app or the gateway has no effect | Run `docker compose up -d --build`.                                                                                                                                   |
+| Symptom                                          | Check                                                                                                                                                                                                      |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Port 8080 is already in use                      | Stop the other program. Changing the port also changes the origin, so the `services.javascript` URL in `deploy/app/runtime-config.json` must follow.                                                       |
+| The run fails with `HTTP 502`                    | The validator is stopped or not reachable. Check `docker compose ps` and `docker compose logs validator-js` (or `validator-rust` for a Rust run). `/healthz` answering does not prove the validator works. |
+| The run fails with `HTTP 400` for CSAF 2.1       | The pinned JavaScript service supports CSAF 2.0 only.                                                                                                                                                      |
+| `docker compose up -d` fails on `validator-rust` | The submodule is missing or the Rust build failed. Run `git submodule update --init tools/csaf-rs`, or start without it: `docker compose up -d app gateway validator-js`.                                  |
+| A Rust run fails with `HTTP 502` or `504`        | `validator-rust` is stopped or hung. Check `docker compose ps`, `docker compose logs validator-rust` and `curl -i http://127.0.0.1:8080/rust/api/v1/health`.                                               |
+| The run fails after 120 s                        | The app aborts a request after 120 s. Network-enabled tests can be slow.                                                                                                                                   |
+| The app does not use the service                 | Open `/.well-known/appspecific/runtime-config.json` on the gateway. A runtime configuration notice in the app lists any problem.                                                                           |
+| A change to the app or the gateway has no effect | Run `docker compose up -d --build`.                                                                                                                                                                        |
 
 ### Rust service
 
-A Rust `csaf-service` is optional and not part of this stack. It is not built, published, proxied or health-checked here. An operator who runs it separately sets `services.rust` in a runtime configuration (or in the session settings) to its URL, which the browser must be able to reach, and allows the exact app origin (`http://127.0.0.1:8080`) in the service's CORS settings.
+The upstream project publishes no image, so Compose builds `validator-rust` from the `tools/csaf-rs` submodule (the context is the submodule root and its repository `Dockerfile`). The submodule is pinned to the upstream tag `v0.7.3`, commit `cda82bfa4cf0b3e9e5a75ee7191ab31e035d2825`. The image is not patched, and no `CSAF_SERVICE__CORS__*` setting is set, because the browser only talks to the same-origin gateway. This differs from the JavaScript service, whose image is pinned by digest and never built here.
+
+- The service listens on `8082` on the private network only. No port is published, and nothing has `depends_on` it.
+- It has no container `healthcheck`, because the upstream image is distroless (no shell) and is not wrapped. `docker compose ps` therefore shows `running` and never `healthy`. Diagnose with `curl -i http://127.0.0.1:8080/rust/api/v1/health`, `docker compose ps` and `docker compose logs -f gateway validator-js validator-rust`.
+- The JavaScript service stays the default selection. Choose `csaf-service` in the app to use the Rust service.
+- When it is stopped, built wrongly or unreachable, the app shows a service failure for the Rust run and never a test result. The app, the gateway and the JavaScript service keep working.
+- The Rust service flattens `Skipped` and `NotFound` to valid, so a returned `isValid: true` can mean "not implemented". The app shows the results as returned and says so next to the run and the report (see "The Rust service adapter").
+- To move to a newer upstream tag, change the submodule, record the fixtures again (`npm run record:rust-service`), review the capability data and repeat the smoke test.
 
 ### Smoke test
 
-The Compose smoke test is manual, because it needs Docker and the external image. Repeat it after every change of the digest, the gateway or the Compose files.
+The Compose smoke test is manual, because it needs Docker, the external image and a source build of the Rust service. Repeat it after every change of the digest, the submodule, the gateway or the Compose files.
 
-1. `docker compose up -d --build` starts three containers and `docker compose ps` shows `validator-js` as `healthy`.
-2. <http://127.0.0.1:8080/> loads, `csaf-validator-service` is selected and the service URL is `http://127.0.0.1:8080`.
-3. `curl -i http://127.0.0.1:8080/healthz` answers `200`, and `curl -i http://127.0.0.1:8080/health` answers `200` with the validator's status.
-4. Load a valid CSAF 2.0 document and run the selected tests. `POST /api/v1/validate` answers `200`, and the results are shown as returned, including any failing test and the service's own `isValid` flag.
-5. `docker compose stop validator-js`: the page still loads, `/healthz` answers `200`, `/health` answers `502`, and a new run fails with the `502` message.
-6. `docker compose start validator-js`: `/health` answers `200` again, without restarting the gateway.
-7. `docker ps` and `ss -ltn` show only `127.0.0.1:8080` published, and the host's LAN address does not answer on port 8080.
+1. From a clone with the `tools/csaf-rs` submodule, `docker compose up -d --build` starts four containers. The first start builds the Rust service and takes several minutes. `docker compose ps` shows `validator-js` as `healthy` and `validator-rust` as running, without a health state.
+2. <http://127.0.0.1:8080/> loads, `csaf-validator-service` is selected and the service URLs are `http://127.0.0.1:8080` and `http://127.0.0.1:8080/rust`.
+3. `curl -i http://127.0.0.1:8080/healthz` answers `200`, `curl -i http://127.0.0.1:8080/health` answers `200` with the JavaScript validator's status, and `curl -i http://127.0.0.1:8080/rust/api/v1/health` answers `200` from the Rust service. `/rust/` and other paths below it answer `404`.
+4. Load a valid CSAF 2.0 document and run the selected tests with `csaf-validator-service`. `POST /api/v1/validate` answers `200`, and the results are shown as returned, including any failing test and the service's own `isValid` flag.
+5. Select `csaf-service` and run again. `POST /rust/api/v1/validate` answers `200`, and the results are shown as returned, with the flattened-result limitation next to the run and the report.
+6. `docker compose stop validator-rust`: the page still loads, `/healthz` and `/health` answer `200`, `/rust/api/v1/health` answers `502`, a new Rust run fails with the `502` message, and a JavaScript run still completes.
+7. `docker compose start validator-rust`: `/rust/api/v1/health` answers `200` again, without restarting the gateway.
+8. `docker compose stop validator-js` shows the same for the JavaScript service and leaves the Rust service working.
+9. `docker ps` and `ss -ltn` show only `127.0.0.1:8080` published, and the host's LAN address does not answer on port 8080.
 
-**Result of 2026-11-25** (Docker 29.10 with Compose 5.8, Chrome, image `csaf-validator-service` 3.0.5, `linux/amd64`, the digest in `compose.yaml`): all steps passed.
+**Result of 2026-11-26** (Docker 29.10 with Compose 5.8, Chrome, `csaf-validator-service` 3.0.5 by the digest in `compose.yaml`, `csaf-service` 0.1.2 built from the submodule at `v0.7.3`, `linux/amd64`): All nine steps passed.
 
-- The services started without waiting for each other's health, and `validator-js` became `healthy`.
-- `/healthz` answered `200 ok` and `/health` answered `200`.
-- A CSAF 2.0 request through `/api/v1/validate` answered `200`. In the browser, a run of the 73 tests selected by default on the CSAF 2.0 OASIS example document returned all 73 results, with the service's `isValid: true` shown as its own flag.
-- A validator that accepted the connection but never answered gave a `504` with the JSON message (tested with a stub upstream).
-- With `validator-js` stopped, the page loaded, `/healthz` answered `200`, `/health` answered `502`, and the run ended as "Run failed: the service answered with HTTP 502 Bad Gateway" with the gateway message.
-- After `docker compose start validator-js`, `/health` answered `200` again within about 8 s.
+- The first build of the Rust image took about 3 to 4 minutes (the `cargo build` step alone took 192 s). All four services started without waiting for each other.
+- `/healthz`, `/health` and `/rust/api/v1/health` answered `200`. `/rust/`, `/rust/other` and `/rust/api/v2/x` answered `404`.
+- A Rust run on the CSAF 2.0 OASIS example document through `/rust/api/v1/validate` answered `200`. The browser showed "72 of 73 selected tests returned a result", the flattened-result notice and the service's `isValid: true` as its own flag.
+- With `validator-rust` stopped, the page loaded, `/healthz` and `/health` answered `200`, `/rust/api/v1/health` answered `502` with the gateway message, and the Rust run ended as "Run failed: the service answered with HTTP 502 Bad Gateway" with that message. A JavaScript run still returned all 73 results. The stack also started with `docker compose up -d app gateway validator-js`, and the Rust route then answered `502`.
+- After `docker compose start validator-rust`, `/rust/api/v1/health` answered `200` again.
+- With `validator-js` stopped, `/health` answered `502`, `/rust/api/v1/health` answered `200`, and a Rust run still returned its results.
+- The `504` for a validator that accepts the connection but never answers was tested on 2026-11-25 with a stub upstream on the JavaScript route. It was not repeated for the Rust route, which has the same settings.
+- Without the submodule (an empty `tools/csaf-rs`), `docker compose up -d` failed with `failed to read dockerfile: open Dockerfile: no such file or directory` and started nothing. `docker compose config --quiet` still passed.
 - Only `127.0.0.1:8080` was published. The LAN address did not answer on port 8080.

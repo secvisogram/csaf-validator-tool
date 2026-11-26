@@ -8,12 +8,12 @@ A user supplies a CSAF document, picks one validator and a set of checks, runs t
 
 The app offers four validator choices:
 
-| Validator                | Where it runs                                                                 |
-| ------------------------ | ----------------------------------------------------------------------------- |
-| `csaf-validator-lib`     | In the browser, in a Web Worker.                                              |
-| `csaf-validator-service` | Externally operated JavaScript HTTP service.                                  |
-| `csaf-rs-wasm`           | In the browser, only in a Web Worker; exact package `@csaf-rs/csaf-rs@0.7.3`. |
-| `csaf-service`           | Externally operated Rust HTTP service. Optional and operator-managed.         |
+| Validator                | Where it runs                                                                                               |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `csaf-validator-lib`     | In the browser, in a Web Worker.                                                                            |
+| `csaf-validator-service` | Externally operated JavaScript HTTP service.                                                                |
+| `csaf-rs-wasm`           | In the browser, only in a Web Worker; exact package `@csaf-rs/csaf-rs@0.7.3`.                               |
+| `csaf-service`           | Rust HTTP service owned upstream. Built from the pinned submodule in local Compose, or operated separately. |
 
 The csaf-rs CLI cannot be called from a browser and is not an adapter.
 
@@ -35,11 +35,11 @@ The csaf-rs CLI cannot be called from a browser and is not an adapter.
 
 ### Organizational Constraints
 
-| Constraint                                     | Explanation                                                                                                                                                                       |
-| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Validator components are externally maintained | `csaf-validator-lib`, `@csaf-rs/csaf-rs`, the JavaScript validator service image, and the Rust service are owned elsewhere. Their versions are pinned and updated through review. |
-| Specification snapshots are fixed              | CSAF 2.0 OASIS Standard and CSAF 2.1 CSD04. Changing a snapshot is a deliberate, reviewed data update.                                                                            |
-| Safari is a manual gate                        | Safari is a supported target but has no CI automation. A recorded manual smoke test is required before each release.                                                              |
+| Constraint                                     | Explanation                                                                                                                                                                                                                                                                                             |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Validator components are externally maintained | `csaf-validator-lib`, `@csaf-rs/csaf-rs`, the JavaScript validator service image, and the Rust service are owned elsewhere. Their versions are pinned and updated through review. Local Compose builds the Rust service from the commit-pinned `tools/csaf-rs` submodule and never forks or patches it. |
+| Specification snapshots are fixed              | CSAF 2.0 OASIS Standard and CSAF 2.1 CSD04. Changing a snapshot is a deliberate, reviewed data update.                                                                                                                                                                                                  |
+| Safari is a manual gate                        | Safari is a supported target but has no CI automation. A recorded manual smoke test is required before each release.                                                                                                                                                                                    |
 
 ## Context and Scope
 
@@ -54,27 +54,27 @@ The csaf-rs CLI cannot be called from a browser and is not an adapter.
 
 ### Technical context
 
-| Communication partner                 | Channel / protocol             | Interface                                                                                                                                             |
-| ------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Static host (GitHub Pages or gateway) | HTTPS or HTTP, static files    | App assets, `.well-known/appspecific/runtime-config.json` (optional), the YAML hint file. Normal static loads only.                                   |
-| Document host                         | HTTP(S) `GET` from the browser | User-entered absolute `http:`/`https:` URL, fetched directly after an explicit Fetch action. Never proxied.                                           |
-| `csaf-validator-lib`                  | In-process, Web Worker         | Reviewed mapping from catalogue entries to functions of the exact locked library version.                                                             |
-| `@csaf-rs/csaf-rs@0.7.3`              | In-process, module Web Worker  | Package API verified against the exact version before capabilities are marked supported.                                                              |
-| `csaf-validator-service`              | HTTP(S), REST, JSON            | `POST /api/v1/validate` with exact selected test IDs. The service also exposes `GET /api/v1/tests` and `GET /health`; neither establishes capability. |
-| `csaf-service` (Rust)                 | HTTP(S), REST                  | Operator-managed endpoint and CORS. Route, request format, and ID mapping verified against the target version.                                        |
+| Communication partner                 | Channel / protocol             | Interface                                                                                                                                                     |
+| ------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Static host (GitHub Pages or gateway) | HTTPS or HTTP, static files    | App assets, `.well-known/appspecific/runtime-config.json` (optional), the YAML hint file. Normal static loads only.                                           |
+| Document host                         | HTTP(S) `GET` from the browser | User-entered absolute `http:`/`https:` URL, fetched directly after an explicit Fetch action. Never proxied.                                                   |
+| `csaf-validator-lib`                  | In-process, Web Worker         | Reviewed mapping from catalogue entries to functions of the exact locked library version.                                                                     |
+| `@csaf-rs/csaf-rs@0.7.3`              | In-process, module Web Worker  | Package API verified against the exact version before capabilities are marked supported.                                                                      |
+| `csaf-validator-service`              | HTTP(S), REST, JSON            | `POST /api/v1/validate` with exact selected test IDs. The service also exposes `GET /api/v1/tests` and `GET /health`; neither establishes capability.         |
+| `csaf-service` (Rust)                 | HTTP(S), REST                  | Endpoint and CORS are operator-managed, or same-origin behind the Compose gateway. Route, request format, and ID mapping verified against the target version. |
 
 ## Solution Strategy
 
 ### Key decisions
 
 - **Browser-only and stateless.** No backend, no proxy, no persistence, no telemetry (ADR 1, ADR 8).
-- **Explicit catalogue.** Checked-in, schema-validated JSON per fixed specification snapshot is the source of truth for numbered test identities. Validator libraries and exports never define it (ADR 2, ADR 11).
+- **Explicit catalogue.** Checked-in, schema-validated JSON per fixed specification snapshot is the source of truth for numbered test identities. Validator libraries and exports never define it (ADR 2, ADR 12).
 - **Separate adapter records.** Per-test capability and identifier mapping data lives apart from the catalogue. Only verified support is generally runnable (ADR 3).
 - **Selections, not presets.** `external-request-free` only initializes checked individual tests. A run always means the exact current selection (ADR 2).
 - **Truthful results.** Execution state and validation outcome are separate. Absent data is never turned into pass or fail (ADR 6).
 - **Per-test worker execution.** Browser validators run each selected test individually, stream results, and are terminated on cancel (ADR 5). The exception is csaf-rs, which runs one full-set call per run (ADR 4).
 - **Strict configuration.** Optional runtime JSON is validated all-or-nothing (ADR 7).
-- **Two deployment modes from one build.** GitHub Pages on published Releases; local Compose with a loopback-only gateway (ADR 9, ADR 10).
+- **Two deployment modes from one build.** GitHub Pages on published Releases; local Compose with a loopback-only gateway (ADR 9, ADR 10, ADR 11).
 
 ### Quality goals
 
@@ -129,20 +129,21 @@ The csaf-rs CLI cannot be called from a browser and is not an adapter.
 
 ### Local Compose
 
-| Service        | Role                                                                                                                        |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `app`          | Serves the Vite production build as static files.                                                                           |
-| `validator-js` | Runs the externally maintained JavaScript validator image. It listens on `8082` inside the private network only.            |
-| `gateway`      | The only browser-facing reverse proxy. It serves the app, proxies `/api/v1/*` and `/health`, and serves its own `/healthz`. |
+| Service          | Role                                                                                                                                          |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app`            | Serves the Vite production build as static files.                                                                                             |
+| `validator-js`   | Runs the externally maintained JavaScript validator image. It listens on `8082` inside the private network only.                              |
+| `validator-rust` | Runs the Rust `csaf-service`, built from the `tools/csaf-rs` submodule. It listens on `8082` inside the private network only.                 |
+| `gateway`        | The only browser-facing reverse proxy. It serves the app, proxies `/api/v1/*`, `/health` and `/rust/api/v1/*`, and serves its own `/healthz`. |
 
 - The browser-visible origin is `http://127.0.0.1:8080/`. Only the gateway is published, as `127.0.0.1:8080:80`; the app and validator ports are not published. LAN exposure requires a deliberate local edit after an exposure review; it is not a default toggle.
-- The gateway proxies `/api/v1/*` to `validator-js:8082` without changing the path and `/health` to the validator's health endpoint. User-entered document URLs are never proxied.
+- The gateway proxies `/api/v1/*` to `validator-js:8082` without changing the path and `/health` to the validator's health endpoint. It always proxies `/rust/api/v1/*` to `validator-rust:8082` with the `/rust` prefix stripped, so `/rust/api/v1/validate` and `/rust/api/v1/health` reach the same paths upstream, with the same request-body limit and timeouts as the JavaScript route. Nothing else under `/rust/` is proxied. User-entered document URLs are never proxied.
 - The validator image is pinned in `compose.yaml` as an immutable digest reference, with no tag and no `latest`. The verified reference is `ghcr.io/secvisogram/csaf-validator-service@sha256:e09b8a2b7c7715cce3de2144d73789a06df85a3d116ff07229199060f2e6e5db` (image-index digest resolved from `latest` and pulled on 2026-11-15, `linux/amd64`). Its Docker health check probes `http://127.0.0.1:8082/health`. When the pin is deliberately updated, verify the `8082` listener, `/health`, and `/api/v1/*` contract.
-- App and gateway startup do not depend on validator health. If the validator is unhealthy, the UI stays available and reports the service failure.
-- The gateway resolves its upstream names per request. When the validator is stopped, `/api/v1/*` and `/health` answer `502` with a JSON `message`. When it accepts the connection but does not answer in time, they answer `504` with a JSON `message`. Both are service failures, not test outcomes, and `/healthz` stays `200` so gateway readiness and upstream health are distinguishable.
-- A Compose-specific `.well-known/appspecific/runtime-config.json` selects `csaf-validator-service` by default and sets `services.javascript` to `http://127.0.0.1:8080`, so requests are same-origin and need no CORS. It is kept separate from the Pages configuration.
-- A Rust `csaf-service` is not part of the stack: it is not built, published, proxied, or health-checked. An operator who runs it separately can set `services.rust` to its browser-reachable URL (default port `8082`). The `tools/csaf-rs` submodule pins its upstream tag for evidence only: `npm run record:rust-service` builds an image from it locally to record fixtures, and CI, Compose and the release workflow never build or run it. In the pinned build an origin allowlist does not pass a browser preflight (`access-control-allow-headers` is missing), so a browser needs `CSAF_SERVICE__CORS__PERMISSIVE=true`, which is unsuitable beyond local use, or one origin behind a reverse proxy.
-- Operator documentation covers startup (`docker compose up -d`), the URL, status (`docker compose ps`), logs (`docker compose logs -f gateway validator-js`), shutdown, image override, and troubleshooting.
+- App, gateway and `validator-js` startup do not depend on validator health or on `validator-rust`. If the validator is unhealthy, the UI stays available and reports the service failure.
+- The gateway resolves its upstream names per request. When a validator is stopped, `/api/v1/*`, `/rust/api/v1/*` and `/health` answer `502` with a JSON `message`. When it accepts the connection but does not answer in time, they answer `504` with a JSON `message`. Both are service failures, not test outcomes, and `/healthz` stays `200` so gateway readiness and upstream health are distinguishable.
+- A Compose-specific `.well-known/appspecific/runtime-config.json` selects `csaf-validator-service` by default and sets `services.javascript` to `http://127.0.0.1:8080` and `services.rust` to `http://127.0.0.1:8080/rust`, so requests are same-origin and need no CORS. The JavaScript service stays the default selection. It is kept separate from the Pages configuration, which is unchanged.
+- `validator-rust` is in the default stack with no profile. The upstream project publishes no image, so Compose builds it from the commit-pinned `tools/csaf-rs` submodule (upstream tag `v0.7.3`) with the repository `Dockerfile`, which is multi-stage with a distroless runtime. The image is not patched, no digest is used, and `CSAF_SERVICE__CORS__PERMISSIVE` and every other CORS setting stay unset, because the browser only talks to the same-origin gateway. It has no container `healthcheck`, because the image has no shell and is not wrapped. Diagnosis uses the proxied `/rust/api/v1/health`, `docker compose ps` and the logs. Nothing has `depends_on` it. No port is published for it. When it is stopped, built wrongly or unreachable, the Rust adapter shows a service failure, never a test result.
+- Operator documentation covers startup (`docker compose up -d`), the URL, status (`docker compose ps`), logs (`docker compose logs -f gateway validator-js validator-rust`), shutdown, image override, and troubleshooting. It also states that `docker compose up -d` needs the submodule (`git clone --recurse-submodules` or `git submodule update --init tools/csaf-rs`), that the first start builds the Rust service from source and takes several minutes, the error shown when the submodule is missing (the build cannot find the `Dockerfile`), the workaround `docker compose up -d app gateway validator-js`, and that a failed Rust build aborts `docker compose up -d`.
 
 **Evidence for the pinned image (2026-11-15).** A loopback-only container smoke test returned HTTP 200 from `/health`. A CSAF 2.0 request to `/api/v1/validate` returned HTTP 200 with 44 per-test results, including a validator-reported failing test and top-level `isValid: false`. HTTP success means the service completed the request; it does not mean the document passed.
 
@@ -227,7 +228,7 @@ Returned results map to catalogue tests only through an explicit, reviewed, snap
 | `csaf-validator-lib`     | Map supported catalogue entries to exact functions of the locked version. Run selected checks individually in a Web Worker, streaming progress and results. | Browser-incompatible tests, including Hunspell-backed 6.3.8 and unconfirmed external-network tests, stay visible as unavailable with reasons. One thrown test never erases completed independent results. Exact npm pin (3.0.3 at handoff).                                                                                                                                                                                                                                                                                                                                                              |
 | `csaf-rs-wasm`           | Exact `@csaf-rs/csaf-rs@0.7.3`, loaded and called from a module Web Worker only. Assets are relative to the app path.                                       | Unmodified 0.7.2 initialized and returned 44 successful results for a CSAF 2.0 fixture in Chromium 156.0.8078.73 and Firefox 157.0.1 at `/project/demo/`. Version 0.7.3 (same TypeScript bindings, a larger WASM) returned the same results through the app in Chromium 156.0.8078.73 and Firefox 159.0. Safari is unverified. The package takes only a preset and cannot run individual tests, so every run is the `full` preset for the selected version, filtered to the selection. Package IDs are the catalogue sections and `schema`. Statuses are `Success`, `Failure`, `Skipped` and `NotFound`. |
 | `csaf-validator-service` | `POST /api/v1/validate` with the exact selected test IDs, never a native preset.                                                                            | Verified service is CSAF 2.0 only. A selected CSAF 2.1 request may still be sent. No `external-request-free` preset and no skipped state in the response. Whole-request errors are service failures, not inferred test failures. Per-version IDs and response mapping must be verified.                                                                                                                                                                                                                                                                                                                  |
-| `csaf-service`           | Configurable, separately operated Rust REST endpoint; exact selected test IDs, never a preset.                                                              | URL and CORS are operator-managed. The verified build (csaf-rs tag `v0.7.3`, built from source) flattens `Skipped` and `NotFound` to valid, so only tests it implements are sent, and a selected version that differs from the document's declared version is not sent. Only actual communicated information is reported. Canonical IDs are sent, and no unverified check is attempted.                                                                                                                                                                                                                  |
+| `csaf-service`           | Configurable Rust REST endpoint, owned upstream; exact selected test IDs, never a preset.                                                                   | URL and CORS are operator-managed, or same-origin behind the Compose gateway at `/rust`. The verified build (csaf-rs tag `v0.7.3`, built from source) flattens `Skipped` and `NotFound` to valid, so only tests it implements are sent, and a selected version that differs from the document's declared version is not sent. Only actual communicated information is reported. Canonical IDs are sent, and no unverified check is attempted.                                                                                                                                                            |
 
 ### Result model
 
@@ -347,22 +348,23 @@ The prototype illustrates hierarchy and layout only. It is not normative for cou
 
 ## Architecture decisions
 
-| #   | Title                                                     | Status   |
-| --- | --------------------------------------------------------- | -------- |
-| 1   | Browser-only static app without backend or proxy          | Accepted |
-| 2   | Explicit checked-in catalogue; presets only initialize    | Accepted |
-| 3   | Separate adapter capability records and exact test IDs    | Accepted |
-| 4   | csaf-rs WASM at exact 0.7.3, Web Worker only              | Accepted |
-| 5   | Per-test worker execution with streaming and termination  | Accepted |
-| 6   | Table-first report with truthful result states            | Accepted |
-| 7   | Strict all-or-nothing runtime configuration               | Accepted |
-| 8   | No telemetry, no persistence, inline remote disclosure    | Accepted |
-| 9   | Vite and npm toolchain; Pages deploy on published Release | Accepted |
-| 10  | Loopback-only Compose gateway with digest-pinned image    | Accepted |
-| 11  | Fixed specification snapshots with verified links         | Accepted |
-| 12  | Separate YAML hints with exact match keys                 | Accepted |
-| 13  | Exact dependency pins and reviewed updates                | Accepted |
-| 14  | Safe input handling and escaped rendering                 | Accepted |
+| #   | Title                                                              | Status                                 |
+| --- | ------------------------------------------------------------------ | -------------------------------------- |
+| 1   | Browser-only static app without backend or proxy                   | Accepted                               |
+| 2   | Explicit checked-in catalogue; presets only initialize             | Accepted                               |
+| 3   | Separate adapter capability records and exact test IDs             | Accepted                               |
+| 4   | csaf-rs WASM at exact 0.7.3, Web Worker only                       | Accepted                               |
+| 5   | Per-test worker execution with streaming and termination           | Accepted                               |
+| 6   | Table-first report with truthful result states                     | Accepted                               |
+| 7   | Strict all-or-nothing runtime configuration                        | Accepted                               |
+| 8   | No telemetry, no persistence, inline remote disclosure             | Accepted                               |
+| 9   | Vite and npm toolchain; Pages deploy on published Release          | Accepted                               |
+| 10  | Loopback-only Compose gateway with digest-pinned image             | Accepted, superseded in part by ADR 11 |
+| 11  | Rust service built from the submodule in the default Compose stack | Accepted                               |
+| 12  | Fixed specification snapshots with verified links                  | Accepted                               |
+| 13  | Separate YAML hints with exact match keys                          | Accepted                               |
+| 14  | Exact dependency pins and reviewed updates                         | Accepted                               |
+| 15  | Safe input handling and escaped rendering                          | Accepted                               |
 
 ### ADR 1: Browser-only static app without backend or proxy
 
@@ -413,7 +415,7 @@ The prototype illustrates hierarchy and layout only. It is not normative for cou
 - Negative: a 15.6 MB module to load, and the adapter works only in a worker.
 - Negative: the package runs only presets. Every run executes the full set of the selected version, so the adapter filters results, cannot report per-test progress, and cannot keep partial results on cancel. This is an exception to ADR 5.
 - Negative: Safari remains unverified until the first manual release check.
-- Negative: any version update must repeat real-browser initialization and validation checks (ADR 13).
+- Negative: any version update must repeat real-browser initialization and validation checks (ADR 14).
 
 ### ADR 5: Per-test worker execution with streaming and termination
 
@@ -473,9 +475,11 @@ The prototype illustrates hierarchy and layout only. It is not normative for cou
 
 ### ADR 10: Loopback-only Compose gateway with digest-pinned image
 
+**Status**: Accepted. Superseded in part by ADR 11: the Rust-service-outside-the-stack decision and the "never built or patched here" rule apply only to the JavaScript image now.
+
 **Context**: A local deployment should work without CORS setup and without exposing the validator, and the tool must not take over maintenance of the validator image.
 
-**Decision**: Three services on a private network (`app`, `validator-js`, `gateway`), with only the gateway published on `127.0.0.1:8080:80`. The gateway serves the app and proxies `/api/v1/*` and `/health`. The validator image is pinned in `compose.yaml` by an immutable digest and is never built or patched here. App and gateway start even when the validator is unhealthy. Rust service support stays operator-owned and outside the stack.
+**Decision**: Three services on a private network (`app`, `validator-js`, `gateway`; ADR 11 adds `validator-rust`), with only the gateway published on `127.0.0.1:8080:80`. The gateway serves the app and proxies `/api/v1/*` and `/health`. The JavaScript validator image is pinned in `compose.yaml` by an immutable digest and is never built or patched here. App and gateway start even when the validator is unhealthy. Rust service support was left operator-owned and outside the stack. ADR 11 supersedes that part.
 
 **Consequences**:
 
@@ -484,7 +488,21 @@ The prototype illustrates hierarchy and layout only. It is not normative for cou
 - Negative: updating the validator means deliberately changing the digest after review and smoke testing.
 - Negative: the Compose smoke test is manual because it needs Docker and the external image.
 
-### ADR 11: Fixed specification snapshots with verified links
+### ADR 11: Rust service built from the submodule in the default Compose stack
+
+**Context**: Operators want one `docker compose up -d` that also gives them the Rust validator service. Upstream publishes no image, so there is no digest to pin. The csaf-rs repository is already a git submodule at `tools/csaf-rs`, pinned to the tag `v0.7.3`, and was meant for recording fixtures only. This reverses the ADR 10 decision that Rust stays outside Compose.
+
+**Decision**: The default stack gets a fourth service, `validator-rust`, with no profile. It is built from the commit-pinned submodule (`tools/csaf-rs` is the build context, with its own `Dockerfile`), listens on `8082` on the private network only, and is reached through the gateway at `/rust/api/v1/*` with the prefix stripped. The JavaScript image stays pinned by digest and is never built here. The Rust service has no published image, so the submodule commit is its pin, and it is built from source but not patched. No CORS setting is made, because the browser is same-origin. There is no healthcheck, because the upstream image is distroless and is not wrapped. Nothing depends on it, so the app, gateway and JavaScript service start without it. The Compose runtime config sets `services.rust` to `http://127.0.0.1:8080/rust`, and the JavaScript service stays the default. CI, the release workflow and all tests still run on a plain checkout: they build only the `app` and `gateway` images, never `validator-rust`, and never need `tools/csaf-rs`.
+
+**Consequences**:
+
+- Positive: one command starts both services, and neither needs CORS setup.
+- Positive: the Rust version is reproducible from the commit, with no mutable image tag.
+- Negative: `docker compose up -d` needs the submodule, and the first start builds the Rust service from source, which takes several minutes. A missing submodule or a failed Rust build aborts `docker compose up -d`. The workaround is `docker compose up -d app gateway validator-js`.
+- Negative: the stack now contains a service the app does not own and cannot health-check from Compose. The proxied `/rust/api/v1/health` and the app's service failure state are the diagnosis.
+- Negative: the Rust build is not exercised in CI. It is covered by the manual Compose smoke test.
+
+### ADR 12: Fixed specification snapshots with verified links
 
 **Context**: Fragment identifiers differ between specification versions, can be descriptive, and may be shared by several tests, and a moving "latest" URL would silently change what a link means.
 
@@ -495,7 +513,7 @@ The prototype illustrates hierarchy and layout only. It is not normative for cou
 - Positive: links always point to the intended text.
 - Negative: changing the supported 2.1 stage is a deliberate catalogue update.
 
-### ADR 12: Separate YAML hints with exact match keys
+### ADR 13: Separate YAML hints with exact match keys
 
 **Context**: Contributors should be able to add guidance for specific tests and validator messages without coupling it to fragile rendered text or to application code.
 
@@ -506,18 +524,18 @@ The prototype illustrates hierarchy and layout only. It is not normative for cou
 - Positive: deterministic matching that does not depend on YAML order.
 - Negative: a message whose wording changes silently loses its message-specific hint; the general test hint still applies.
 
-### ADR 13: Exact dependency pins and reviewed updates
+### ADR 14: Exact dependency pins and reviewed updates
 
 **Context**: Validator behavior is version-specific, and the tool's claims about capability rely on evidence for exact versions.
 
-**Decision**: Pin browser packages exactly in the lockfile and the service image by digest. Updates are reviewed, with compatibility smoke tests. A failing update keeps the previous verified pin, and validator components are not patched or maintained here.
+**Decision**: Pin browser packages exactly in the lockfile and the JavaScript service image by digest. The Rust service is pinned by the commit of its submodule (ADR 11). Updates are reviewed, with compatibility smoke tests. A failing update keeps the previous verified pin, and validator components are not patched or maintained here.
 
 **Consequences**:
 
 - Positive: reproducible builds and capability claims tied to evidence.
 - Negative: validator updates are manual, and the tool may lag behind upstream.
 
-### ADR 14: Safe input handling and escaped rendering
+### ADR 15: Safe input handling and escaped rendering
 
 **Context**: Documents, validator responses, URLs, and hints all come from outside the app, and GitHub Pages cannot send protective headers.
 
@@ -542,27 +560,27 @@ The prototype illustrates hierarchy and layout only. It is not normative for cou
 8. Remote submissions disclose the selected endpoint before the run, no extra service confirmation modal is shown, and the app sends no telemetry or automatic diagnostics. No document, result, or session data persists.
 9. Untrusted document, response, and hint strings cannot inject markup or script. Links use only safe HTTP(S) targets. Malformed responses and service errors are not test results.
 10. Runtime configuration passes strict-schema, fallback, precedence, and app-relative-path tests.
-11. Compose serves the app on loopback, routes same-origin service requests, pins the externally maintained image by digest, starts the UI despite validator health failure, and leaves Rust optional and operator-owned.
+11. Compose serves the app on loopback, routes same-origin service requests, pins the externally maintained image by digest, starts the UI despite validator health failure, starts the UI without the Rust service, and builds the Rust service from the commit-pinned submodule without patching it.
 12. A Safari pre-release smoke test, including WASM worker validation, is recorded before each GitHub Release deployment. Deployment occurs only on a published Release.
-13. Compose integration is manually checked against the pinned JavaScript image. The app accurately represents the service's current CSAF 2.0 limitation and does not infer document success from HTTP success.
+13. Compose integration is manually checked against the pinned JavaScript image and the Rust service built from the submodule. The app accurately represents the service's current CSAF 2.0 limitation and does not infer document success from HTTP success.
 
 ### Browser and release test matrix
 
-| Area               | Automated on PRs and `main`                                                                                                                                         | Manual before release or local operation                                                         |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Browser versions   | Latest-stable desktop Chrome and Firefox, with versions recorded. Playwright's bundled Chromium alone does not count as Chrome coverage.                            | Latest-stable desktop Safari, with version, date, and outcome recorded.                          |
-| Input              | Text, file, valid and invalid URL fetch, mocked CORS failure guidance, malformed JSON, and non-object payloads.                                                     | Safari text, upload, and URL fetch smoke. Real-source failures are not required.                 |
-| Selection          | Declared and explicit CSAF 2.0/2.1, initial `external-request-free` checks, individual edits, schema-check selection, network-test confirmation, capability states. | Verify configured endpoints and services as available.                                           |
-| Reports            | Three report views, all result and non-result states, missing and uncatalogued results, and no invented status.                                                     | Safari report navigation and representative states.                                              |
-| Execution          | Worker progress, per-test messages, cancel with retained results, 0.7.3 WASM load and fixture validation, errors, and malformed service responses.                  | Safari WASM worker validation; Compose with the real image.                                      |
-| Runtime and deploy | Missing and invalid config, precedence, and relative asset, worker, and WASM loading under a project prefix and at the app root.                                    | Published Pages asset smoke; local Compose start, health, request, and failure flow.             |
-| Privacy / security | No persistence or telemetry, safe text and link rendering, remote disclosure, and network-test confirmation.                                                        | Review the actual service URL disclosure before a local run; Rust only if separately configured. |
+| Area               | Automated on PRs and `main`                                                                                                                                         | Manual before release or local operation                                             |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Browser versions   | Latest-stable desktop Chrome and Firefox, with versions recorded. Playwright's bundled Chromium alone does not count as Chrome coverage.                            | Latest-stable desktop Safari, with version, date, and outcome recorded.              |
+| Input              | Text, file, valid and invalid URL fetch, mocked CORS failure guidance, malformed JSON, and non-object payloads.                                                     | Safari text, upload, and URL fetch smoke. Real-source failures are not required.     |
+| Selection          | Declared and explicit CSAF 2.0/2.1, initial `external-request-free` checks, individual edits, schema-check selection, network-test confirmation, capability states. | Verify configured endpoints and services as available.                               |
+| Reports            | Three report views, all result and non-result states, missing and uncatalogued results, and no invented status.                                                     | Safari report navigation and representative states.                                  |
+| Execution          | Worker progress, per-test messages, cancel with retained results, 0.7.3 WASM load and fixture validation, errors, and malformed service responses.                  | Safari WASM worker validation; Compose with the real image.                          |
+| Runtime and deploy | Missing and invalid config, precedence, and relative asset, worker, and WASM loading under a project prefix and at the app root.                                    | Published Pages asset smoke; local Compose start, health, request, and failure flow. |
+| Privacy / security | No persistence or telemetry, safe text and link rendering, remote disclosure, and network-test confirmation.                                                        | Review the actual service URL disclosure before a local run.                         |
 
 CI uses deterministic document fixtures and controlled or local mock validator services. It does not require a live external service.
 
 ### Manual Compose smoke test
 
-Against the pinned image: the loopback app loads; gateway `/healthz` and the proxied `/health` respond; a valid CSAF 2.0 request traverses `/api/v1/validate` and its results are shown as returned; a stopped or unhealthy validator is visibly reported; no other host ports are exposed. Check the Rust service only when an operator has configured it.
+From a clone with the `tools/csaf-rs` submodule: `docker compose up -d` starts all four services (the first start builds the Rust service and takes several minutes) and the loopback app loads. Gateway `/healthz`, the proxied `/health` and the proxied `/rust/api/v1/health` respond. A valid CSAF 2.0 request traverses `/api/v1/validate` and its results are shown as returned. A valid CSAF 2.0 request traverses `/rust/api/v1/validate` and its results are shown as returned, with the flattened-result limitation disclosed. A stopped or unhealthy validator is visibly reported: stopping `validator-rust` shows a service failure for Rust while the app, the gateway and the JavaScript service still work. No other host ports are exposed beyond `127.0.0.1:8080`.
 
 ## Risks and Technical Debt
 

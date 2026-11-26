@@ -16,6 +16,7 @@ describe('gateway nginx.conf', () => {
       '= /healthz',
       '= /health',
       '/api/v1/',
+      '/rust/api/v1/',
       '/',
       '@validator_unavailable',
       '@validator_timeout',
@@ -46,7 +47,12 @@ describe('gateway nginx.conf', () => {
     const targets = [...conf.matchAll(/proxy_pass\s+([^;]+);/g)].map(
       (m) => m[1],
     )
-    expect(targets.sort()).toEqual(['$app', '$validator', '$validator_health'])
+    expect(targets.sort()).toEqual([
+      '$app',
+      '$validator',
+      '$validator_health',
+      '$validator_rust',
+    ])
     expect(conf).not.toMatch(/\$arg_|\$http_|\$request_uri/)
   })
 
@@ -76,6 +82,37 @@ describe('gateway nginx.conf', () => {
       expect(block).toMatch(/"message"\s*:/)
     },
   )
+
+  it('proxies /rust/api/v1/ to the Rust service with the prefix stripped', () => {
+    const block = locationBlock(conf, '/rust/api/v1/')
+    expect(block).toMatch(/rewrite\s+\^\/rust\(\/\.\*\)\$\s+\$1\s+break;/)
+    expect(block).toMatch(/proxy_pass\s+\$validator_rust;/)
+    expect(conf).toMatch(/set \$validator_rust\s+http:\/\/validator-rust:8082;/)
+  })
+
+  it('proxies nothing else of /rust/, so /rust/ itself is a 404 from the app', () => {
+    expect(locations.filter((name) => name?.includes('rust'))).toEqual([
+      '/rust/api/v1/',
+    ])
+  })
+
+  it('treats the Rust route like the JavaScript route', () => {
+    const rustBlock = locationBlock(conf, '/rust/api/v1/')
+    const jsBlock = locationBlock(conf, '/api/v1/')
+    const settings = (block: string) =>
+      [
+        ...block.matchAll(
+          /^\s*(proxy_connect_timeout|proxy_read_timeout|proxy_send_timeout|error_page)\s+([^;]+);/gm,
+        ),
+      ].map((m) => `${m[1]} ${m[2]}`)
+    expect(settings(rustBlock)).toEqual(settings(jsBlock))
+    expect(settings(rustBlock).length).toBeGreaterThanOrEqual(5)
+  })
+
+  it('does not reach the Rust service through the JavaScript route or health route', () => {
+    expect(locationBlock(conf, '/api/v1/')).not.toContain('rust')
+    expect(locationBlock(conf, '= /health')).not.toContain('rust')
+  })
 
   it('waits longer for the validator than the app does', () => {
     const block = locationBlock(conf, '/api/v1/')
@@ -118,8 +155,10 @@ describe('Compose runtime config', () => {
     )
   })
 
-  it('does not configure a Rust service', () => {
+  it('sends the Rust service through the gateway prefix', () => {
     const result = validateRuntimeConfig(parsed)
-    expect(result.ok && result.config.services.rust).toBeUndefined()
+    expect(result.ok && result.config.services.rust).toBe(
+      'http://127.0.0.1:8080/rust',
+    )
   })
 })

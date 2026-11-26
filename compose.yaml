@@ -1,5 +1,6 @@
-# Local deployment: the app and the externally maintained JavaScript validator
-# service behind one loopback-only gateway. See README.md ("Local deployment").
+# Local deployment: the app and the two validator services (a pinned JavaScript
+# image and a Rust service built from a submodule) behind one loopback-only
+# gateway. See README.md ("Local deployment").
 services:
   app:
     build:
@@ -13,6 +14,16 @@ services:
     # resolved 2026-11-15). Never built or patched here. See README.md before
     # changing it.
     image: ghcr.io/secvisogram/csaf-validator-service@sha256:e09b8a2b7c7715cce3de2144d73789a06df85a3d116ff07229199060f2e6e5db
+    networks: [private]
+    restart: unless-stopped
+
+  validator-rust:
+    # Built from the commit-pinned submodule (upstream tag v0.7.3) with its own
+    # Dockerfile, because upstream publishes no image. Needs
+    # `git submodule update --init tools/csaf-rs`. Distroless, so there is no
+    # healthcheck. No CORS setting: the browser only talks to the gateway.
+    build:
+      context: tools/csaf-rs
     networks: [private]
     restart: unless-stopped
 
