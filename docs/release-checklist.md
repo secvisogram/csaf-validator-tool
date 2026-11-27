@@ -20,7 +20,7 @@ What the number means for this app:
 ## Before the release
 
 - The CI workflow is green for the commit that will be tagged. The release workflow runs it again and does not deploy if it fails.
-- Run the [Manual Compose smoke test](spec.md#manual-compose-smoke-test). It covers the default Compose stack, including the Rust service, and is the only check of the Rust build. A deployment other than the default Compose stack gets the Rust checks only when the operator has configured a Rust service.
+- Run the Compose smoke test: the numbered steps are in the [README](../README.md#smoke-test), and the [specification](spec.md#manual-compose-smoke-test) says what it must show. It covers the default Compose stack, including the Rust service, and is the only check of the Rust build. A deployment other than the default Compose stack gets the Rust checks only when the operator has configured a Rust service.
 
 ## Publishing
 
@@ -42,5 +42,6 @@ The `Release` workflow then runs the checks (job `Checks`), builds `dist` (job `
 Open <https://secvisogram.github.io/csaf-validator-tool/> in a fresh browser profile or after a hard reload.
 
 - The app loads, and `https://secvisogram.github.io/csaf-validator-tool/hints.yaml` loads. `https://secvisogram.github.io/csaf-validator-tool/.well-known/appspecific/runtime-config.json` answers 404 and the app shows no runtime configuration warning.
+- Paste a CSAF document. The wizard moves to the Tests step. Choose the validator there, and start the run on the Run & report step.
 - A validation with `csaf-validator-lib` completes. This loads the library worker.
 - A validation with `csaf-rs (WASM)` completes. This loads the WASM module.
