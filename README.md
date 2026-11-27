@@ -50,7 +50,7 @@ Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
 - `e2e/`: the Playwright browser tests, run against the production build (see Browser tests)
 - `scripts/`: maintainer scripts
 - `compose.yaml`, `deploy/`: the local Docker Compose deployment (`deploy/app/` is the static build server and the Compose runtime config, `deploy/gateway/` is the gateway)
-- `tools/csaf-rs`: a git submodule, pinned to the upstream csaf-rs tag `v0.7.3`. It is the build source of the Rust service in the local Compose stack and of `npm run record:rust-service` (see the Rust service adapter). The app, CI, the release workflow and the tests never need it
+- `tools/csaf-rs`: a git submodule, pinned to the upstream csaf-rs release named in `src/adapters/rustservice/reference.json`. It is the build source of the Rust service in the local Compose stack and of `npm run record:rust-service` (see the Rust service adapter). The app, CI, the release workflow and the tests never need it
 - `src/i18n/`: i18next setup and the English dictionary
 - `docs/`: specification
 - `.github/workflows/ci.yml`: CI (install, lint, format check, typecheck, unit tests, build, Compose configuration check, and the browser tests in Chrome and Firefox)
@@ -195,7 +195,7 @@ A selected test that the validator is observed not to implement is an **implemen
 
 Gaps appear per run only. The app has no overview before a run and no list of the gaps of a version. These are not implementation gaps: a known deviation of a validator, an environment limit (the library cannot start Hunspell for the spell check 6.3.8 in a browser), a network-enabled test that waits for confirmation, and a service that fails or flattens a request. A selected test that cannot run in this environment stays selected and is shown as unavailable, with its reason, before and after the run.
 
-A **pin** is a version the app ships, so it is true by construction. `src/adapters/library/pin.json` and `src/adapters/csafrs/pin.json` name the library and csaf-rs versions that are bundled, and the exact-pin tests check them against `package.json` and `node_modules`. A **reference build** is the build a remote service's fixtures and naming checks were recorded against. `src/adapters/service/reference.json` and `src/adapters/rustservice/reference.json` name it (the JavaScript service image, and the tag, commit and image of the Rust build). A reference build says nothing about the service the user connects to. The tool does not check which version that is, and the run panel says so. There is no check against the `tools/csaf-rs` gitlink.
+A **pin** is the exact artifact of a validator component that the tool ships or deploys, so it is true by construction. The version is only its label. `src/adapters/library/pin.json` and `src/adapters/csafrs/pin.json` name the library and csaf-rs versions that are bundled, and the exact-pin tests check them against `package.json` and `node_modules`. A **reference build** is the build a remote service's fixtures and naming checks were recorded against. `src/adapters/service/reference.json` and `src/adapters/rustservice/reference.json` name it (the version of the JavaScript service, and the version and commit of the Rust build). The artifact itself is pinned elsewhere: the image digest in `compose.yaml` and the `tools/csaf-rs` submodule. A reference build says nothing about the service the user connects to. The tool does not check which version that is, and the run panel says so. There is no check against the `tools/csaf-rs` gitlink.
 
 ### The browser library adapter
 
@@ -231,7 +231,7 @@ Result mapping:
 
 A selected test missing from the response is shown as missing. A malformed response, or an exception from the package, fails the whole run and gives no test outcome. The catalogue ID `<snapshot>/<section>` maps to the package ID `<section>`, and the schema check maps to `schema`.
 
-`src/adapters/csafrs/pin.json` names the exact package version, and the upstream tag and commit of that version. A test checks that the installed package lists a name for every catalogue test and schema check. The tests that csaf-rs 0.7.3 reports as `NotFound` in every run over the OASIS validator test documents (3 for CSAF 2.0, 29 for CSAF 2.1, including all network-enabled tests) are not listed anywhere: they appear as gaps when a run includes them. For the schema check, the strictness of the package schema is not verified. CSAF 2.1 support in the package is experimental.
+`src/adapters/csafrs/pin.json` names the exact package version and the upstream commit of that version. A test checks that the installed package lists a name for every catalogue test and schema check. The tests that csaf-rs 0.7.3 reports as `NotFound` in every run over the OASIS validator test documents (3 for CSAF 2.0, 29 for CSAF 2.1, including all network-enabled tests) are not listed anywhere: they appear as gaps when a run includes them. For the schema check, the strictness of the package schema is not verified. CSAF 2.1 support in the package is experimental.
 
 The package ships TypeScript source that does not compile under this repository's strict settings. `tsconfig.json` therefore maps it to a local declaration, `src/adapters/csafrs/csaf-rs.d.ts`, which declares only the part the adapter uses. A test checks that every declared function exists in the package. The fixtures in `src/adapters/csafrs/fixtures/` are unmodified OASIS example documents. A minimal document is not enough, because when it fails the schema check csaf-rs skips most tests.
 
@@ -253,12 +253,12 @@ The Vite build may print the same kind of externalization warnings for Node modu
 
 **Cancel.** Cancel aborts the browser request, keeps the state so far, and ignores a response that arrives later. Aborting does not guarantee that the service stops processing.
 
-**Reference build.** `src/adapters/service/reference.json` names the image `ghcr.io/secvisogram/csaf-validator-service@sha256:e09b8a2b7c7715cce3de2144d73789a06df85a3d116ff07229199060f2e6e5db`. That image supports CSAF 2.0 only. A service you connect may be another version.
+**Reference build.** `src/adapters/service/reference.json` names the version of the image pinned in `compose.yaml`. That image supports CSAF 2.0 only. A service you connect may be another version.
 
 - CSAF 2.0: the derived names equal the library's export names, and the service returns each result under the name it was sent with. The schema check is the plain `csaf_2_0`, not `csaf_2_0_strict`. The spell check 6.3.8 runs on the service host, unlike in the browser.
 - CSAF 2.1: an explicit selection is sent like any other, with the disclosure that the service supports CSAF 2.0 only. The reference image does not know the 2.1-only names and answers a request that contains one with HTTP 400, which is shown as a failed run, so a CSAF 2.1 run can return no results at all. Names it does know (such as `mandatoryTest_6_1_1`) run its CSAF 2.0 implementation, so those results are not confirmed to be the CSAF 2.1 checks.
 
-`fixtures/` holds what was recorded from the reference image (one full CSAF 2.0 response and one rejected request). The tests use them as evidence and as controlled service responses, so no live service is needed. They are never read at run time. To update the reference build, run the new image, record the same two things again and change the `image` and `version` in `reference.json`.
+`fixtures/` holds what was recorded from the reference image (one full CSAF 2.0 response and one rejected request). The tests use them as evidence and as controlled service responses, so no live service is needed. They are never read at run time. To update the reference build, run `npm run record:service -- <tag>` (see "Updating the validator image").
 
 ### The Rust service adapter
 
@@ -270,7 +270,7 @@ It shares the request, response check, timeout and cancel behavior of the JavaSc
 
 **Flattened results.** The service returns a flattened result. `Success`, `Skipped` and `NotFound` all come back as `isValid: true` with empty lists, and a test with only warnings or information also counts as valid. In the recorded build a request for `6.3.6`, `6.3.7`, `6.3.8` and an unknown name (`does.not.exist`) all returned HTTP 200 with `isValid: true`. So the app shows a returned `isValid: true` as valid and `isValid: false` as not valid, never shows a skipped result for this service, and says so next to the run and next to the report. The top-level `isValid` is shown as the service's own flag with the same caveat. See `fixtures/flattened.json`.
 
-**Reference build.** `src/adapters/rustservice/reference.json` names the upstream tag `v0.7.3`, its commit `cda82bfa4cf0b3e9e5a75ee7191ab31e035d2825`, `csaf-service` 0.1.2 (built from the repository `Dockerfile`) and the ID of the image built from that commit, because upstream publishes no image. These values are evidence from `npm run record:rust-service`, and a test checks that every recorded fixture carries them. All selected tests are sent, with no list. The service shows a test it does not implement (csaf-rs 0.7.3 reports 6.3.6, 6.3.7 and 6.3.8 for CSAF 2.0, and 29 tests for CSAF 2.1, as `NotFound`) as valid, so such a test can look valid. The disclosure says so, and the app reconstructs no status and reports no gap for this service. Network-enabled tests are sent after confirmation, although csaf-rs has no HTTP client.
+**Reference build.** `src/adapters/rustservice/reference.json` names the version, the upstream commit and the `csaf-service` version of the build (from the repository `Dockerfile`), because upstream publishes no image. `npm run record:rust-service` writes these values, and a test checks that the commit is the one the `tools/csaf-rs` submodule is pinned to. All selected tests are sent, with no list. The service shows a test it does not implement (csaf-rs 0.7.3 reports 6.3.6, 6.3.7 and 6.3.8 for CSAF 2.0, and 29 tests for CSAF 2.1, as `NotFound`) as valid, so such a test can look valid. The disclosure says so, and the app reconstructs no status and reports no gap for this service. Network-enabled tests are sent after confirmation, although csaf-rs has no HTTP client.
 
 **Version.** The service validates by the version in `document.csaf_version` and ignores any other choice. If the selected CSAF version differs from the declared one, or the document declares none, nothing is sent and the run fails with that reason. The selected tests are shown as not run, not as test outcomes.
 
@@ -278,7 +278,7 @@ It shares the request, response check, timeout and cancel behavior of the JavaSc
 
 **CORS.** The service answers a browser only if CORS allows it, and the default allows no origin. In the reference build an origin allowlist (`CSAF_SERVICE__CORS__ALLOWED_ORIGINS`, comma-separated) is not enough: the preflight for a `POST` with `content-type: application/json` is answered without `access-control-allow-headers`, so the browser blocks the request. A browser works only with `CSAF_SERVICE__CORS__PERMISSIVE=true`. That setting allows every origin and must not be used beyond local use. The alternative is to serve the app and the service from one origin behind a reverse proxy, so there is no cross-origin request. The local Compose gateway does exactly this and leaves the CORS settings unset. The app cannot diagnose a CORS block and reports it as a request without a response.
 
-**Recorded evidence.** `fixtures/` holds what was recorded from the reference build: a full CSAF 2.0 and CSAF 2.1 run, the flattened response, an empty request, and the 400 and 422 answers. The tests use them as controlled service responses, so no live service is needed, and they are never read at run time. `npm run record:rust-service` builds the image from the `tools/csaf-rs` submodule (`git submodule update --init tools/csaf-rs`, Docker required), runs it and records the same files again, so a reviewer can diff them. The Compose stack builds the same source. CI, the release workflow and the tests never run it or build the image and do not need the submodule. To update the pin, move the submodule to the new tag and record again. Then set `tag`, `commit` and `image` in `reference.json` to the values the script wrote into the fixtures. The reference test fails until they agree. It does not check the pin against the `tools/csaf-rs` gitlink.
+**Recorded evidence.** `fixtures/` holds what was recorded from the reference build: a full CSAF 2.0 and CSAF 2.1 run, the flattened response, an empty request, and the 400 and 422 answers. The tests use them as controlled service responses, so no live service is needed, and they are never read at run time. `npm run record:rust-service` builds the image from the `tools/csaf-rs` submodule (`git submodule update --init tools/csaf-rs`, Docker required), runs it and records the same files again, so a reviewer can diff them. The Compose stack builds the same source. CI, the release workflow and the tests never run it or build the image and do not need the submodule. To update the pin, run `npm run record:rust-service -- <version>`: it moves the submodule, records again and writes `reference.json`. The fixtures carry only the date they were recorded, so the Git history says which build they came from.
 
 ### Network-enabled tests
 
@@ -328,12 +328,12 @@ The report belongs to the document it was run on. Loading another document clear
 
 Docker Compose runs the app, the externally maintained JavaScript validator service and the Rust validator service behind one gateway on your own machine. The browser talks to a single origin, so neither service needs CORS setup.
 
-| Service          | Role                                                                                                                              |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `app`            | nginx serving the production build. Built from this repository (`deploy/app/`).                                                   |
-| `validator-js`   | The external `csaf-validator-service` image, pinned by digest in `compose.yaml`. It is never built, forked or patched here.       |
-| `validator-rust` | The Rust `csaf-service`, built from the `tools/csaf-rs` submodule (upstream tag `v0.7.3`) with its own `Dockerfile`. Not patched. |
-| `gateway`        | nginx, the only service reachable from the host. Built from this repository (`deploy/gateway/`).                                  |
+| Service          | Role                                                                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app`            | nginx serving the production build. Built from this repository (`deploy/app/`).                                                                   |
+| `validator-js`   | The external `csaf-validator-service` image, pinned by digest in `compose.yaml`. It is never built, forked or patched here.                       |
+| `validator-rust` | The Rust `csaf-service`, built from the `tools/csaf-rs` submodule (the release named in `reference.json`) with its own `Dockerfile`. Not patched. |
+| `gateway`        | nginx, the only service reachable from the host. Built from this repository (`deploy/gateway/`).                                                  |
 
 All four are on one private Compose network. Only the gateway is published, as `127.0.0.1:8080:80`. The app and validator ports are not published. The JavaScript service currently supports CSAF 2.0 only. For CSAF 2.1 the app shows what the service answers (see "The JavaScript service adapter").
 
@@ -361,7 +361,7 @@ Then the Rust service is simply not running, and its runs fail like any unreacha
 
 Then open <http://127.0.0.1:8080/>. The Compose runtime configuration names this address as the service URL, so open the app there. Another host name (such as `localhost`) would make the service requests cross-origin.
 
-The validator image is pinned in `compose.yaml` by an immutable digest (`name@sha256:<64 hex characters>`), never by a tag such as `latest`. Compose pulls it from `ghcr.io` on the first start.
+The validator image is pinned in `compose.yaml` by an immutable digest (`name:<version>@sha256:<64 hex characters>`). The digest is the pin and the tag only names it, so `latest` is never used. Compose pulls it from `ghcr.io` on the first start.
 
 | Command                                                      | Purpose                                                  |
 | ------------------------------------------------------------ | -------------------------------------------------------- |
@@ -397,12 +397,12 @@ The `app` image contains `.well-known/appspecific/runtime-config.json` from `dep
 
 ### Updating the validator image
 
-The digest is changed only after a review:
+The pin is changed only after a review:
 
 1. Review the new release of [csaf-validator-service](https://github.com/secvisogram/csaf-validator-service) and the `csaf-validator-lib` version it uses.
-2. Start the new image on loopback only and check `/health`, `GET /api/v1/tests` and a `POST /api/v1/validate` request. The service must listen on `8082` and keep the `/api/v1/*` contract.
-3. Set the new digest in `compose.yaml` (always a digest, never a tag), and repeat the smoke test below. Resolve a tag to its digest with `docker buildx imagetools inspect <image:tag>`.
-4. Update the reference build (`src/adapters/service/reference.json`: `image` and `version`, and the recorded fixtures) and, if the supported CSAF versions changed, this README. A test fails when `compose.yaml` and `reference.json` name different images, and when the image is not a digest.
+2. Run `npm run record:service -- <tag>`. It resolves the tag to its digest, runs that image on loopback only, checks that the service reports the same version as the tag, records the fixtures again and writes the pin to `compose.yaml` and the version to `src/adapters/service/reference.json`. It needs Docker and `ghcr.io`.
+3. Check that the service still listens on `8082` and keeps `/health` and the `/api/v1/*` contract, then repeat the smoke test below.
+4. Review the diff, and if the supported CSAF versions changed, update this README. Tests fail when the image in `compose.yaml` is not pinned by a digest or its tag differs from the version in `reference.json`.
 
 ### Troubleshooting
 
@@ -419,14 +419,14 @@ The digest is changed only after a review:
 
 ### Rust service
 
-The upstream project publishes no image, so Compose builds `validator-rust` from the `tools/csaf-rs` submodule (the context is the submodule root and its repository `Dockerfile`). The submodule is pinned to the upstream tag `v0.7.3`, commit `cda82bfa4cf0b3e9e5a75ee7191ab31e035d2825`. The image is not patched, and no `CSAF_SERVICE__CORS__*` setting is set, because the browser only talks to the same-origin gateway. This differs from the JavaScript service, whose image is pinned by digest and never built here.
+The upstream project publishes no image, so Compose builds `validator-rust` from the `tools/csaf-rs` submodule (the context is the submodule root and its repository `Dockerfile`). The submodule is pinned to the upstream commit named in `src/adapters/rustservice/reference.json`. The image is not patched, and no `CSAF_SERVICE__CORS__*` setting is set, because the browser only talks to the same-origin gateway. This differs from the JavaScript service, whose image is pinned by digest and never built here.
 
 - The service listens on `8082` on the private network only. No port is published, and nothing has `depends_on` it.
 - It has no container `healthcheck`, because the upstream image is distroless (no shell) and is not wrapped. `docker compose ps` therefore shows `running` and never `healthy`. Diagnose with `curl -i http://127.0.0.1:8080/rust/api/v1/health`, `docker compose ps` and `docker compose logs -f gateway validator-js validator-rust`.
 - The JavaScript service stays the default selection. Choose `csaf-service` in the app to use the Rust service.
 - When it is stopped, built wrongly or unreachable, the app shows a service failure for the Rust run and never a test result. The app, the gateway and the JavaScript service keep working.
 - The Rust service flattens `Skipped` and `NotFound` to valid, so a returned `isValid: true` can mean "not implemented". The app shows the results as returned and says so next to the run and the report (see "The Rust service adapter").
-- To move to a newer upstream tag, change the submodule, record the fixtures again (`npm run record:rust-service`), update `reference.json` to the recorded values and repeat the smoke test.
+- To move to a newer upstream release, run `npm run record:rust-service -- <version>`, which moves the submodule, records the fixtures again and updates `reference.json`, then repeat the smoke test.
 
 ### Smoke test
 
@@ -442,7 +442,7 @@ The Compose smoke test is manual, because it needs Docker, the external image an
 8. `docker compose stop validator-js` shows the same for the JavaScript service and leaves the Rust service working.
 9. `docker ps` and `ss -ltn` show only `127.0.0.1:8080` published, and the host's LAN address does not answer on port 8080.
 
-**Result of 2026-11-26** (Docker 29.10 with Compose 5.8, Chrome, `csaf-validator-service` 3.0.5 by the digest in `compose.yaml`, `csaf-service` 0.1.2 built from the submodule at `v0.7.3`, `linux/amd64`): All nine steps passed.
+**Result of 2026-11-26** (Docker 29.10 with Compose 5.8, Chrome, the `csaf-validator-service` pinned in `compose.yaml`, the `csaf-service` built from the submodule, `linux/amd64`): All nine steps passed.
 
 - The first build of the Rust image took about 3 to 4 minutes (the `cargo build` step alone took 192 s). All four services started without waiting for each other.
 - `/healthz`, `/health` and `/rust/api/v1/health` answered `200`. `/rust/`, `/rust/other` and `/rust/api/v2/x` answered `404`.

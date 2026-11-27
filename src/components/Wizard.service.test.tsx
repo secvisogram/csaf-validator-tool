@@ -10,6 +10,7 @@ import {
 import { useState } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '../i18n/i18n.ts'
+import reference from '../adapters/service/reference.json'
 import { mergeEdits, resolveSettings } from '../config/settings.ts'
 import type { RuntimeConfigLoad, SessionEdits } from '../config/types.ts'
 import { loadFromText } from '../intake/loadDocument.ts'
@@ -96,7 +97,9 @@ describe('the JavaScript service in the app', () => {
     expect(screen.queryByRole('alert')).toBeNull()
     expect(
       screen.getByText(
-        /reference build is csaf-validator-service 3\.0\.5.*may differ/,
+        new RegExp(
+          `reference build is csaf-validator-service ${reference.version.replaceAll('.', '\\.')}.*may differ`,
+        ),
       ),
     ).toBeTruthy()
     expect(

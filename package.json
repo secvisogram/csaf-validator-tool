@@ -9,6 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "record:rust-service": "node scripts/record-rust-service.ts",
+    "record:service": "node scripts/record-service.ts",
     "typecheck": "tsc",
     "test": "vitest run",
     "test:e2e": "npm run build && playwright test",

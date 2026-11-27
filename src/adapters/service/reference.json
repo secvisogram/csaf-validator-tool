@@ -1,5 +1,4 @@
 {
   "package": "csaf-validator-service",
-  "version": "3.0.5",
-  "image": "ghcr.io/secvisogram/csaf-validator-service:3.0.6@sha256:2a4a76039ab5091c84c30d6983f632f3f1e0ed6727d994edc81e6060852fbcf7"
+  "version": "3.0.6"
 }

@@ -9,6 +9,7 @@ import run21 from './fixtures/csaf-2.1-run.json'
 import flattened from './fixtures/flattened.json'
 import noVersion from './fixtures/no-version.json'
 import wrongShape from './fixtures/wrong-shape.json'
+import reference from './reference.json'
 
 const URL_BASE = 'http://127.0.0.1:8082'
 
@@ -110,9 +111,9 @@ describe('the Rust service adapter', () => {
     expect(analysis.runnable).toHaveLength(catalogue.tests.length + 1)
   })
 
-  it('names the reference build tag', () => {
+  it('names the reference build version', () => {
     expect(rustServiceAdapter({ url: URL_BASE }).componentVersion).toBe(
-      'v0.7.3',
+      reference.version,
     )
   })
 })

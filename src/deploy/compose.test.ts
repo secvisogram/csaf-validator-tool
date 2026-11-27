@@ -67,13 +67,16 @@ describe('compose.yaml', () => {
     expect(validator).not.toHaveProperty('healthcheck')
   })
 
-  it('pins the validator image to the reference build of the service adapter', () => {
-    expect(compose.services['validator-js']?.image).toBe(reference.image)
+  it('pins the validator image by an immutable digest, with a tag naming the reference version', () => {
+    const image = compose.services['validator-js']?.image
+    expect(image).toMatch(
+      /^ghcr\.io\/secvisogram\/csaf-validator-service:\d+\.\d+\.\d+@sha256:[0-9a-f]{64}$/,
+    )
   })
 
-  it('pins the validator image by an immutable digest', () => {
-    const image = compose.services['validator-js']?.image
-    expect(image).toMatch(/^.*@sha256:[0-9a-f]{64}$/)
+  it('tags the validator image with the version of the service adapter reference build', () => {
+    const image = compose.services['validator-js']?.image ?? ''
+    expect(image.split('@')[0]?.split(':')[1]).toBe(reference.version)
   })
 
   it('starts every service without waiting for a validator', () => {

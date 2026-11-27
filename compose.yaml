@@ -10,15 +10,14 @@ services:
     restart: unless-stopped
 
   validator-js:
-    # The reviewed, immutable digest (csaf-validator-service 3.0.5, linux/amd64,
-    # resolved 2026-11-15). Never built or patched here. See README.md before
-    # changing it.
+    # The reviewed image, pinned by digest (the tag only names it). Never built or
+    # patched here. Change it with `npm run record:service`; see README.md.
     image: ghcr.io/secvisogram/csaf-validator-service:3.0.6@sha256:2a4a76039ab5091c84c30d6983f632f3f1e0ed6727d994edc81e6060852fbcf7
     networks: [private]
     restart: unless-stopped
 
   validator-rust:
-    # Built from the commit-pinned submodule (upstream tag v0.7.3) with its own
+    # Built from the commit-pinned submodule with its own
     # Dockerfile, because upstream publishes no image. Needs
     # `git submodule update --init tools/csaf-rs`. Distroless, so there is no
     # healthcheck. No CORS setting: the browser only talks to the gateway.

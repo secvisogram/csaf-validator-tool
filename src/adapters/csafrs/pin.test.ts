@@ -4,7 +4,6 @@ import { CsafFfi } from '@csaf-rs/csaf-rs'
 import { CATALOGUES } from '../../catalogue/catalogues.ts'
 import { SNAPSHOT_IDS } from '../../catalogue/types.ts'
 import { bareSection } from '../naming.ts'
-import rustReference from '../rustservice/reference.json'
 import { csafRsAdapter } from './adapter.ts'
 import { CSAF_RS_PACKAGE } from './execute.ts'
 import pin from './pin.json'
@@ -34,11 +33,8 @@ describe('the csaf-rs pin', () => {
     expect(csafRsAdapter().componentVersion).toBe(pin.version)
   })
 
-  it('names the upstream tag and commit, which are those of the Rust service reference build', () => {
-    expect(pin.tag).toBe(`v${pin.version}`)
+  it('names the upstream commit of that version', () => {
     expect(pin.commit).toMatch(/^[0-9a-f]{40}$/)
-    expect(pin.tag).toBe(rustReference.tag)
-    expect(pin.commit).toBe(rustReference.commit)
   })
 })
 

@@ -9,6 +9,7 @@ import {
 import { useState } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '../i18n/i18n.ts'
+import reference from '../adapters/rustservice/reference.json'
 import { mergeEdits, resolveSettings } from '../config/settings.ts'
 import type { SessionEdits } from '../config/types.ts'
 import { loadFromText } from '../intake/loadDocument.ts'
@@ -83,7 +84,11 @@ describe('the Rust service in the app', () => {
     expect(
       screen.getByText(/validates by the version the document/),
     ).toBeTruthy()
-    expect(screen.getByText(/csaf-rs v0\.7\.3/)).toBeTruthy()
+    expect(
+      screen.getByText(
+        new RegExp(`csaf-rs ${reference.version.replaceAll('.', '\\.')}`),
+      ),
+    ).toBeTruthy()
   })
 
   it('sends canonical names and shows what came back, with the flattened-result note beside the report', async () => {

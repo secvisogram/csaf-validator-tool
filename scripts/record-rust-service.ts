@@ -1,19 +1,22 @@
 /**
- * Maintainer script. Builds the Rust `csaf-service` from the pinned submodule
- * `tools/csaf-rs`, runs it locally and records what it answers, so a reviewer
- * can diff the evidence. CI, the release workflow and the tests never run it
- * and need neither Docker nor the submodule.
+ * Maintainer script, and the one way to update the Rust service reference
+ * build. Moves the submodule `tools/csaf-rs` to the upstream tag `v<version>`
+ * (the current reference version by default), builds the Rust `csaf-service`
+ * from it, runs it locally and records what it answers, so a reviewer can diff
+ * the evidence. It then writes `reference.json` and stages the new submodule
+ * commit, which a test compares with `reference.json`. CI, the release
+ * workflow and the tests never run it and need neither Docker nor the
+ * submodule.
  *
  *   git submodule update --init tools/csaf-rs
- *   node scripts/record-rust-service.ts
+ *   node scripts/record-rust-service.ts [version]
  */
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
-const TAG = 'v0.7.3'
-const IMAGE = `csaf-service-pin:${TAG}`
+const IMAGE = 'csaf-service-pin:record'
 const PORT = 18082
 const CONTAINER = 'csaf-service-pin-record'
 const BASE = `http://127.0.0.1:${PORT}`
@@ -26,6 +29,13 @@ const docker = (...args: string[]) =>
   execFileSync('docker', args, { encoding: 'utf8' }).trim()
 
 const read = (path: string) => JSON.parse(readFileSync(root(path), 'utf8'))
+const reference = read('src/adapters/rustservice/reference.json') as {
+  version: string
+}
+const VERSION = process.argv[2] ?? reference.version
+if (!/^\d+\.\d+\.\d+$/.test(VERSION))
+  throw new Error(`Expected a version such as 0.7.3, got "${VERSION}".`)
+const TAG = `v${VERSION}`
 const document20 = read(
   'src/adapters/service/fixtures/reference-image-csaf-2.0-run.json',
 ).request.document
@@ -61,14 +71,34 @@ async function post(body: string) {
 const names = (tests: string[]) =>
   tests.map((name) => ({ name, type: 'test' as const }))
 
-async function main() {
-  const commit = execFileSync('git', ['rev-parse', 'HEAD'], {
-    cwd: root('tools/csaf-rs'),
+const git = (...args: string[]) =>
+  execFileSync('git', ['-C', root('tools/csaf-rs'), ...args], {
     encoding: 'utf8',
   }).trim()
-  console.log(`Building ${IMAGE} from tools/csaf-rs at ${commit}`)
+
+/** Moves the submodule to the tag and returns the commit the tag names. */
+function checkOutTag(): string {
+  let commit: string
+  try {
+    commit = git('rev-parse', `${TAG}^{commit}`)
+  } catch {
+    git('fetch', '--tags', 'origin')
+    commit = git('rev-parse', `${TAG}^{commit}`)
+  }
+  git('checkout', '--detach', commit)
+  // A test compares reference.json with the commit the index records.
+  execFileSync('git', ['add', 'tools/csaf-rs'], { cwd: root('.') })
+  return commit
+}
+
+async function main() {
+  const commit = checkOutTag()
+  const serviceVersion = /^version = "([^"]+)"/m.exec(
+    readFileSync(root('tools/csaf-rs/csaf-service/Cargo.toml'), 'utf8'),
+  )?.[1]
+  if (!serviceVersion) throw new Error('No csaf-service version found.')
+  console.log(`Building ${IMAGE} from tools/csaf-rs at ${TAG} (${commit})`)
   docker('build', '-t', IMAGE, root('tools/csaf-rs'))
-  const imageId = docker('image', 'inspect', '--format', '{{.Id}}', IMAGE)
   try {
     docker('rm', '-f', CONTAINER)
   } catch {
@@ -78,7 +108,7 @@ async function main() {
   try {
     await waitForHealth()
     const recorded = new Date().toISOString().slice(0, 10)
-    const header = { tag: TAG, commit, image: imageId, recorded }
+    const header = { recorded }
     await mkdir(outDir, { recursive: true })
     const save = (file: string, value: unknown) =>
       writeFile(`${outDir}/${file}`, `${JSON.stringify(value, null, 2)}\n`)
@@ -119,7 +149,21 @@ async function main() {
       request: wrongShape,
       ...(await post(wrongShape)),
     })
-    console.log(`Recorded to ${outDir}`)
+    await writeFile(
+      root('src/adapters/rustservice/reference.json'),
+      `${JSON.stringify(
+        {
+          package: `csaf-service ${serviceVersion} (csaf-rs workspace)`,
+          version: VERSION,
+          commit,
+        },
+        null,
+        2,
+      )}\n`,
+    )
+    console.log(
+      `Recorded to ${outDir} and updated the Rust service reference to ${TAG}. Format and review the diff.`,
+    )
   } finally {
     docker('rm', '-f', CONTAINER)
   }
