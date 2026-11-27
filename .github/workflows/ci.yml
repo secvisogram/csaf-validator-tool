@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+  # The release workflow runs the same checks for the commit of a release.
+  workflow_call:
+permissions:
+  contents: read
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -34,3 +38,34 @@ jobs:
           docker compose build app gateway
           docker compose run --rm --no-deps --entrypoint nginx app -t
           docker compose run --rm --no-deps --entrypoint nginx gateway -t
+  browser:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser:
+          - chrome
+          - firefox
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      # Chrome is the stable channel. Firefox is the build of the Playwright
+      # version in package-lock.json. The version of each run is in the summary.
+      - name: Install the browser
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Build and run the browser tests
+        run: npm run test:e2e -- --project=${{ matrix.browser }}
+      - name: Keep the traces of a failed run
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-${{ matrix.browser }}
+          path: test-results
+          retention-days: 7
