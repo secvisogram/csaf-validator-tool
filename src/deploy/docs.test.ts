@@ -110,6 +110,15 @@ describe('README local deployment', () => {
   })
 })
 
+describe('serving the build under the project path', () => {
+  it('uses vite preview in the Safari steps and the README', () => {
+    const command = 'npx vite preview --base /csaf-validator-tool/ --port 4174'
+    expect(read('docs/release-checklist.md')).toContain(command)
+    expect(readme).toContain('vite preview')
+    expect(read('docs/release-checklist.md')).not.toContain('serve-dist')
+  })
+})
+
 describe('the release checklist', () => {
   const checklist = read('docs/release-checklist.md')
   const section = (title: string) => {
@@ -260,7 +269,7 @@ describe('README release and browser tests', () => {
   it('lists the release workflow and the browser tests in the project structure', () => {
     expect(readme).toContain('.github/workflows/release.yml')
     expect(readme).toContain('`e2e/`')
-    expect(readme).toContain('`scripts/serve-dist.ts`')
+    expect(readme).not.toContain('serve-dist')
   })
 
   it('says that Safari has no automated CI coverage', () => {

@@ -21,7 +21,7 @@ Serve the production build under a project path, as GitHub Pages does:
 ```bash
 npm ci
 npm run build
-node scripts/serve-dist.ts --port 4174 --path /csaf-validator-tool/
+npx vite preview --base /csaf-validator-tool/ --port 4174
 ```
 
 Open `http://127.0.0.1:4174/csaf-validator-tool/` and use the valid example documents in `src/adapters/csafrs/fixtures/`.

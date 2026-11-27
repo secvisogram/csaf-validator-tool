@@ -248,6 +248,17 @@ describe('the Pages deployment uses the native project path', () => {
     expect(read('vite.config.ts')).toMatch(/base: '\.\/'/)
     expect(read('vite.config.ts')).not.toContain('csaf-validator-tool')
   })
+
+  it('answers a missing file with 404 like Pages, not with the app page', () => {
+    expect(read('vite.config.ts')).toMatch(/appType: 'mpa'/)
+  })
+
+  it('is served for the browser tests by vite preview, one server for each path', () => {
+    const config = read('playwright.config.ts')
+    expect(config).toMatch(/vite preview --base \$\{site\.path\}/)
+    expect(config).toContain('--strictPort')
+    expect(existsSync(resolve(root, 'scripts/serve-dist.ts'))).toBe(false)
+  })
 })
 
 describe('Safari', () => {

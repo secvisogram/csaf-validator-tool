@@ -48,7 +48,7 @@ Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
 - `src/components/`: React components
 - `src/util/`: small helpers such as the safe-link check
 - `e2e/`: the Playwright browser tests, run against the production build (see Browser tests)
-- `scripts/`: maintainer scripts. `scripts/serve-dist.ts` serves `dist` like GitHub Pages does, for the browser tests and the Safari smoke test
+- `scripts/`: maintainer scripts
 - `compose.yaml`, `deploy/`: the local Docker Compose deployment (`deploy/app/` is the static build server and the Compose runtime config, `deploy/gateway/` is the gateway)
 - `tools/csaf-rs`: a git submodule, pinned to the upstream csaf-rs tag `v0.7.3`. It is the build source of the Rust service in the local Compose stack and of `npm run record:rust-service` (see the Rust service adapter). The app, CI, the release workflow and the tests never need it
 - `src/i18n/`: i18next setup and the English dictionary
@@ -94,7 +94,7 @@ Installing `chrome` needs permission to install system packages (`--with-deps` o
 
 What they cover, in both browsers:
 
-- the deployment: `dist` is served by `scripts/serve-dist.ts` at the root and under the project path `/csaf-validator-tool/`, each by its own server. Every page, script, style, worker, WASM file, `hints.yaml` and runtime configuration request must stay under that path and succeed. A validation with the library and with csaf-rs WebAssembly runs in both
+- the deployment: `dist` is served by `vite preview` at the root and under the project path `/csaf-validator-tool/`, each by its own server (`appType: 'mpa'` in `vite.config.ts` makes a missing file a 404, as on GitHub Pages). Every page, script, style, worker, WASM file, `hints.yaml` and runtime configuration request must stay under that path and succeed. A validation with the library and with csaf-rs WebAssembly runs in both
 - input (text, file, URL, CORS failure, malformed JSON, non-object), selection, execution (progress, cancel, errors, malformed service responses), reports, runtime configuration and hints
 - security and privacy: hostile strings (HTML, scripts, `javascript:` URLs) in document values, validator messages, hints and configuration problems are shown as text, every link is an HTTP(S) link, nothing is written to local or session storage, IndexedDB, Cache Storage or cookies, and no request leaves the app's origin and the chosen service
 - keyboard operation of input, selection, run, cancel and the report tabs
