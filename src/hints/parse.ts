@@ -15,7 +15,6 @@ const FIELDS = [
   'csafVersion',
   'section',
   'validator',
-  'messageCode',
   'messageText',
   'text',
 ] as const
@@ -73,7 +72,6 @@ function readHint(
   const csafVersion = stringOf('csafVersion')
   const section = stringOf('section')
   const validator = stringOf('validator')
-  const messageCode = stringOf('messageCode')
   const messageText = stringOf('messageText')
   const text = stringOf('text')
 
@@ -82,9 +80,6 @@ function readHint(
   }
   if (validator !== undefined && !isValidator(validator)) {
     issues.push({ path: `${path}.validator`, code: 'unsupportedValue' })
-  }
-  if (messageCode !== undefined && messageText !== undefined) {
-    issues.push({ path, code: 'bothMessageKeys' })
   }
   if (
     csafVersion !== undefined &&
@@ -110,7 +105,6 @@ function readHint(
     csafVersion: csafVersion as HintVersion,
     section,
     ...(validator !== undefined && { validator: validator as ValidatorId }),
-    ...(messageCode !== undefined && { messageCode }),
     ...(messageText !== undefined && { messageText }),
     text,
   }

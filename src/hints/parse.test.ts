@@ -18,7 +18,7 @@ describe('a valid hint file', () => {
     expect(result.ok && result.hints.size).toBe(0)
   })
 
-  it('accepts a general test hint, a code hint and a text hint', () => {
+  it('accepts a general test hint and a text hint', () => {
     const result = parse(`
 hints:
   - csafVersion: '2.1'
@@ -26,23 +26,18 @@ hints:
     text: 'General guidance for this test.'
   - csafVersion: '2.1'
     section: '6.3.8'
-    validator: csaf-validator-service
-    messageCode: SPELLING_ERROR
-    text: 'Validator-specific guidance for this message.'
-  - csafVersion: '2.1'
-    section: '6.3.8'
     validator: csaf-service
     messageText: 'Spelling mistakes found in document title.'
     text: 'Guidance for this exact validator message.'
 `)
-    expect(result.ok && result.hints.size).toBe(3)
+    expect(result.ok && result.hints.size).toBe(2)
   })
 
   it('accepts a hint for the schema check', () => {
     expect(parse(hint("    section: schema\n    text: 'x'")).ok).toBe(true)
   })
 
-  it('accepts a hint without a validator and with a message key', () => {
+  it('accepts a hint without a validator and with a message text', () => {
     expect(
       parse(hint("    section: '6.1.1'\n    messageText: 'm'\n    text: 'x'"))
         .ok,
@@ -108,10 +103,6 @@ describe('an invalid hint file is rejected as a whole', () => {
     ['text', hint("    section: '6.1.1'\n    text: 3")],
     ['validator', hint("    section: '6.1.1'\n    validator: 1\n    text: x")],
     [
-      'messageCode',
-      hint("    section: '6.1.1'\n    messageCode: 1\n    text: x"),
-    ],
-    [
       'messageText',
       hint("    section: '6.1.1'\n    messageText: [a]\n    text: x"),
     ],
@@ -147,11 +138,6 @@ describe('an invalid hint file is rejected as a whole', () => {
       "    section: '6.1.1'\n    messageText: ''\n    text: x",
       'hints[0].messageText',
     ],
-    [
-      'an empty message code',
-      "    section: '6.1.1'\n    messageCode: ''\n    text: x",
-      'hints[0].messageCode',
-    ],
   ])('for %s', (_name, fields, path) => {
     const text = fields.startsWith('hints:') ? fields : hint(fields)
     expect(issuesOf(text)).toContainEqual({ path, code: 'unsupportedValue' })
@@ -168,14 +154,10 @@ describe('an invalid hint file is rejected as a whole', () => {
     })
   })
 
-  it('for a hint with both a message code and a message text', () => {
+  it('for a hint with a messageCode field, which is not supported', () => {
     expect(
-      issuesOf(
-        hint(
-          "    section: '6.1.1'\n    messageCode: C\n    messageText: T\n    text: x",
-        ),
-      ),
-    ).toContainEqual({ path: 'hints[0]', code: 'bothMessageKeys' })
+      issuesOf(hint("    section: '6.1.1'\n    messageCode: C\n    text: x")),
+    ).toContainEqual({ path: 'hints[0].messageCode', code: 'unknownField' })
   })
 
   it('for a section the catalogue of that version does not have', () => {
@@ -224,8 +206,8 @@ describe('hint identity', () => {
     ])
   })
 
-  it('rejects the same code for the same validator, whatever the text says', () => {
-    const one = entry('    validator: csaf-service\n    messageCode: C\n')
+  it('rejects the same message text for the same validator, whatever the hint text says', () => {
+    const one = entry('    validator: csaf-service\n    messageText: C\n')
     const two = one.replace('text: x', 'text: other')
     expect(issuesOf(`hints:\n${one}${two}`)).toEqual([
       { path: 'hints[1]', code: 'duplicate' },
@@ -240,17 +222,16 @@ describe('hint identity', () => {
   })
 
   it('treats a hint without a validator as its own identity', () => {
-    const none = entry('    messageCode: C\n')
-    const some = entry('    validator: csaf-service\n    messageCode: C\n')
+    const none = entry('    messageText: C\n')
+    const some = entry('    validator: csaf-service\n    messageText: C\n')
     expect(parse(`hints:\n${none}${some}`).ok).toBe(true)
   })
 
-  it('treats a code and a text of the same value, other versions and other sections as different', () => {
-    const code = entry('    messageCode: V\n')
+  it('treats other versions and other sections as different', () => {
     const text = entry('    messageText: V\n')
-    const other = entry('').replace("'6.1.1'", "'6.1.2'")
-    const v21 = entry('').replace("'2.0'", "'2.1'")
-    expect(parse(`hints:\n${code}${text}${other}${v21}`).ok).toBe(true)
+    const other = text.replace("'6.1.1'", "'6.1.2'")
+    const v21 = text.replace("'2.0'", "'2.1'")
+    expect(parse(`hints:\n${text}${other}${v21}`).ok).toBe(true)
   })
 
   it('compares texts case-sensitively and without normalizing', () => {
@@ -261,8 +242,8 @@ describe('hint identity', () => {
   })
 
   it('does not depend on the order of the file', () => {
-    const a = entry('    messageCode: A\n')
-    const b = entry('    messageCode: B\n')
+    const a = entry('    messageText: A\n')
+    const b = entry('    messageText: B\n')
     const sizes = [`hints:\n${a}${b}`, `hints:\n${b}${a}`].map((text) => {
       const result = parse(text)
       return result.ok ? result.hints.size : -1

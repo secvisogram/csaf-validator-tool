@@ -359,7 +359,6 @@ export default {
       wrongType: 'The value has the wrong type.',
       unsupportedValue: 'Unsupported or empty value.',
       unknownSection: 'The catalogue of this CSAF version has no such section.',
-      bothMessageKeys: 'Set at most one of messageCode and messageText.',
       duplicate: 'Another hint has the same identity.',
     },
   },

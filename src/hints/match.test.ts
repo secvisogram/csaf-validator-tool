@@ -25,39 +25,18 @@ const textOf = (hints: HintSet, over?: Record<string, unknown>) =>
 
 describe('priority', () => {
   const all = set(
-    entry('general') +
-      entry('by text', '    messageText: Bad title\n') +
-      entry('by code', '    messageCode: TITLE_BAD\n'),
+    entry('general') + entry('by text', '    messageText: Bad title\n'),
   )
-  const message = { message: 'Bad title', messageCode: 'TITLE_BAD' }
 
-  it('prefers the exact code over the exact text and the general hint', () => {
-    expect(findHint(all, query({ message }))).toMatchObject({
-      level: 'code',
-      hint: { text: 'by code' },
-    })
-  })
-
-  it('uses the exact text when the code does not match', () => {
+  it('prefers the exact text over the general hint', () => {
     expect(
-      findHint(
-        all,
-        query({ message: { message: 'Bad title', messageCode: 'OTHER' } }),
-      ),
+      findHint(all, query({ message: { message: 'Bad title' } })),
     ).toMatchObject({ level: 'text', hint: { text: 'by text' } })
   })
 
-  it('uses the exact text when the message has no code', () => {
+  it('falls back to the general hint when no message text matches', () => {
     expect(
-      findHint(all, query({ message: { message: 'Bad title' } })),
-    ).toMatchObject({
-      level: 'text',
-    })
-  })
-
-  it('falls back to the general hint when no message key matches', () => {
-    expect(
-      findHint(all, query({ message: { message: 'Other', messageCode: 'X' } })),
+      findHint(all, query({ message: { message: 'Other' } })),
     ).toMatchObject({ level: 'general', hint: { text: 'general' } })
   })
 
@@ -79,19 +58,17 @@ describe('priority', () => {
 
   it('does not depend on the order in the file', () => {
     const reversed = set(
-      entry('by code', '    messageCode: TITLE_BAD\n') +
-        entry('by text', '    messageText: Bad title\n') +
-        entry('general'),
+      entry('by text', '    messageText: Bad title\n') + entry('general'),
     )
-    expect(findHint(reversed, query({ message }))?.hint.text).toBe('by code')
+    expect(
+      findHint(reversed, query({ message: { message: 'Bad title' } }))?.hint
+        .text,
+    ).toBe('by text')
   })
 })
 
 describe('exact matching', () => {
-  const hints = set(
-    entry('t', '    messageText: Bad Title\n') +
-      entry('c', '    messageCode: Code-1\n'),
-  )
+  const hints = set(entry('t', '    messageText: Bad Title\n'))
 
   it.each([
     ['another case', 'bad title'],
@@ -102,28 +79,6 @@ describe('exact matching', () => {
     ['a regular expression', 'Bad .*'],
   ])('does not match %s of the message text', (_name, message) => {
     expect(findHint(hints, query({ message: { message } }))).toBeNull()
-  })
-
-  it.each([
-    ['another case', 'code-1'],
-    ['a substring', 'Code'],
-    ['surrounding spaces', 'Code-1 '],
-  ])('does not match %s of the message code', (_name, messageCode) => {
-    expect(
-      findHint(hints, query({ message: { message: 'x', messageCode } })),
-    ).toBeNull()
-  })
-
-  it('does not compare a code with a message text or the reverse', () => {
-    expect(
-      findHint(hints, query({ message: { message: 'Code-1' } })),
-    ).toBeNull()
-    expect(
-      findHint(
-        hints,
-        query({ message: { message: 'x', messageCode: 'Bad Title' } }),
-      ),
-    ).toBeNull()
   })
 
   it('matches the exact text, even with unusual characters', () => {
@@ -178,17 +133,15 @@ describe('scope', () => {
     ).toBe('any text')
   })
 
-  it('does not let a validator-less hint beat a more specific level of another kind', () => {
+  it('does not let a validator-less general hint beat a text hint of the validator', () => {
     const hints = set(
-      entry('any code', '    messageCode: C\n') +
+      entry('any') +
         entry(
           'service text',
           '    validator: csaf-service\n    messageText: M\n',
         ),
     )
-    expect(textOf(hints, { message: { message: 'M', messageCode: 'C' } })).toBe(
-      'any code',
-    )
+    expect(textOf(hints, { message: { message: 'M' } })).toBe('service text')
   })
 
   it('matches the schema check by its own section', () => {

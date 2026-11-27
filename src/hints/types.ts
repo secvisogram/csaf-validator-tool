@@ -11,8 +11,7 @@ export type Hint = {
   /** A catalogue section string such as `6.1.1`, or `schema`. */
   section: string
   validator?: ValidatorId
-  /** At most one of the two message keys is set. */
-  messageCode?: string
+  /** The validator's original message text, compared exactly. */
   messageText?: string
   text: string
 }
@@ -28,7 +27,6 @@ export type HintIssueCode =
   | 'wrongType'
   | 'unsupportedValue'
   | 'unknownSection'
-  | 'bothMessageKeys'
   | 'duplicate'
 
 export type HintIssue = {
