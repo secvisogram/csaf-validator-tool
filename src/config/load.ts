@@ -1,7 +1,8 @@
 import type { RuntimeConfigLoad } from './types.ts'
 import { validateRuntimeConfig } from './validate.ts'
 
-export const RUNTIME_CONFIG_PATH = '.well-known/appspecific/runtime-config.json'
+export const RUNTIME_CONFIG_PATH =
+  '.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json'
 
 /**
  * Resolved relative to the app's own location, never to the host root, so

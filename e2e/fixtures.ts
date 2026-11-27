@@ -42,7 +42,7 @@ export const test = base.extend<Fixtures>({
   runtimeConfig: async ({ page }, use) => {
     await use(async (body) => {
       await page.route(
-        '**/.well-known/appspecific/runtime-config.json',
+        '**/.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json',
         (route) =>
           route.fulfill({
             status: 200,

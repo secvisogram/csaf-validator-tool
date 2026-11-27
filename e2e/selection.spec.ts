@@ -141,7 +141,7 @@ test.describe('the test selection', () => {
 test.describe('a test that may reach external resources', () => {
   const setup = async (page: Page, serviceUrl: string) => {
     await page.route(
-      '**/.well-known/appspecific/runtime-config.json',
+      '**/.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json',
       (route) =>
         route.fulfill({
           status: 200,

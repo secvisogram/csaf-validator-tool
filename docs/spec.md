@@ -56,7 +56,7 @@ The csaf-rs CLI cannot be called from a browser and is not an adapter.
 
 | Communication partner                 | Channel / protocol             | Interface                                                                                                                                                     |
 | ------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Static host (GitHub Pages or gateway) | HTTPS or HTTP, static files    | App assets, `.well-known/appspecific/runtime-config.json` (optional), the YAML hint file. Normal static loads only.                                           |
+| Static host (GitHub Pages or gateway) | HTTPS or HTTP, static files    | App assets, `.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json` (optional), the YAML hint file. Normal static loads only.                   |
 | Document host                         | HTTP(S) `GET` from the browser | User-entered absolute `http:`/`https:` URL, fetched directly after an explicit Fetch action. Never proxied.                                                   |
 | `csaf-validator-lib`                  | In-process, Web Worker         | Functions of the exact locked library version, resolved from the catalogue ID by the naming rule.                                                             |
 | `@csaf-rs/csaf-rs@0.7.3`              | In-process, module Web Worker  | Package API verified against the exact version. A `NotFound` for a selected test is shown as an implementation gap.                                           |
@@ -146,7 +146,7 @@ The three steps are in-page state. There are no client-side routes.
 - The validator image is pinned in `compose.yaml` as `name:<version>@sha256:<digest>`. The digest is the pin and the tag only names it, with no `latest`. `src/adapters/service/reference.json` holds the version, and a test checks that the tag equals it. `npm run record:service -- <tag>` is the one way to change both. Its Docker health check probes `http://127.0.0.1:8082/health`. When the pin is deliberately updated, verify the `8082` listener, `/health`, and `/api/v1/*` contract.
 - App, gateway and `validator-js` startup do not depend on validator health or on `validator-rust`. If the validator is unhealthy, the UI stays available and reports the service failure.
 - The gateway resolves its upstream names per request. When a validator is stopped, `/api/v1/*`, `/rust/api/v1/*` and `/health` answer `502` with a JSON `message`. When it accepts the connection but does not answer in time, they answer `504` with a JSON `message`. Both are service failures, not test outcomes, and `/healthz` stays `200` so gateway readiness and upstream health are distinguishable.
-- A Compose-specific `.well-known/appspecific/runtime-config.json` selects `csaf-validator-service` by default and sets `services.javascript` to `http://127.0.0.1:8080` and `services.rust` to `http://127.0.0.1:8080/rust`, so requests are same-origin and need no CORS. The JavaScript service stays the default selection. It is kept separate from the Pages configuration, which is unchanged.
+- A Compose-specific `.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json` selects `csaf-validator-service` by default and sets `services.javascript` to `http://127.0.0.1:8080` and `services.rust` to `http://127.0.0.1:8080/rust`, so requests are same-origin and need no CORS. The JavaScript service stays the default selection. It is kept separate from the Pages configuration, which is unchanged.
 - `validator-rust` is in the default stack with no profile. The upstream project publishes no image, so Compose builds it from the commit-pinned `tools/csaf-rs` submodule with the repository `Dockerfile`, which is multi-stage with a distroless runtime. The image is not patched, no digest is used, and `CSAF_SERVICE__CORS__PERMISSIVE` and every other CORS setting stay unset, because the browser only talks to the same-origin gateway. It has no container `healthcheck`, because the image has no shell and is not wrapped. Diagnosis uses the proxied `/rust/api/v1/health`, `docker compose ps` and the logs. Nothing has `depends_on` it. No port is published for it. When it is stopped, built wrongly or unreachable, the Rust adapter shows a service failure, never a test result.
 - Operator documentation covers startup (`docker compose up -d`), the URL, status (`docker compose ps`), logs (`docker compose logs -f gateway validator-js validator-rust`), shutdown, updating the validator image, and troubleshooting. It also states that `docker compose up -d` needs the submodule (`git clone --recurse-submodules` or `git submodule update --init tools/csaf-rs`), that the first start builds the Rust service from source and takes several minutes, the error shown when the submodule is missing (the build cannot find the `Dockerfile`), the workaround `docker compose up -d app gateway validator-js`, and that a failed Rust build aborts `docker compose up -d`.
 
@@ -287,7 +287,7 @@ Partial results are retained. For browser execution, catalogue tests run individ
 
 ### Runtime configuration
 
-Optional JSON is loaded from `.well-known/appspecific/runtime-config.json`, resolved relative to the app path so Pages project paths work.
+Optional JSON is loaded from `.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json`, resolved relative to the app path so Pages project paths work.
 
 ```json
 {
@@ -460,6 +460,8 @@ The prototype illustrates the hierarchy and layout of the report only. The page 
 
 - Positive: predictable behavior and the same file mechanism for Pages and Compose.
 - Negative: one invalid field disables the whole file; this is deliberate.
+
+**Status note**: the file name follows the rules of the registered `appspecific` well-known URI: reverse DNS of a domain the application owns, plus an extra component and extension. It is `de.bsi.secvisogram.csaf-validator-tool.json`, the family prefix of Secvisogram's own file, which has a different schema and is not shared. The first release used `runtime-config.json`. It is no longer read, and there is no fallback.
 
 ### ADR 8: No telemetry, no persistence, inline remote disclosure
 

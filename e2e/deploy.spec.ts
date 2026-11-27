@@ -19,7 +19,8 @@ function watchRequests(page: Page) {
   return seen
 }
 
-const RUNTIME_CONFIG = '.well-known/appspecific/runtime-config.json'
+const RUNTIME_CONFIG =
+  '.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json'
 
 /** A completed run in which tests returned results, so the validator really ran. */
 async function expectResults(page: Page, validator: string) {
@@ -56,6 +57,10 @@ for (const site of SITES) {
       )
       // Pages ships no runtime configuration, so a 404 is the normal answer.
       expect(config?.status).toBe(404)
+      // The first release read `runtime-config.json`. It is no longer requested.
+      expect(
+        seen.filter((r) => r.url.pathname.endsWith('/runtime-config.json')),
+      ).toEqual([])
     })
 
     test('fetches its runtime configuration from the app path and applies it', async ({
