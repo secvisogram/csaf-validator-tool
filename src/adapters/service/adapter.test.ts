@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { RunEvent, RunRequest } from '../../validation/types.ts'
 import { SERVICE_TIMEOUT_MS, serviceAdapter } from './adapter.ts'
+import reference from './reference.json'
 
 const URL_BASE = 'https://validator.example/svc'
 
@@ -589,7 +590,9 @@ describe('availability and destination', () => {
   })
 
   it('names the service version its request was checked against', () => {
-    expect(serviceAdapter({ url: URL_BASE }).componentVersion).toBe('3.0.5')
+    expect(serviceAdapter({ url: URL_BASE }).componentVersion).toBe(
+      reference.version,
+    )
   })
 
   it('uses only POST /api/v1/validate, never the test list', async () => {

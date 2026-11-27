@@ -1,6 +1,5 @@
 {
   "package": "csaf-service 0.1.2 (csaf-rs workspace)",
-  "tag": "v0.7.3",
-  "commit": "cda82bfa4cf0b3e9e5a75ee7191ab31e035d2825",
-  "image": "sha256:7fbe3fbebe9516696d66454ed675a3ff31bf848b61add76f0e44c3b1491d7f54"
+  "version": "0.7.3",
+  "commit": "cda82bfa4cf0b3e9e5a75ee7191ab31e035d2825"
 }

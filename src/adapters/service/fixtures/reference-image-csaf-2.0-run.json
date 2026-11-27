@@ -1,6 +1,5 @@
 {
-  "image": "ghcr.io/secvisogram/csaf-validator-service@sha256:e09b8a2b7c7715cce3de2144d73789a06df85a3d116ff07229199060f2e6e5db",
-  "recorded": "2026-11-24",
+  "recorded": "2026-11-27",
   "request": {
     "tests": [
       {

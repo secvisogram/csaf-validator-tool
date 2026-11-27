@@ -33,7 +33,7 @@ const RUST_SERVICE: RemoteServiceProfile = {
     'validators.rust.referenceBuild',
   ],
   resultNoteKeys: ['validators.rust.flattenedResults'],
-  componentVersion: reference.tag,
+  componentVersion: reference.version,
   testName: bareSection,
   noUrlReasonKey: 'validators.rust.noUrl',
   noUrlMessage: 'No Rust service URL is configured, so nothing was sent.',

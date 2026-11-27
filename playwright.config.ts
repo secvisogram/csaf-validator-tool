@@ -19,7 +19,7 @@ export default defineConfig({
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
   ],
   webServer: SITES.map((site) => ({
-    command: `vite preview --base ${site.path} --port ${site.port} --strictPort --host 127.0.0.1`,
+    command: `vite preview --base ${site.path} --port ${site.port} --strictPort --host 127.0.0.1 --bypass-lock`,
     url: site.url,
     reuseExistingServer: false,
   })),
