@@ -2,10 +2,14 @@ import type { Page } from '@playwright/test'
 import {
   DOCUMENT_20,
   chooseValidator,
+  chooseVersion,
+  fetchUrl,
+  setServiceUrl,
+  useFile,
   expect,
   expectRunCompleted,
   openWithText,
-  runButton,
+  startRun,
   test,
 } from './fixtures.ts'
 import { serviceAnswer } from './service.ts'
@@ -60,7 +64,7 @@ test.describe('nothing is kept in the browser', () => {
   test('after loading the app', async ({ page, context }) => {
     await page.goto('./')
     await expect(
-      page.getByRole('heading', { name: 'Test selection' }),
+      page.getByRole('heading', { name: 'Provide a document' }),
     ).toBeVisible()
 
     expect(await stored(page)).toEqual(NOTHING)
@@ -70,23 +74,19 @@ test.describe('nothing is kept in the browser', () => {
   for (const [name, validator] of [
     ['the library', 'csaf-validator-lib, in this browser'],
     ['csaf-rs WebAssembly', 'csaf-rs (WASM), in this browser'],
-  ]) {
+  ] as const) {
     test(`after a run with ${name} and edits to every setting`, async ({
       page,
       context,
     }) => {
       await openWithText(page, DOCUMENT_20)
-      await chooseValidator(page, validator as string)
-      await page
-        .getByRole('radio', { name: 'CSAF 2.0 (OASIS Standard)' })
-        .check()
-      await page.getByRole('radio', { name: 'Detailed report' }).check()
-      await page
-        .getByLabel('JavaScript service URL', { exact: true })
-        .fill('http://127.0.0.1:9')
+      await chooseValidator(page, validator)
+      await chooseVersion(page, '2.0')
+      await setServiceUrl(page, 'JavaScript', 'http://127.0.0.1:9')
       await page.getByRole('checkbox', { name: /^Select 6\.1\.1 / }).uncheck()
-      await runButton(page).click()
+      await startRun(page)
       await expectRunCompleted(page)
+      await page.getByRole('tab', { name: 'Detailed report' }).click()
 
       expect(await stored(page)).toEqual(NOTHING)
       expect(await context.cookies()).toEqual([])
@@ -111,14 +111,13 @@ test.describe('nothing is kept in the browser', () => {
       defaults: { validator: 'csaf-validator-service' },
     })
     await page.goto('./')
-    await page.getByLabel('CSAF document file').setInputFiles({
+    await useFile(page, {
       name: 'a.json',
       mimeType: 'application/json',
       buffer: Buffer.from(DOCUMENT_20),
     })
-    await page.getByLabel('Document URL').fill(`${service.url}/doc.json`)
-    await page.getByRole('button', { name: 'Fetch' }).click()
-    await runButton(page).click()
+    await fetchUrl(page, `${service.url}/doc.json`)
+    await startRun(page)
     await expectRunCompleted(page)
 
     expect(await stored(page)).toEqual(NOTHING)
@@ -129,7 +128,9 @@ test.describe('nothing is kept in the browser', () => {
     await openWithText(page, DOCUMENT_20)
     await page.reload()
 
-    await expect(page.getByRole('region', { name: 'Document' })).toHaveCount(0)
+    await expect(
+      page.getByRole('region', { name: 'Document', exact: true }),
+    ).toHaveCount(0)
     await expect(page.getByLabel('CSAF document (JSON)')).toHaveValue('')
   })
 })
@@ -153,14 +154,14 @@ test.describe('the app talks only to its own origin and the chosen service', () 
   for (const validator of [
     'csaf-validator-lib, in this browser',
     'csaf-rs (WASM), in this browser',
-  ]) {
+  ] as const) {
     test(`a run with ${validator} makes no request but for the app files`, async ({
       page,
       requested,
     }) => {
       await openWithText(page, DOCUMENT_20)
       await chooseValidator(page, validator)
-      await runButton(page).click()
+      await startRun(page)
       await expectRunCompleted(page)
       await page.getByRole('tab', { name: 'Detailed report' }).click()
       await page.getByRole('tab', { name: 'Summary' }).click()
@@ -177,7 +178,7 @@ test.describe('the app talks only to its own origin and the chosen service', () 
   }) => {
     await openWithText(page, DOCUMENT_20)
     await chooseValidator(page, 'csaf-rs (WASM), in this browser')
-    await runButton(page).click()
+    await startRun(page)
     await expectRunCompleted(page)
 
     expect(requested.some((url) => /\/worker-[\w-]+\.js$/.test(url))).toBe(true)
@@ -198,7 +199,7 @@ test.describe('the app talks only to its own origin and the chosen service', () 
       defaults: { validator: 'csaf-validator-service' },
     })
     await openWithText(page, DOCUMENT_20)
-    await runButton(page).click()
+    await startRun(page)
     await expectRunCompleted(page)
 
     const app = origin(page.url())

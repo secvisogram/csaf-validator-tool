@@ -1,10 +1,13 @@
 import type { Page } from '@playwright/test'
 import {
   DOCUMENT_20,
+  chooseValidator,
+  goToStep,
+  useText,
   expect,
   expectRunCompleted,
   openWithText,
-  runButton,
+  startRun,
   runState,
   test,
 } from './fixtures.ts'
@@ -67,7 +70,7 @@ test.describe('a finished run', () => {
       defaults: { validator: 'csaf-validator-service' },
     })
     await openWithText(page, DOCUMENT_20)
-    await runButton(page).click()
+    await startRun(page)
     await expect(runState(page, 'Run completed')).toBeVisible()
   })
 
@@ -176,15 +179,16 @@ test('a new document discards the report of the previous one', async ({
     defaults: { validator: 'csaf-validator-service' },
   })
   await openWithText(page, DOCUMENT_20)
-  await runButton(page).click()
+  await startRun(page)
   await expect(page.getByRole('region', { name: 'Report' })).toBeVisible()
 
-  await page
-    .getByLabel('CSAF document (JSON)')
-    .fill('{"document":{"csaf_version":"2.0"}}')
-  await page.getByRole('button', { name: 'Use text' }).click()
+  await expect(page.getByRole('tab', { name: 'Summary' })).toBeVisible()
+
+  await useText(page, '{"document":{"csaf_version":"2.0"}}')
+  await goToStep(page, 'Run & report')
 
   await expect(page.getByRole('region', { name: 'Report' })).toHaveCount(0)
+  await expect(page.getByRole('tab', { name: 'Summary' })).toHaveCount(0)
 })
 
 test('a validator that skips tests is shown as skipped, not as valid', async ({
@@ -195,10 +199,8 @@ test('a validator that skips tests is shown as skipped, not as valid', async ({
     page,
     JSON.stringify({ document: { csaf_version: '2.0' } }),
   )
-  await page
-    .getByRole('radio', { name: 'csaf-rs (WASM), in this browser' })
-    .check()
-  await runButton(page).click()
+  await chooseValidator(page, 'csaf-rs (WASM), in this browser')
+  await startRun(page)
   await expectRunCompleted(page)
   await page.getByRole('tab', { name: 'Summary' }).click()
 

@@ -8,7 +8,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: 0,
   reporter: process.env.CI ? [['list'], ['github']] : 'list',
-  timeout: 120_000,
+  timeout: 60_000,
   use: { baseURL: SITES[0].url, trace: 'retain-on-failure' },
   // Chrome is the installed stable channel, not Playwright's bundled Chromium.
   projects: [

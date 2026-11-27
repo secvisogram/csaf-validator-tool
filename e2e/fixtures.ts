@@ -68,29 +68,110 @@ export const test = base.extend<Fixtures>({
 
 export { expect }
 
-/** Opens the app and provides the document as pasted text. */
+/** The steps of the wizard, reached through the rail as a user does. */
+export type StepTitle = 'Document' | 'Tests' | 'Run & report'
+
+export async function goToStep(page: Page, title: StepTitle) {
+  await page
+    .getByRole('navigation', { name: 'Steps' })
+    .getByRole('button', { name: new RegExp(`^${title}`) })
+    .click()
+}
+
+export type Source = 'Paste JSON' | 'Open a file' | 'Fetch from a URL'
+
+/** Shows the Document step with the input for this source. */
+export async function chooseSource(page: Page, source: Source) {
+  await goToStep(page, 'Document')
+  await page.getByRole('tab', { name: source }).click()
+}
+
+/** Opens the app and provides the document as pasted text. Loading it moves on to the Tests step. */
 export async function openWithText(page: Page, text: string) {
   await page.goto('./')
   await useText(page, text)
 }
 
 export async function useText(page: Page, text: string) {
+  await chooseSource(page, 'Paste JSON')
   await page.getByLabel('CSAF document (JSON)').fill(text)
   await page.getByRole('button', { name: 'Use text' }).click()
 }
 
-export const chooseValidator = (page: Page, name: string) =>
-  page.getByRole('radio', { name }).check()
+export async function useFile(
+  page: Page,
+  file: { name: string; mimeType: string; buffer: Buffer },
+) {
+  await chooseSource(page, 'Open a file')
+  await page.getByLabel('CSAF document file').setInputFiles(file)
+}
+
+export async function fetchUrl(page: Page, url: string) {
+  await chooseSource(page, 'Fetch from a URL')
+  await page.getByLabel('Document URL').fill(url)
+  await page.getByRole('button', { name: 'Fetch' }).click()
+}
+
+/** The Document step with the loaded document. */
+export async function documentSection(page: Page) {
+  await goToStep(page, 'Document')
+  return page.getByRole('region', { name: 'Document', exact: true })
+}
+
+const VALIDATOR_IDS = {
+  'csaf-validator-lib, in this browser': 'csaf-validator-lib',
+  'csaf-rs (WASM), in this browser': 'csaf-rs-wasm',
+  'csaf-validator-service (JavaScript service)': 'csaf-validator-service',
+  'csaf-service (Rust service)': 'csaf-service',
+} as const
+export type ValidatorName = keyof typeof VALIDATOR_IDS
+
+/** Selects the validator on the Tests step. */
+export async function chooseValidator(page: Page, name: ValidatorName) {
+  await goToStep(page, 'Tests')
+  await page
+    .getByLabel('Validator', { exact: true })
+    .selectOption(VALIDATOR_IDS[name])
+}
+
+/** Selects the CSAF version on the Tests step: the declared one, or 2.0 or 2.1 explicitly. */
+export async function chooseVersion(
+  page: Page,
+  version: 'document' | '2.0' | '2.1',
+) {
+  await goToStep(page, 'Tests')
+  await page.getByLabel('CSAF version', { exact: true }).selectOption(version)
+}
+
+/** Fills a service URL. The field sits in the collapsed "Service URLs" part of the Tests step. */
+export async function setServiceUrl(
+  page: Page,
+  service: 'JavaScript' | 'Rust',
+  url: string,
+) {
+  await goToStep(page, 'Tests')
+  const field = page.getByLabel(`${service} service URL`, { exact: true })
+  if (!(await field.isVisible())) {
+    await page.getByText('Service URLs', { exact: true }).click()
+  }
+  await field.fill(url)
+}
 
 export const runButton = (page: Page) =>
   page.getByRole('button', { name: 'Run selected tests' })
+
+/** Goes to the Run step and starts the run with the selection as it is. */
+export async function startRun(page: Page) {
+  await goToStep(page, 'Run & report')
+  await runButton(page).click()
+}
 
 /** The report state line of a run that has reached this phase. Library runs can take several seconds. */
 export const runState = (page: Page, phase: string) =>
   page.getByRole('status').filter({ hasText: phase })
 
 export const expectRunCompleted = (page: Page) =>
-  expect(runState(page, 'Run completed')).toBeVisible({ timeout: 60_000 })
+  expect(runState(page, 'Run completed')).toBeVisible({ timeout: 45_000 })
 
 /** A promise the test settles by hand, to hold a mock service's answer back. */
 export function deferred() {

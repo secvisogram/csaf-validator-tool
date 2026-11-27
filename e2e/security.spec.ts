@@ -1,10 +1,13 @@
 import type { Page } from '@playwright/test'
 import {
   DOCUMENT_20,
+  documentSection,
+  fetchUrl,
+  useFile,
   expect,
   expectRunCompleted,
   openWithText,
-  runButton,
+  startRun,
   test,
   useText,
 } from './fixtures.ts'
@@ -68,13 +71,13 @@ const hostileService: MockHandler = (request) => {
 test.describe('hostile strings are shown as text', () => {
   test('in document values and the document source', async ({ page }) => {
     await page.goto('./')
-    await page.getByLabel('CSAF document file').setInputFiles({
+    await useFile(page, {
       name: `${HTML}.json`,
       mimeType: 'application/json',
       buffer: Buffer.from(hostileDocument),
     })
 
-    const section = page.getByRole('region', { name: 'Document' })
+    const section = await documentSection(page)
     await expect(section).toContainText(`Source: file “${HTML}.json”`)
     await expect(section.locator('pre')).toContainText(SCRIPT)
     await expect(section.locator('pre')).toContainText(SCRIPT_URL)
@@ -83,8 +86,7 @@ test.describe('hostile strings are shown as text', () => {
 
   test('in an input error', async ({ page }) => {
     await page.goto('./')
-    await page.getByLabel('Document URL').fill(SCRIPT_URL)
-    await page.getByRole('button', { name: 'Fetch' }).click()
+    await fetchUrl(page, SCRIPT_URL)
 
     await expect(
       page.getByRole('alert').filter({ hasText: 'could not be used' }),
@@ -104,7 +106,7 @@ test.describe('hostile strings are shown as text', () => {
       defaults: { validator: 'csaf-validator-service' },
     })
     await openWithText(page, hostileDocument)
-    await runButton(page).click()
+    await startRun(page)
     await expectRunCompleted(page)
 
     await page.getByRole('tab', { name: 'All messages' }).click()
@@ -137,7 +139,7 @@ test.describe('hostile strings are shown as text', () => {
       defaults: { validator: 'csaf-validator-service' },
     })
     await openWithText(page, DOCUMENT_20)
-    await runButton(page).click()
+    await startRun(page)
 
     await expect(page.getByRole('alert')).toContainText(HTML)
     await expectNoInjectedMarkup(page)
@@ -169,7 +171,7 @@ test.describe('hostile strings are shown as text', () => {
       ].join('\n'),
     )
     await openWithText(page, DOCUMENT_20)
-    await runButton(page).click()
+    await startRun(page)
     await expectRunCompleted(page)
 
     const hint = page.locator('.hint-text').first()
@@ -218,7 +220,7 @@ test.describe('hostile strings are shown as text', () => {
       defaults: { validator: 'csaf-validator-service' },
     })
     await openWithText(page, hostileDocument)
-    await runButton(page).click()
+    await startRun(page)
     await expectRunCompleted(page)
 
     for (const tab of ['Summary', 'All messages', 'Detailed report']) {
@@ -237,13 +239,15 @@ test.describe('hostile strings are shown as text', () => {
     }
   })
 
-  test('a typed document keeps its text when it is run and reported', async ({
+  test('a hostile document is displayed unchanged, as text', async ({
     page,
   }) => {
     await page.goto('./')
     await useText(page, hostileDocument)
-    await expect(page.getByLabel('CSAF document (JSON)')).toHaveValue(
-      hostileDocument,
+
+    const section = await documentSection(page)
+    await expect(section.locator('pre')).toHaveText(
+      JSON.stringify(JSON.parse(hostileDocument), null, 2),
     )
     await expectNoInjectedMarkup(page)
   })
