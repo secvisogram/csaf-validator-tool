@@ -25,7 +25,7 @@ See [docs/spec.md](docs/spec.md) for the full specification (context and scope, 
 - Vite 8 and npm (Node 24, committed lockfile, `npm ci`)
 - i18next 27 with react-i18next 18 (English UI)
 - Vitest 5 for unit tests, with jsdom and Testing Library (development only) for component interaction tests
-- `@secvisogram/csaf-validator-lib` 3.0.3 (exact pin) as the in-browser validator, run in a module Web Worker
+- `@secvisogram/csaf-validator-lib` as the in-browser validator, run in a module Web Worker
 - yaml 2.9.1 (exact pin) for reading the supplemental hint file
 - `@csaf-rs/csaf-rs` 0.7.3 (exact pin, unpatched) as the in-browser WebAssembly validator, run in a module Web Worker
 - Ajv 8 (development only) for validating the catalogue data against its JSON schema in CI
@@ -253,7 +253,7 @@ The Vite build may print the same kind of externalization warnings for Node modu
 
 **Cancel.** Cancel aborts the browser request, keeps the state so far, and ignores a response that arrives later. Aborting does not guarantee that the service stops processing.
 
-**Reference build.** `src/adapters/service/reference.json` names the image `ghcr.io/secvisogram/csaf-validator-service@sha256:e09b8a2b7c7715cce3de2144d73789a06df85a3d116ff07229199060f2e6e5db` (service 3.0.5, which uses `csaf-validator-lib` 3.0.3). That image supports CSAF 2.0 only. A service you connect may be another version.
+**Reference build.** `src/adapters/service/reference.json` names the image `ghcr.io/secvisogram/csaf-validator-service@sha256:e09b8a2b7c7715cce3de2144d73789a06df85a3d116ff07229199060f2e6e5db`. That image supports CSAF 2.0 only. A service you connect may be another version.
 
 - CSAF 2.0: the derived names equal the library's export names, and the service returns each result under the name it was sent with. The schema check is the plain `csaf_2_0`, not `csaf_2_0_strict`. The spell check 6.3.8 runs on the service host, unlike in the browser.
 - CSAF 2.1: an explicit selection is sent like any other, with the disclosure that the service supports CSAF 2.0 only. The reference image does not know the 2.1-only names and answers a request that contains one with HTTP 400, which is shown as a failed run, so a CSAF 2.1 run can return no results at all. Names it does know (such as `mandatoryTest_6_1_1`) run its CSAF 2.0 implementation, so those results are not confirmed to be the CSAF 2.1 checks.

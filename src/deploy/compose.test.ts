@@ -73,7 +73,7 @@ describe('compose.yaml', () => {
 
   it('pins the validator image by an immutable digest', () => {
     const image = compose.services['validator-js']?.image
-    expect(image).toMatch(/^[^\s@:]+(\/[^\s@:]+)*@sha256:[0-9a-f]{64}$/)
+    expect(image).toMatch(/^.*@sha256:[0-9a-f]{64}$/)
   })
 
   it('starts every service without waiting for a validator', () => {

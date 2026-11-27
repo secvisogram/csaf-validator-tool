@@ -13,7 +13,7 @@ services:
     # The reviewed, immutable digest (csaf-validator-service 3.0.5, linux/amd64,
     # resolved 2026-11-15). Never built or patched here. See README.md before
     # changing it.
-    image: ghcr.io/secvisogram/csaf-validator-service@sha256:e09b8a2b7c7715cce3de2144d73789a06df85a3d116ff07229199060f2e6e5db
+    image: ghcr.io/secvisogram/csaf-validator-service:3.0.6@sha256:2a4a76039ab5091c84c30d6983f632f3f1e0ed6727d994edc81e6060852fbcf7
     networks: [private]
     restart: unless-stopped
 
