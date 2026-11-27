@@ -125,7 +125,7 @@ Every change to the catalogue is a reviewed data update:
 
 ## Runtime configuration
 
-A deployment can set service endpoints and startup defaults without rebuilding the app. The app fetches an optional JSON file at `.well-known/appspecific/runtime-config.json`, resolved relative to the page so it works at the app root and under a GitHub Pages project path. Serve the app with a trailing slash on its directory URL.
+A deployment can set service endpoints and startup defaults without rebuilding the app. The app fetches an optional JSON file at `.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json`, resolved relative to the page so it works at the app root and under a GitHub Pages project path. Serve the app with a trailing slash on its directory URL.
 
 ```json
 {
@@ -298,7 +298,7 @@ The gateway proxies nothing else. Document URLs entered in the app are fetched b
 
 When a validator is stopped or its name cannot be resolved, `/api/v1/*`, `/rust/api/v1/*` and `/health` answer `502` with `{"message":"The validator service is not reachable through the gateway."}`. When it accepts the connection but does not answer in time (5 s to connect, 10 s on `/health`, 130 s on the API routes), they answer `504` with `{"message":"The validator service did not answer through the gateway in time."}`. The app stays usable and shows the message as a failed run. `/healthz` still answers `200`, so the two checks tell the gateway and the validator apart.
 
-The `app` image contains `.well-known/appspecific/runtime-config.json` from `deploy/app/runtime-config.json`. It selects `csaf-validator-service` and sets `services.javascript` to `http://127.0.0.1:8080` and `services.rust` to `http://127.0.0.1:8080/rust`. The file is not in `public/`, so the GitHub Pages build never contains it.
+The `app` image contains `.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json` from `deploy/app/runtime-config.json`. It selects `csaf-validator-service` and sets `services.javascript` to `http://127.0.0.1:8080` and `services.rust` to `http://127.0.0.1:8080/rust`. The file is not in `public/`, so the GitHub Pages build never contains it.
 
 ### The Rust service
 
@@ -330,7 +330,7 @@ The pin is changed only after a review:
 | `docker compose up -d` fails on `validator-rust` | The submodule is missing or the Rust build failed. Run `git submodule update --init tools/csaf-rs`, or start without it: `docker compose up -d app gateway validator-js`.                                  |
 | A Rust run fails with `HTTP 502` or `504`        | `validator-rust` is stopped or hung. Check `docker compose ps`, `docker compose logs validator-rust` and `curl -i http://127.0.0.1:8080/rust/api/v1/health`.                                               |
 | The run fails after 120 s                        | The app aborts a request after 120 s. Network-enabled tests can be slow.                                                                                                                                   |
-| The app does not use the service                 | Open `/.well-known/appspecific/runtime-config.json` on the gateway. A runtime configuration notice in the app lists any problem.                                                                           |
+| The app does not use the service                 | Open `/.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json` on the gateway. A runtime configuration notice in the app lists any problem.                                                   |
 | A change to the app or the gateway has no effect | Run `docker compose up -d --build`.                                                                                                                                                                        |
 
 ### Smoke test

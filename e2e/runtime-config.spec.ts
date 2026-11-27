@@ -220,8 +220,9 @@ test('a valid part of a rejected file is not used', async ({
 test('a server error for the file is reported and the defaults apply', async ({
   page,
 }) => {
-  await page.route('**/.well-known/appspecific/runtime-config.json', (route) =>
-    route.fulfill({ status: 500, body: 'oops' }),
+  await page.route(
+    '**/.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json',
+    (route) => route.fulfill({ status: 500, body: 'oops' }),
   )
   await openWithText(page, minimalDocument())
 
@@ -232,8 +233,9 @@ test('a server error for the file is reported and the defaults apply', async ({
 test('an unreachable file is reported and the defaults apply', async ({
   page,
 }) => {
-  await page.route('**/.well-known/appspecific/runtime-config.json', (route) =>
-    route.abort(),
+  await page.route(
+    '**/.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json',
+    (route) => route.abort(),
   )
   await openWithText(page, minimalDocument())
 

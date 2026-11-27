@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { parse } from 'yaml'
 import { describe, expect, it } from 'vitest'
 import reference from '../adapters/service/reference.json'
+import { RUNTIME_CONFIG_PATH } from '../config/load.ts'
 
 import { read, root } from './files.ts'
 
@@ -133,6 +134,14 @@ describe('validator-rust', () => {
         .split('\n')
         .map((line) => line.trim()),
     ).toContain('tools')
+  })
+})
+
+describe('app image', () => {
+  it('serves the Compose runtime config at the path the app requests', () => {
+    expect(read('deploy/app/Dockerfile')).toContain(
+      `COPY deploy/app/runtime-config.json dist/${RUNTIME_CONFIG_PATH}\n`,
+    )
   })
 })
 

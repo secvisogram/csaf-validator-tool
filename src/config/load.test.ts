@@ -11,19 +11,19 @@ function respond(body: string, init: ResponseInit = {}): typeof fetch {
 describe('runtimeConfigUrl', () => {
   it('resolves under the app root', () => {
     expect(runtimeConfigUrl(ROOT)).toBe(
-      'http://127.0.0.1:8080/.well-known/appspecific/runtime-config.json',
+      'http://127.0.0.1:8080/.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json',
     )
   })
 
   it('resolves under a GitHub Pages project subpath, not the host root', () => {
     expect(runtimeConfigUrl(PAGES)).toBe(
-      'https://secvisogram.github.io/csaf-validator-tool/.well-known/appspecific/runtime-config.json',
+      'https://secvisogram.github.io/csaf-validator-tool/.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json',
     )
   })
 
   it('resolves under a deeper subpath', () => {
     expect(runtimeConfigUrl('https://example.org/tools/csaf/validator/')).toBe(
-      'https://example.org/tools/csaf/validator/.well-known/appspecific/runtime-config.json',
+      'https://example.org/tools/csaf/validator/.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json',
     )
   })
 
@@ -43,10 +43,10 @@ describe('loadRuntimeConfig', () => {
     await loadRuntimeConfig(ROOT, { fetch: root })
     await loadRuntimeConfig(PAGES, { fetch: pages })
     expect(vi.mocked(root).mock.calls[0]?.[0]).toBe(
-      'http://127.0.0.1:8080/.well-known/appspecific/runtime-config.json',
+      'http://127.0.0.1:8080/.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json',
     )
     expect(vi.mocked(pages).mock.calls[0]?.[0]).toBe(
-      'https://secvisogram.github.io/csaf-validator-tool/.well-known/appspecific/runtime-config.json',
+      'https://secvisogram.github.io/csaf-validator-tool/.well-known/appspecific/de.bsi.secvisogram.csaf-validator-tool.json',
     )
   })
 
