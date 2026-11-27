@@ -30,7 +30,7 @@ export const SectionCell: React.FC<{ row: ReportRow }> = ({ row }) => {
 
 export const MessageList: React.FC<{
   messages: ReportMessage[]
-  /** The hint that matches a message by its exact code or text. */
+  /** The hint that matches a message by its exact text. */
   hintFor?: (message: ReportMessage) => HintMatch | null
 }> = ({ messages, hintFor }) => {
   const { t } = useTranslation()

@@ -315,11 +315,11 @@ Optional JSON is loaded from `.well-known/appspecific/runtime-config.json`, reso
 ### Hints
 
 - Supplemental hints are stored in a separate, editable YAML file. They are explanatory content, not validation results, and never change results, run states, or validity counts.
-- A hint is keyed by CSAF version and section. A general test hint has only these keys. A validator-message hint additionally has exactly one message key: the validator's stable `messageCode` where it supplies one, otherwise its original `messageText`. Any hint may also name a validator, so that it applies to runs of that validator only. Without one it applies to all validators.
+- A hint is keyed by CSAF version and section. A general test hint has only these keys. A validator-message hint additionally has a `messageText`: the validator's original message text. Any hint may also name a validator, so that it applies to runs of that validator only. Without one it applies to all validators.
 - Matching uses exact, case-sensitive string equality against the original, unmodified validator value. There is no substring, regular-expression, fuzzy, or translated-text matching, and no normalization.
-- Precedence: exact stable-code hint, exact message-text hint, general test hint.
+- Precedence: exact message-text hint, then general test hint.
 - A hint with a validator wins over a hint without one at the same precedence level.
-- Hint identities (version, section, validator or none, and message key or none) must be unique. YAML order never decides which hint is shown.
+- Hint identities (version, section, validator or none, and message text or none) must be unique. YAML order never decides which hint is shown.
 - The file is validated against a schema at load time. A malformed file or duplicate identity rejects the whole file with a clear warning, and validation and reporting continue without hints.
 
 ```yaml
@@ -327,12 +327,6 @@ hints:
   - csafVersion: '2.1'
     section: '6.3.8'
     text: 'General guidance for this test.'
-
-  - csafVersion: '2.1'
-    section: '6.3.8'
-    validator: csaf-validator-service
-    messageCode: SPELLING_ERROR
-    text: 'Validator-specific guidance for this message.'
 
   - csafVersion: '2.1'
     section: '6.3.8'
@@ -536,7 +530,7 @@ The prototype illustrates the hierarchy and layout of the report only. The page 
 
 **Context**: Contributors should be able to add guidance for specific tests and validator messages without coupling it to fragile rendered text or to application code.
 
-**Decision**: Store hints in a separate editable YAML file with exact keys (version, section, optionally validator and one message key), a fixed precedence, unique identities, and whole-file rejection with a warning on any invalid content. Translated UI strings are never keys.
+**Decision**: Store hints in a separate editable YAML file with exact keys (version, section, optionally validator and a message text), a fixed precedence, unique identities, and whole-file rejection with a warning on any invalid content. Translated UI strings are never keys.
 
 **Consequences**:
 

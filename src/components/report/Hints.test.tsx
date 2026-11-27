@@ -35,7 +35,7 @@ const events: RunEvent[] = [
   ok('csaf-2.0/6.1.1'),
   failing(
     'csaf-2.0/6.1.2',
-    { message: 'Title is bad', messageCode: 'TITLE_BAD', instancePath: '/a' },
+    { message: 'Title is bad', instancePath: '/a' },
     { message: 'Exact text', instancePath: '/b' },
     { message: 'Something else', instancePath: '/c' },
     { message: 'Another one', instancePath: '/d' },
@@ -72,8 +72,8 @@ hints:
     text: 'General guidance for 6.1.2.'
   - csafVersion: '2.0'
     section: '6.1.2'
-    messageCode: TITLE_BAD
-    text: 'Code guidance.'
+    messageText: Title is bad
+    text: 'Title guidance.'
   - csafVersion: '2.0'
     section: '6.1.2'
     messageText: Exact text
@@ -109,11 +109,11 @@ describe('hints in the Detailed report', () => {
     expect(row.textContent).toContain('General guidance for 6.1.2.')
   })
 
-  it('shows the hint of a matching code and of a matching text beside their own message', () => {
+  it('shows the hint of a matching text beside its own message', () => {
     const row = rowOf(detailed(hint), 'csaf-2.0/6.1.2')
     const items = [...row.querySelectorAll('ul.messages > li')]
     expect(items[0]?.textContent).toContain('Title is bad')
-    expect(items[0]?.textContent).toContain('Code guidance.')
+    expect(items[0]?.textContent).toContain('Title guidance.')
     expect(items[0]?.textContent).not.toContain('Text guidance.')
     expect(items[1]?.textContent).toContain('Text guidance.')
   })
@@ -157,7 +157,7 @@ describe('hints in All messages', () => {
       ...container.querySelectorAll('tr[data-row-id="csaf-2.0/6.1.2"]'),
     ]
     expect(cells[0]?.textContent).toContain('Title is bad')
-    expect(cells[0]?.textContent).toContain('Code guidance.')
+    expect(cells[0]?.textContent).toContain('Title guidance.')
     expect(cells[1]?.textContent).toContain('Exact text')
     expect(cells[1]?.textContent).toContain('Text guidance.')
   })

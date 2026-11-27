@@ -11,17 +11,14 @@
 #   text         required  the hint
 #   validator    optional  csaf-validator-lib, csaf-validator-service,
 #                          csaf-service or csaf-rs-wasm
-#   messageCode  optional  the validator's stable message code, compared exactly
 #   messageText  optional  the validator's original message text, compared
 #                          exactly and case-sensitively, without normalization
-# At most one of messageCode and messageText may be set.
 #
-# Identity: csafVersion + section + validator (or none) + messageCode or
-# messageText (or none) must be unique. The order in this file does not matter.
+# Identity: csafVersion + section + validator (or none) + messageText (or
+# none) must be unique. The order in this file does not matter.
 #
-# Which hint is shown for a finding: the exact messageCode, then the exact
-# messageText, then the general hint of the test (no message key). A hint with
-# a validator applies to that validator only and wins over one without.
+# Which hint is shown for a finding: the exact messageText, then the general
+# hint of the test (no messageText). A hint with a validator applies to that validator only and wins over one without.
 #
 # Example (remove the leading # to use it):
 #
