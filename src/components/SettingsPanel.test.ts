@@ -29,44 +29,63 @@ describe('SettingsPanel', () => {
     expect(markup).not.toContain('not implemented')
   })
 
-  it('shows the Rust service as unavailable until its URL is entered, then as available', () => {
-    const reason = /Unavailable: Enter a Rust service URL/
-    expect(markup).toMatch(reason)
+  it('marks the validators that cannot be used until their URL is entered', () => {
+    const option = (html: string, label: string) =>
+      html.split(label)[1]?.split('</option>')[0] ?? ''
+    expect(option(markup, 'csaf-service (Rust service)')).toContain(
+      '(unavailable)',
+    )
+    expect(
+      option(markup, 'csaf-validator-service (JavaScript service)'),
+    ).toContain('(unavailable)')
     const configured = render({
       ...BUILT_IN_DEFAULTS,
-      services: { javascript: null, rust: 'http://127.0.0.1:8082' },
+      services: { javascript: 'http://127.0.0.1:8080', rust: 'http://r.test' },
     })
-    expect(configured).not.toMatch(reason)
+    expect(option(configured, 'csaf-service (Rust service)')).not.toContain(
+      '(unavailable)',
+    )
+    expect(
+      option(configured, 'csaf-validator-service (JavaScript service)'),
+    ).not.toContain('(unavailable)')
   })
 
-  it('shows the JavaScript service as unavailable until a URL is entered, then as available', () => {
-    const reason = /Unavailable: Enter a JavaScript service URL/
-    expect(markup).toMatch(reason)
+  it('gives the reason when the selected validator is unavailable, and not otherwise', () => {
+    const rust = render({ ...BUILT_IN_DEFAULTS, validator: 'csaf-service' })
+    expect(rust).toMatch(/Unavailable: Enter a Rust service URL/)
+    const javascript = render({
+      ...BUILT_IN_DEFAULTS,
+      validator: 'csaf-validator-service',
+    })
+    expect(javascript).toMatch(/Unavailable: Enter a JavaScript service URL/)
+    expect(markup).not.toMatch(/Unavailable:/)
     const configured = render({
       ...BUILT_IN_DEFAULTS,
-      services: { javascript: 'http://127.0.0.1:8080', rust: null },
+      validator: 'csaf-service',
+      services: { javascript: null, rust: 'http://127.0.0.1:8082' },
     })
-    expect(configured).not.toMatch(reason)
+    expect(configured).not.toMatch(/Unavailable:/)
   })
 
   it('does not mark the implemented validators as unavailable', () => {
     const entryOf = (label: string) =>
-      markup.split(label)[1]?.split('</label>')[0] ?? ''
-    expect(entryOf('csaf-validator-lib')).not.toContain('Unavailable')
+      markup.split(label)[1]?.split('</option>')[0] ?? ''
+    expect(entryOf('csaf-validator-lib')).not.toContain('unavailable')
     expect(entryOf('csaf-rs (WASM), in this browser')).not.toContain(
-      'Unavailable',
+      'unavailable',
     )
   })
 
-  it('offers the CSAF version choice, the report views and both service URLs', () => {
+  it('offers the CSAF version choice and both service URLs', () => {
     expect(markup).toContain('Use the version declared in the document')
     expect(markup).toContain('CSAF 2.0 (OASIS Standard)')
     expect(markup).toContain('CSAF 2.1 (experimental CSD04)')
-    expect(markup).toContain('Summary')
-    expect(markup).toContain('All messages')
-    expect(markup).toContain('Detailed report')
     expect(markup).toContain('JavaScript service URL')
     expect(markup).toContain('Rust service URL')
+  })
+
+  it('leaves the report views to the toolbar', () => {
+    expect(markup).not.toContain('Detailed report')
   })
 
   it('shows the effective settings as the starting values', () => {
@@ -78,9 +97,10 @@ describe('SettingsPanel', () => {
     }
     const html = render(configured)
     expect(html).toContain('value="http://127.0.0.1:8080"')
-    expect(html).toMatch(/name="validator"[^>]*checked=""[^>]*/)
-    const checked = html.match(/<input[^>]*checked=""[^>]*>/g) ?? []
-    expect(checked).toHaveLength(3)
+    const selected = html.match(/<option[^>]*selected=""[^>]*>[^<]*/g) ?? []
+    expect(selected).toHaveLength(2)
+    expect(selected.join()).toContain('csaf-service (Rust service)')
+    expect(selected.join()).toContain('CSAF 2.1 (experimental CSD04)')
   })
 
   it('says that changes last for this session only', () => {

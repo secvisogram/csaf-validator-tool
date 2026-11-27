@@ -1,10 +1,13 @@
 export default {
   app: {
     title: 'CSAF Validator Tool',
+    loading: 'Loading the configuration…',
     intro:
       'Provide a CSAF document as pasted JSON, a local file, or a URL. The document stays in this page and is not stored.',
   },
   input: {
+    heading: 'Provide a document',
+    sourceLabel: 'Document source',
     textHeading: 'Paste JSON',
     textLabel: 'CSAF document (JSON)',
     textSubmit: 'Use text',
@@ -52,6 +55,7 @@ export default {
       'csaf-service': 'csaf-service (Rust service)',
     },
     unavailable: 'Unavailable: {{reason}}',
+    unavailableShort: 'unavailable',
     notImplemented:
       'This validator is not implemented in this version of the tool yet.',
     library: {
@@ -92,6 +96,46 @@ export default {
       referenceVersion:
         'The reference build is csaf-validator-service {{version}}. Test names and the response mapping were checked against it only. The tool does not check which version the configured service is, and it may differ.',
     },
+  },
+  wizard: {
+    label: 'Steps',
+    back: '← Back',
+    continue: 'Continue →',
+    steps: {
+      document: {
+        title: 'Document',
+        prompt: 'Choose a document',
+        source: { text: 'Pasted JSON', file: '{{name}}', url: '{{url}}' },
+        summary: '{{source}}',
+        summaryVersion: '{{source}} · CSAF {{version}}',
+      },
+      tests: {
+        title: 'Tests',
+        prompt: 'Validator, version, tests',
+        summary: '{{validator}} · {{selected}} of {{total}} tests',
+      },
+      run: {
+        title: 'Run & report',
+        prompt: 'Not run yet',
+        phase: {
+          running: 'In progress',
+          completed: 'Finished',
+          cancelled: 'Cancelled',
+          failed: 'Failed',
+        },
+      },
+    },
+  },
+  toolbar: {
+    reportView: 'Report view',
+    noRun: 'No run yet',
+    reportMessages: 'Returned messages',
+    errors_one: '{{count}} error',
+    errors_other: '{{count}} errors',
+    warnings_one: '{{count}} warning',
+    warnings_other: '{{count}} warnings',
+    infos_one: '{{count}} info',
+    infos_other: '{{count}} info',
   },
   settings: {
     heading: 'Settings for this session',

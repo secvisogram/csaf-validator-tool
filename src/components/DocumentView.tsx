@@ -29,8 +29,10 @@ export const DocumentView: React.FC<{ loaded: LoadedDocument }> = ({
       {version.status === 'missing' && (
         <p role="alert">{t('document.version.missing')}</p>
       )}
-      <h3>{t('document.contents')}</h3>
-      <pre>{JSON.stringify(loaded.document, null, 2)}</pre>
+      <details>
+        <summary>{t('document.contents')}</summary>
+        <pre>{JSON.stringify(loaded.document, null, 2)}</pre>
+      </details>
     </section>
   )
 }

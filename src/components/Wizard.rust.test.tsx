@@ -12,7 +12,8 @@ import '../i18n/i18n.ts'
 import { mergeEdits, resolveSettings } from '../config/settings.ts'
 import type { SessionEdits } from '../config/types.ts'
 import { loadFromText } from '../intake/loadDocument.ts'
-import { Workbench } from './Workbench.tsx'
+import { goToRun, goToTests, runButton } from './wizard/navigation.testing.ts'
+import { Wizard } from './wizard/Wizard.tsx'
 
 const document20 = {
   document: { csaf_version: '2.0', title: 'Fixture document' },
@@ -32,8 +33,9 @@ function Harness(props: { document: unknown; edits?: SessionEdits }) {
   })
   const settings = resolveSettings(null, edits)
   return (
-    <Workbench
-      loaded={loaded(props.document)}
+    <Wizard
+      result={{ ok: true, value: loaded(props.document) }}
+      onResult={() => {}}
       settings={settings}
       onEdit={(edit) => setEdits((previous) => mergeEdits(previous, edit))}
     />
@@ -51,12 +53,12 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-const enterUrl = (url: string) =>
+const enterUrl = (url: string) => {
+  goToTests()
   fireEvent.change(screen.getByLabelText('Rust service URL'), {
     target: { value: url },
   })
-const runButton = () =>
-  screen.getByRole('button', { name: 'Run selected tests' })
+}
 const rowStatus = (id: string) =>
   document
     .querySelector(`tr[data-status][data-row-id="${id}"]`)
@@ -65,14 +67,14 @@ const rowStatus = (id: string) =>
 describe('the Rust service in the app', () => {
   it('is unavailable until its own URL is entered, then shows the destination and the limitations', () => {
     render(<Harness document={document20} />)
+    expect(runButton()).toHaveProperty('disabled', true)
     expect(screen.getByRole('alert').textContent).toMatch(
       /Enter a Rust service URL/,
     )
-    expect(runButton()).toHaveProperty('disabled', true)
 
     enterUrl('http://127.0.0.1:8082')
-    expect(screen.queryByRole('alert')).toBeNull()
     expect(runButton()).toHaveProperty('disabled', false)
+    expect(screen.queryByRole('alert')).toBeNull()
     expect(
       screen.getByRole('region', { name: 'Where the document goes' })
         .textContent,
@@ -141,6 +143,10 @@ describe('the Rust service in the app', () => {
   it('holds back no selected test, such as the spell check 6.3.8, because it consults no list', () => {
     render(<Harness document={document20} />)
     enterUrl('http://127.0.0.1:8082')
+    goToRun()
+    expect(
+      screen.getByRole('button', { name: 'Run selected tests' }),
+    ).toBeTruthy()
     expect(document.querySelector('.cannot-run')).toBeNull()
     expect(screen.queryByText(/selected tests cannot run/)).toBeNull()
   })

@@ -1,11 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { DocumentInput } from './components/DocumentInput.tsx'
-import { DocumentView } from './components/DocumentView.tsx'
-import { IntakeErrorMessage } from './components/IntakeErrorMessage.tsx'
-import { Workbench } from './components/Workbench.tsx'
 import { HintsNotice } from './components/HintsNotice.tsx'
 import { RuntimeConfigNotice } from './components/RuntimeConfigNotice.tsx'
+import { Wizard } from './components/wizard/Wizard.tsx'
 import { useSettings } from './config/useSettings.ts'
 import { useHints } from './hints/useHints.ts'
 import type { IntakeResult, LoadedDocument } from './intake/types.ts'
@@ -19,25 +16,32 @@ export const App: React.FC = () => {
   const { runtime, settings, edit } = useSettings()
   const hints = useHints()
 
+  if (runtime === null) {
+    return (
+      <main className="app-loading">
+        <h1>{t('app.title')}</h1>
+        <p role="status">{t('app.loading')}</p>
+      </main>
+    )
+  }
+
   return (
-    <main>
-      <h1>{t('app.title')}</h1>
-      <p>{t('app.intro')}</p>
-      {runtime?.status === 'failed' && (
-        <RuntimeConfigNotice problem={runtime.problem} />
-      )}
-      {hints?.status === 'failed' && <HintsNotice problem={hints.problem} />}
-      <DocumentInput onResult={setResult} />
-      {result && !result.ok && <IntakeErrorMessage error={result.error} />}
-      {result?.ok && <DocumentView loaded={result.value} />}
-      {runtime !== null && (
-        <Workbench
-          loaded={result?.ok ? result.value : null}
-          settings={settings}
-          onEdit={edit}
-          {...(hints?.status === 'loaded' && { hints: hints.hints })}
-        />
-      )}
-    </main>
+    <Wizard
+      result={result}
+      onResult={setResult}
+      settings={settings}
+      onEdit={edit}
+      {...(hints?.status === 'loaded' && { hints: hints.hints })}
+      notices={
+        <>
+          {runtime.status === 'failed' && (
+            <RuntimeConfigNotice problem={runtime.problem} />
+          )}
+          {hints?.status === 'failed' && (
+            <HintsNotice problem={hints.problem} />
+          )}
+        </>
+      }
+    />
   )
 }

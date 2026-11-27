@@ -13,7 +13,8 @@ import '../i18n/i18n.ts'
 import { mergeEdits, resolveSettings } from '../config/settings.ts'
 import type { RuntimeConfigLoad, SessionEdits } from '../config/types.ts'
 import { loadFromText } from '../intake/loadDocument.ts'
-import { Workbench } from './Workbench.tsx'
+import { goToRun, goToTests, runButton } from './wizard/navigation.testing.ts'
+import { Wizard } from './wizard/Wizard.tsx'
 
 const document20 = { document: { csaf_version: '2.0' } }
 const document21 = { document: { csaf_version: '2.1' } }
@@ -37,8 +38,9 @@ function Harness(props: {
   })
   const settings = resolveSettings(props.runtime ?? null, edits)
   return (
-    <Workbench
-      loaded={loaded(props.document)}
+    <Wizard
+      result={{ ok: true, value: loaded(props.document) }}
+      onResult={() => {}}
       settings={settings}
       onEdit={(edit) => setEdits((previous) => mergeEdits(previous, edit))}
     />
@@ -56,12 +58,12 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-const enterUrl = (url: string) =>
+const enterUrl = (url: string) => {
+  goToTests()
   fireEvent.change(screen.getByLabelText('JavaScript service URL'), {
     target: { value: url },
   })
-const runButton = () =>
-  screen.getByRole('button', { name: 'Run selected tests' })
+}
 
 const serviceTest = (name: string, over: Record<string, unknown> = {}) => ({
   name,
@@ -84,19 +86,19 @@ const answer = (body: unknown, init: ResponseInit = {}) =>
 describe('the JavaScript service in the app', () => {
   it('is unavailable until a URL is entered in the session controls', () => {
     render(<Harness document={document20} />)
+    expect(runButton()).toHaveProperty('disabled', true)
     expect(
       screen.getAllByRole('alert').map((node) => node.textContent),
     ).toEqual([expect.stringMatching(/Enter a JavaScript service URL/)])
-    expect(runButton()).toHaveProperty('disabled', true)
 
     enterUrl('https://validator.example/svc/')
+    expect(runButton()).toHaveProperty('disabled', false)
     expect(screen.queryByRole('alert')).toBeNull()
     expect(
       screen.getByText(
         /reference build is csaf-validator-service 3\.0\.5.*may differ/,
       ),
     ).toBeTruthy()
-    expect(runButton()).toHaveProperty('disabled', false)
     expect(
       screen.getByRole('region', { name: 'Where the document goes' })
         .textContent,
@@ -116,6 +118,7 @@ describe('the JavaScript service in the app', () => {
         }}
       />,
     )
+    goToRun()
     expect(
       screen.getByRole('region', { name: 'Where the document goes' })
         .textContent,
@@ -167,6 +170,7 @@ describe('the JavaScript service in the app', () => {
   it('sends an explicitly selected CSAF 2.1 request like any other, and says beforehand that the service supports CSAF 2.0 only', async () => {
     render(<Harness document={document21} />)
     enterUrl('https://validator.example')
+    goToRun()
     expect(screen.getByText(/supports CSAF 2\.0 only/)).toBeTruthy()
     answer({ isValid: true, tests: [] })
     fireEvent.click(runButton())

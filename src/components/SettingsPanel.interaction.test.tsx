@@ -16,20 +16,18 @@ function setup() {
 describe('session edits', () => {
   it('edits the validator, including one that is not implemented', () => {
     const onEdit = setup()
-    fireEvent.click(screen.getByLabelText(/csaf-rs \(WASM\)/))
+    fireEvent.change(screen.getByLabelText('Validator'), {
+      target: { value: 'csaf-rs-wasm' },
+    })
     expect(onEdit).toHaveBeenCalledWith({ validator: 'csaf-rs-wasm' })
   })
 
   it('edits the CSAF version', () => {
     const onEdit = setup()
-    fireEvent.click(screen.getByLabelText('CSAF 2.1 (experimental CSD04)'))
+    fireEvent.change(screen.getByLabelText('CSAF version'), {
+      target: { value: '2.1' },
+    })
     expect(onEdit).toHaveBeenCalledWith({ csafVersion: '2.1' })
-  })
-
-  it('edits the report view', () => {
-    const onEdit = setup()
-    fireEvent.click(screen.getByLabelText('Detailed report'))
-    expect(onEdit).toHaveBeenCalledWith({ reportView: 'detailed' })
   })
 
   it('applies a valid service URL in normalized form', () => {

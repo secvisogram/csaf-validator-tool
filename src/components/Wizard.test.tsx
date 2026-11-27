@@ -1,5 +1,12 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '../i18n/i18n.ts'
 import { BUILT_IN_DEFAULTS } from '../config/settings.ts'
@@ -45,7 +52,9 @@ vi.mock('../adapters/index.ts', () => ({
   }),
 }))
 
-const { Workbench } = await import('./Workbench.tsx')
+const { Wizard } = await import('./wizard/Wizard.tsx')
+const { goToRun, goToTests, runButton } =
+  await import('./wizard/navigation.testing.ts')
 
 const loaded = (version = '2.0') => {
   const result = loadFromText(
@@ -63,8 +72,9 @@ function mount(
 ) {
   const onEdit = vi.fn()
   const view = render(
-    <Workbench
-      loaded={document}
+    <Wizard
+      result={document ? { ok: true, value: document } : null}
+      onResult={() => {}}
       settings={settings}
       onEdit={onEdit}
       {...(hints && { hints })}
@@ -73,8 +83,7 @@ function mount(
   return { onEdit, view }
 }
 
-const run = () =>
-  fireEvent.click(screen.getByRole('button', { name: 'Run selected tests' }))
+const run = () => fireEvent.click(runButton())
 const last = () => started[started.length - 1] as Started
 
 beforeEach(() => {
@@ -83,11 +92,68 @@ beforeEach(() => {
 })
 afterEach(cleanup)
 
-describe('Workbench', () => {
-  it('shows no report before a run and a message when there is no document', () => {
+describe('Wizard', () => {
+  it('starts with the document input and offers no later step before a document is loaded', () => {
     mount(null)
+    expect(
+      screen.getByRole('heading', { name: 'Provide a document' }),
+    ).toBeTruthy()
     expect(screen.queryByRole('heading', { name: 'Report' })).toBeNull()
-    expect(screen.getByText(/No document is loaded/)).toBeTruthy()
+    for (const title of ['Tests', 'Run & report']) {
+      const step = screen.getByRole('button', { name: new RegExp(`^${title}`) })
+      expect(step).toHaveProperty('disabled', true)
+    }
+    expect(screen.getByRole('button', { name: /Continue/ })).toHaveProperty(
+      'disabled',
+      true,
+    )
+  })
+
+  it('moves through the steps with Back and Continue', () => {
+    mount(loaded())
+    expect(screen.getByRole('heading', { name: 'Test selection' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: /Continue/ }))
+    expect(screen.getByRole('heading', { name: 'Run' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: /Continue/ })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: /Back/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Back/ }))
+    expect(
+      screen.getByRole('heading', { name: 'Provide a document' }),
+    ).toBeTruthy()
+    expect(screen.getByRole('button', { name: /Back/ })).toHaveProperty(
+      'disabled',
+      true,
+    )
+  })
+
+  it('summarizes the document, the tests and the run in the step rail', () => {
+    mount(loaded('2.0'))
+    const rail = within(screen.getByRole('navigation', { name: 'Steps' }))
+    expect(rail.getByText('Pasted JSON · CSAF 2.0')).toBeTruthy()
+    expect(rail.getByText(/csaf-validator-lib.* · 73 of 75 tests/)).toBeTruthy()
+    expect(rail.getByText('Not run yet')).toBeTruthy()
+    run()
+    expect(rail.getByText('In progress')).toBeTruthy()
+    act(() => last().emit({ type: 'completed' }))
+    expect(rail.getByText('Finished')).toBeTruthy()
+  })
+
+  it('shows the returned message counts of the run in the toolbar', () => {
+    mount(loaded())
+    expect(screen.getByText('No run yet')).toBeTruthy()
+    run()
+    act(() => {
+      last().emit({
+        type: 'test-result',
+        id: 'csaf-2.0/6.1.1',
+        outcome: outcome('failed', { errors: ['Product ID missing'] }),
+      })
+      last().emit({ type: 'completed' })
+    })
+    const toolbar = screen.getByText('Returned messages:').parentElement
+    expect(toolbar?.textContent).toContain('1 error')
+    expect(toolbar?.textContent).toContain('0 warnings')
+    expect(screen.queryByText('No run yet')).toBeNull()
   })
 
   it('runs the exact initial selection of the declared version', () => {
@@ -230,7 +296,9 @@ describe('Workbench', () => {
     mount(loaded(), { ...BUILT_IN_DEFAULTS, reportView: 'detailed' })
     run()
     act(() => last().emit({ type: 'completed' }))
+    goToTests()
     fireEvent.click(screen.getByLabelText(/Select 6\.1\.1 /))
+    goToRun()
     expect(
       document
         .querySelector('tr[data-status][data-row-id="csaf-2.0/6.1.1"]')
@@ -262,8 +330,9 @@ describe('Workbench', () => {
     run()
     expect(screen.getByRole('heading', { name: 'Report' })).toBeTruthy()
     view.rerender(
-      <Workbench
-        loaded={loaded('2.1')}
+      <Wizard
+        result={{ ok: true, value: loaded('2.1') }}
+        onResult={() => {}}
         settings={BUILT_IN_DEFAULTS}
         onEdit={() => {}}
       />,
@@ -300,12 +369,15 @@ describe('Workbench', () => {
     mount(result.value)
     expect(screen.getByText(/not supported/)).toBeTruthy()
     expect(
+      screen.getByRole('button', { name: /^Run & report/ }),
+    ).toHaveProperty('disabled', true)
+    expect(
       screen.queryByRole('button', { name: 'Run selected tests' }),
     ).toBeNull()
   })
 })
 
-describe('Workbench with hints', () => {
+describe('Wizard with hints', () => {
   const hintsOf = (yaml: string): HintSet => {
     const result = parseHints(yaml, CATALOGUES)
     if (!result.ok) throw new Error(JSON.stringify(result.issues))
