@@ -1,7 +1,7 @@
 name: Release
 # Publishes the static app to GitHub Pages when a GitHub Release is published,
 # and never for a pull request or a push. The Pages source of the repository
-# is "GitHub Actions". Safari is a manual gate: docs/release-checklist.md.
+# is "GitHub Actions". Versioning and release steps: docs/release-checklist.md.
 on:
   release:
     types:
