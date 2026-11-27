@@ -4,8 +4,10 @@ import {
   deferred,
   expect,
   openWithText,
+  goToStep,
   runButton,
   runState,
+  startRun,
   test,
 } from './fixtures.ts'
 import { sentTests, serviceAnswer } from './service.ts'
@@ -32,11 +34,12 @@ test.describe('a JavaScript validator service', () => {
       defaults: { validator: 'csaf-validator-service' },
     })
     await openWithText(page, DOCUMENT_20)
+    await goToStep(page, 'Run & report')
 
     await expect(
       page.getByText(`Destination: ${service.url}/api/v1/validate`),
     ).toBeVisible()
-    await runButton(page).click()
+    await startRun(page)
 
     await expect(runState(page, 'Run completed')).toBeVisible()
     expect(service.requests).toHaveLength(1)
@@ -64,6 +67,7 @@ test.describe('a JavaScript validator service', () => {
       defaults: { validator: 'csaf-validator-service' },
     })
     await openWithText(page, DOCUMENT_20)
+    await goToStep(page, 'Run & report')
 
     const disclosure = page.getByRole('region', {
       name: 'Where the document goes',
@@ -85,6 +89,7 @@ test.describe('a JavaScript validator service', () => {
     page,
   }) => {
     await openWithText(page, DOCUMENT_20)
+    await goToStep(page, 'Run & report')
 
     await expect(
       page.getByRole('region', { name: 'Where the document goes' }),
@@ -109,7 +114,7 @@ test.describe('a JavaScript validator service', () => {
       defaults: { validator: 'csaf-validator-service' },
     })
     await openWithText(page, DOCUMENT_20)
-    await runButton(page).click()
+    await startRun(page)
 
     await expect(runState(page, 'Run failed')).toBeVisible()
     await expect(page.getByRole('alert')).toContainText('HTTP 500')
@@ -135,7 +140,7 @@ test.describe('a JavaScript validator service', () => {
         defaults: { validator: 'csaf-validator-service' },
       })
       await openWithText(page, DOCUMENT_20)
-      await runButton(page).click()
+      await startRun(page)
 
       await expect(runState(page, 'Run failed')).toContainText(
         /0 of \d+ selected tests returned a result/,
@@ -165,7 +170,7 @@ test.describe('a JavaScript validator service', () => {
       defaults: { validator: 'csaf-validator-service' },
     })
     await openWithText(page, DOCUMENT_20)
-    await runButton(page).click()
+    await startRun(page)
     await expect(
       page.getByText('Cancelling aborts the browser request.'),
     ).toBeVisible()
@@ -192,7 +197,7 @@ test.describe('a JavaScript validator service', () => {
       defaults: { validator: 'csaf-validator-service' },
     })
     await openWithText(page, DOCUMENT_20)
-    await runButton(page).click()
+    await startRun(page)
 
     await expect(runState(page, 'Run failed')).toBeVisible()
     await expect(page.getByRole('alert')).toContainText(
@@ -239,10 +244,10 @@ test.describe('the validator library in a worker', () => {
       }
     })
     await openWithText(page, DOCUMENT_20)
-    await runButton(page).click()
+    await startRun(page)
     await expect(runState(page, 'Running')).toBeVisible()
     await expect(page.getByText(/1 of \d+ tests finished/)).toBeVisible({
-      timeout: 60_000,
+      timeout: 45_000,
     })
     await page.getByRole('button', { name: 'Cancel run' }).click()
 
@@ -272,7 +277,7 @@ test.describe('a Rust validator service', () => {
       defaults: { validator: 'csaf-service' },
     })
     await openWithText(page, DOCUMENT_20)
-    await runButton(page).click()
+    await startRun(page)
 
     await expect(runState(page, 'Run completed')).toBeVisible()
     expect(service.requests).toHaveLength(1)
@@ -297,7 +302,7 @@ test.describe('a Rust validator service', () => {
       defaults: { validator: 'csaf-service', csafVersion: '2.1' },
     })
     await openWithText(page, DOCUMENT_20)
-    await runButton(page).click()
+    await startRun(page)
 
     await expect(runState(page, 'Run failed')).toBeVisible()
     await expect(page.getByRole('alert')).toContainText('nothing was sent')
@@ -311,7 +316,7 @@ test.describe('csaf-rs WebAssembly in a worker', () => {
   }) => {
     await openWithText(page, DOCUMENT_20)
     await chooseValidator(page, 'csaf-rs (WASM), in this browser')
-    await runButton(page).click()
+    await startRun(page)
 
     await expect(page.getByText(/cannot report progress/)).toBeVisible()
     await expect(runState(page, 'Run completed')).toHaveText(
@@ -328,7 +333,7 @@ test.describe('csaf-rs WebAssembly in a worker', () => {
     })
     await openWithText(page, DOCUMENT_20)
     await chooseValidator(page, 'csaf-rs (WASM), in this browser')
-    await runButton(page).click()
+    await startRun(page)
     await expect(
       page.getByText(/no results of this run are kept/),
     ).toBeVisible()
@@ -350,8 +355,8 @@ test.describe('a validator that cannot run', () => {
       page,
     }) => {
       await openWithText(page, DOCUMENT_20)
-      const radio = page.getByRole('radio', { name: validator })
-      await radio.check()
+      await chooseValidator(page, validator)
+      await goToStep(page, 'Run & report')
 
       await expect(
         page
@@ -374,6 +379,7 @@ test.describe('a validator that cannot run', () => {
       defaults: { validator: 'csaf-validator-service', csafVersion: '2.1' },
     })
     await openWithText(page, DOCUMENT_20)
+    await goToStep(page, 'Run & report')
 
     await expect(
       page.getByRole('heading', { name: 'Limitations' }),

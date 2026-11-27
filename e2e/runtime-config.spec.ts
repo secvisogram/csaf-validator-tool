@@ -1,31 +1,45 @@
 import type { Page } from '@playwright/test'
-import { DOCUMENT_20, expect, openWithText, test } from './fixtures.ts'
+import {
+  DOCUMENT_20,
+  chooseValidator,
+  expect,
+  expectRunCompleted,
+  goToStep,
+  minimalDocument,
+  openWithText,
+  setServiceUrl,
+  startRun,
+  test,
+} from './fixtures.ts'
 
 const notice = (page: Page) =>
   page
     .getByRole('status')
     .filter({ hasText: 'Runtime configuration was not applied' })
-const checked = (page: Page, name: string) =>
-  expect(page.getByRole('radio', { name })).toBeChecked()
+const validator = (page: Page) => page.getByLabel('Validator', { exact: true })
+const version = (page: Page) => page.getByLabel('CSAF version', { exact: true })
+const serviceUrl = (page: Page, service: 'JavaScript' | 'Rust') =>
+  page.getByLabel(`${service} service URL`, { exact: true })
+
+/** Runs csaf-rs, which is quick, and returns which report view the run opened on. */
+async function openedReportView(page: Page) {
+  await chooseValidator(page, 'csaf-rs (WASM), in this browser')
+  await startRun(page)
+  await expectRunCompleted(page)
+  return page.getByRole('tab', { selected: true })
+}
 
 test('without a configuration file the built-in defaults apply and nothing is reported', async ({
   page,
 }) => {
-  await page.goto('./')
+  await openWithText(page, minimalDocument())
 
-  await expect(
-    page.getByRole('heading', { name: 'Test selection' }),
-  ).toBeVisible()
   await expect(notice(page)).toHaveCount(0)
-  await checked(page, 'csaf-validator-lib, in this browser')
-  await checked(page, 'Use the version declared in the document (default)')
-  await checked(page, 'All messages')
-  await expect(
-    page.getByLabel('JavaScript service URL', { exact: true }),
-  ).toHaveValue('')
-  await expect(
-    page.getByLabel('Rust service URL', { exact: true }),
-  ).toHaveValue('')
+  await expect(validator(page)).toHaveValue('csaf-validator-lib')
+  await expect(version(page)).toHaveValue('document')
+  await expect(serviceUrl(page, 'JavaScript')).toHaveValue('')
+  await expect(serviceUrl(page, 'Rust')).toHaveValue('')
+  await expect(await openedReportView(page)).toHaveText('All messages')
 })
 
 test('a valid file provides the starting values', async ({
@@ -44,18 +58,29 @@ test('a valid file provides the starting values', async ({
       reportView: 'detailed',
     },
   })
-  await page.goto('./')
+  await openWithText(page, minimalDocument())
 
-  await checked(page, 'csaf-validator-service (JavaScript service)')
-  await checked(page, 'CSAF 2.1 (experimental CSD04)')
-  await checked(page, 'Detailed report')
-  await expect(
-    page.getByLabel('JavaScript service URL', { exact: true }),
-  ).toHaveValue('http://127.0.0.1:9101')
-  await expect(
-    page.getByLabel('Rust service URL', { exact: true }),
-  ).toHaveValue('http://127.0.0.1:9102')
+  await expect(validator(page)).toHaveValue('csaf-validator-service')
+  await expect(version(page)).toHaveValue('2.1')
+  await expect(serviceUrl(page, 'JavaScript')).toHaveValue(
+    'http://127.0.0.1:9101',
+  )
+  await expect(serviceUrl(page, 'Rust')).toHaveValue('http://127.0.0.1:9102')
   await expect(notice(page)).toHaveCount(0)
+})
+
+test('the configured report view is the one a run opens on', async ({
+  page,
+  runtimeConfig,
+}) => {
+  await runtimeConfig({
+    version: 1,
+    services: {},
+    defaults: { reportView: 'detailed' },
+  })
+  await openWithText(page, DOCUMENT_20)
+
+  await expect(await openedReportView(page)).toHaveText('Detailed report')
 })
 
 test('session edits win over the file and are not kept', async ({
@@ -67,18 +92,20 @@ test('session edits win over the file and are not kept', async ({
     services: { javascript: 'http://127.0.0.1:9101' },
     defaults: { validator: 'csaf-validator-service' },
   })
-  await page.goto('./')
-  await page.getByLabel('csaf-rs (WASM), in this browser').check()
-  await page
-    .getByLabel('JavaScript service URL', { exact: true })
-    .fill('http://127.0.0.1:9999/api')
-  await checked(page, 'csaf-rs (WASM), in this browser')
+  await openWithText(page, minimalDocument())
+  await chooseValidator(page, 'csaf-rs (WASM), in this browser')
+  await setServiceUrl(page, 'JavaScript', 'http://127.0.0.1:9999/api')
+  await expect(validator(page)).toHaveValue('csaf-rs-wasm')
+  await expect(serviceUrl(page, 'JavaScript')).toHaveValue(
+    'http://127.0.0.1:9999/api',
+  )
 
   await page.reload()
-  await checked(page, 'csaf-validator-service (JavaScript service)')
-  await expect(
-    page.getByLabel('JavaScript service URL', { exact: true }),
-  ).toHaveValue('http://127.0.0.1:9101')
+  await openWithText(page, minimalDocument())
+  await expect(validator(page)).toHaveValue('csaf-validator-service')
+  await expect(serviceUrl(page, 'JavaScript')).toHaveValue(
+    'http://127.0.0.1:9101',
+  )
 })
 
 test('an edited service URL is the destination of the next run', async ({
@@ -91,13 +118,13 @@ test('an edited service URL is the destination of the next run', async ({
     defaults: { validator: 'csaf-validator-service' },
   })
   await openWithText(page, DOCUMENT_20)
+  await goToStep(page, 'Run & report')
   await expect(
     page.getByText('Destination: http://127.0.0.1:9101/api/v1/validate'),
   ).toBeVisible()
 
-  await page
-    .getByLabel('JavaScript service URL', { exact: true })
-    .fill('http://127.0.0.1:9999/api/')
+  await setServiceUrl(page, 'JavaScript', 'http://127.0.0.1:9999/api/')
+  await goToStep(page, 'Run & report')
   await expect(
     page.getByText('Destination: http://127.0.0.1:9999/api/api/v1/validate'),
   ).toBeVisible()
@@ -107,21 +134,20 @@ test('a service without a URL is unavailable and cannot run', async ({
   page,
 }) => {
   await openWithText(page, DOCUMENT_20)
-  await page.getByLabel('csaf-validator-service (JavaScript service)').check()
+  await chooseValidator(page, 'csaf-validator-service (JavaScript service)')
 
   await expect(
-    page.getByText('Enter a JavaScript service URL', { exact: false }).first(),
+    page.getByText(/Unavailable: Enter a JavaScript service URL/),
   ).toBeVisible()
+  await goToStep(page, 'Run & report')
   await expect(
     page.getByRole('button', { name: 'Run selected tests' }),
   ).toBeDisabled()
 })
 
 test('a service URL with credentials is not applied', async ({ page }) => {
-  await page.goto('./')
-  await page
-    .getByLabel('JavaScript service URL', { exact: true })
-    .fill('http://user:secret@127.0.0.1:9101')
+  await openWithText(page, minimalDocument())
+  await setServiceUrl(page, 'JavaScript', 'http://user:secret@127.0.0.1:9101')
 
   await expect(
     page.getByRole('alert').filter({ hasText: 'Not applied' }),
@@ -167,10 +193,11 @@ for (const [name, config, expected] of [
     await expect(notice(page)).toContainText(
       'The built-in defaults are in use.',
     )
-    await checked(page, 'csaf-validator-lib, in this browser')
     await expect(
-      page.getByRole('heading', { name: 'Test selection' }),
+      page.getByRole('heading', { name: 'Provide a document' }),
     ).toBeVisible()
+    await openWithText(page, minimalDocument())
+    await expect(validator(page)).toHaveValue('csaf-validator-lib')
   })
 }
 
@@ -183,13 +210,11 @@ test('a valid part of a rejected file is not used', async ({
     services: { javascript: 'http://127.0.0.1:9101' },
     defaults: { validator: 'csaf-validator-service', reportView: 'nope' },
   })
-  await page.goto('./')
+  await openWithText(page, minimalDocument())
 
   await expect(notice(page)).toBeVisible()
-  await checked(page, 'csaf-validator-lib, in this browser')
-  await expect(
-    page.getByLabel('JavaScript service URL', { exact: true }),
-  ).toHaveValue('')
+  await expect(validator(page)).toHaveValue('csaf-validator-lib')
+  await expect(serviceUrl(page, 'JavaScript')).toHaveValue('')
 })
 
 test('a server error for the file is reported and the defaults apply', async ({
@@ -198,10 +223,10 @@ test('a server error for the file is reported and the defaults apply', async ({
   await page.route('**/.well-known/appspecific/runtime-config.json', (route) =>
     route.fulfill({ status: 500, body: 'oops' }),
   )
-  await page.goto('./')
+  await openWithText(page, minimalDocument())
 
   await expect(notice(page)).toContainText('(HTTP 500)')
-  await checked(page, 'csaf-validator-lib, in this browser')
+  await expect(validator(page)).toHaveValue('csaf-validator-lib')
 })
 
 test('an unreachable file is reported and the defaults apply', async ({
@@ -210,8 +235,8 @@ test('an unreachable file is reported and the defaults apply', async ({
   await page.route('**/.well-known/appspecific/runtime-config.json', (route) =>
     route.abort(),
   )
-  await page.goto('./')
+  await openWithText(page, minimalDocument())
 
   await expect(notice(page)).toContainText('network error')
-  await checked(page, 'csaf-validator-lib, in this browser')
+  await expect(validator(page)).toHaveValue('csaf-validator-lib')
 })

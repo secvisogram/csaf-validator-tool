@@ -1,13 +1,15 @@
 import {
   DOCUMENT_20,
+  documentSection,
   expect,
+  fetchUrl,
+  goToStep,
   minimalDocument,
   test,
+  useFile,
   useText,
 } from './fixtures.ts'
 
-const documentSection = (page: import('@playwright/test').Page) =>
-  page.getByRole('region', { name: 'Document' })
 const intakeError = (page: import('@playwright/test').Page) =>
   page.getByRole('alert').filter({ hasText: 'The document could not be used' })
 
@@ -19,11 +21,13 @@ test.describe('pasted text', () => {
   test('is shown with its source and declared version', async ({ page }) => {
     await useText(page, DOCUMENT_20)
 
-    await expect(documentSection(page)).toContainText('Source: pasted text')
-    await expect(documentSection(page)).toContainText(
+    await expect(await documentSection(page)).toContainText(
+      'Source: pasted text',
+    )
+    await expect(await documentSection(page)).toContainText(
       'Declared CSAF version: 2.0',
     )
-    await expect(documentSection(page).locator('pre')).toContainText(
+    await expect((await documentSection(page)).locator('pre')).toContainText(
       'OASIS_CSAF_TC-CSAF_2.0-2021-6-1-01-11',
     )
   })
@@ -32,7 +36,7 @@ test.describe('pasted text', () => {
     await useText(page, '{ "document": ')
 
     await expect(intakeError(page)).toContainText('The input is not valid JSON')
-    await expect(documentSection(page)).toHaveCount(0)
+    await expect(await documentSection(page)).toHaveCount(0)
   })
 
   test('that is empty is refused', async ({ page }) => {
@@ -62,9 +66,10 @@ test.describe('pasted text', () => {
   }) => {
     await useText(page, minimalDocument(null))
 
-    await expect(documentSection(page)).toContainText(
+    await expect(await documentSection(page)).toContainText(
       'does not declare a CSAF version',
     )
+    await goToStep(page, 'Tests')
     await expect(
       page.getByRole('alert').filter({ hasText: 'no catalogue is shown' }),
     ).toBeVisible()
@@ -75,38 +80,40 @@ test.describe('pasted text', () => {
   }) => {
     await useText(page, minimalDocument('1.0'))
 
-    await expect(documentSection(page)).toContainText('“1.0” is not supported')
+    await expect(await documentSection(page)).toContainText(
+      '“1.0” is not supported',
+    )
   })
 
   test('a second document replaces the first', async ({ page }) => {
     await useText(page, DOCUMENT_20)
     await useText(page, minimalDocument('2.1'))
 
-    await expect(documentSection(page)).toContainText(
+    await expect(await documentSection(page)).toContainText(
       'Declared CSAF version: 2.1',
     )
-    await expect(documentSection(page)).not.toContainText('OASIS_CSAF_TC')
+    await expect(await documentSection(page)).not.toContainText('OASIS_CSAF_TC')
   })
 })
 
 test.describe('a file', () => {
   test('is read in the browser and shown with its name', async ({ page }) => {
-    await page.getByLabel('CSAF document file').setInputFiles({
+    await useFile(page, {
       name: 'advisory.json',
       mimeType: 'application/json',
       buffer: Buffer.from(DOCUMENT_20),
     })
 
-    await expect(documentSection(page)).toContainText(
+    await expect(await documentSection(page)).toContainText(
       'Source: file “advisory.json”',
     )
-    await expect(documentSection(page)).toContainText(
+    await expect(await documentSection(page)).toContainText(
       'Declared CSAF version: 2.0',
     )
   })
 
   test('that is not JSON is refused', async ({ page }) => {
-    await page.getByLabel('CSAF document file').setInputFiles({
+    await useFile(page, {
       name: 'broken.json',
       mimeType: 'application/json',
       buffer: Buffer.from('not json'),
@@ -117,14 +124,6 @@ test.describe('a file', () => {
 })
 
 test.describe('a URL', () => {
-  const fetchUrl = async (
-    page: import('@playwright/test').Page,
-    url: string,
-  ) => {
-    await page.getByLabel('Document URL').fill(url)
-    await page.getByRole('button', { name: 'Fetch' }).click()
-  }
-
   test('is fetched by the browser and shown with its address', async ({
     page,
     mock,
@@ -132,10 +131,10 @@ test.describe('a URL', () => {
     const host = await mock(() => ({ body: JSON.parse(DOCUMENT_20) }))
     await fetchUrl(page, `${host.url}/advisory.json`)
 
-    await expect(documentSection(page)).toContainText(
+    await expect(await documentSection(page)).toContainText(
       `Source: ${host.url}/advisory.json`,
     )
-    await expect(documentSection(page)).toContainText(
+    await expect(await documentSection(page)).toContainText(
       'Declared CSAF version: 2.0',
     )
     expect(host.requests.map((r) => r.path)).toEqual(['/advisory.json'])
@@ -160,7 +159,7 @@ test.describe('a URL', () => {
 
     await fetchUrl(page, `${host.url}/advisory.json`)
 
-    await expect(documentSection(page)).toBeVisible()
+    await expect(await documentSection(page)).toBeVisible()
     expect(cookies).toHaveLength(2)
     expect(cookies[1]).toBeUndefined()
   })

@@ -1,12 +1,13 @@
 import type { Page } from '@playwright/test'
 import {
   DOCUMENT_20,
+  chooseVersion,
   DOCUMENT_21,
   expect,
   expectRunCompleted,
   minimalDocument,
   openWithText,
-  runButton,
+  startRun,
   test,
   useText,
 } from './fixtures.ts'
@@ -15,8 +16,6 @@ import { sentTests, serviceAnswer } from './service.ts'
 const summary = (page: Page) => page.getByText(/ of \d+ tests selected, /)
 const selectTest = (page: Page, section: string) =>
   page.getByRole('checkbox', { name: new RegExp(`^Select ${section} `) })
-const chooseVersion = (page: Page, name: string) =>
-  page.getByRole('radio', { name }).check()
 
 test.describe('the CSAF version', () => {
   test('follows the version the document declares', async ({ page }) => {
@@ -38,27 +37,29 @@ test.describe('the CSAF version', () => {
     page,
   }) => {
     await openWithText(page, DOCUMENT_20)
-    await chooseVersion(page, 'CSAF 2.1 (experimental CSD04)')
+    await chooseVersion(page, '2.1')
 
     await expect(
       page.getByText('CSAF 2.1 (CSD04), chosen explicitly'),
     ).toBeVisible()
   })
 
-  test('has to be chosen when no document is loaded', async ({ page }) => {
+  test('cannot be looked at before a document is loaded', async ({ page }) => {
     await page.goto('./')
-    await expect(page.getByText('No document is loaded')).toBeVisible()
-    await expect(selectTest(page, '6.1.1')).toHaveCount(0)
+    const steps = page.getByRole('navigation', { name: 'Steps' })
 
-    await chooseVersion(page, 'CSAF 2.0 (OASIS Standard)')
-    await expect(selectTest(page, '6.1.1')).toBeVisible()
+    await expect(steps.getByRole('button', { name: /^Tests/ })).toBeDisabled()
+    await expect(
+      steps.getByRole('button', { name: /^Run & report/ }),
+    ).toBeDisabled()
+    await expect(selectTest(page, '6.1.1')).toHaveCount(0)
   })
 
   test('has to be chosen when the document declares none', async ({ page }) => {
     await openWithText(page, minimalDocument(null))
     await expect(page.getByText('so no catalogue is shown')).toBeVisible()
 
-    await chooseVersion(page, 'CSAF 2.0 (OASIS Standard)')
+    await chooseVersion(page, '2.0')
     await expect(selectTest(page, '6.1.1')).toBeVisible()
   })
 })
@@ -102,10 +103,10 @@ test.describe('the test selection', () => {
     await openWithText(page, DOCUMENT_20)
     await selectTest(page, '6.1.1').uncheck()
 
-    await chooseVersion(page, 'CSAF 2.1 (experimental CSD04)')
+    await chooseVersion(page, '2.1')
     await expect(selectTest(page, '6.1.1')).toBeChecked()
 
-    await chooseVersion(page, 'CSAF 2.0 (OASIS Standard)')
+    await chooseVersion(page, '2.0')
     await expect(selectTest(page, '6.1.1')).not.toBeChecked()
   })
 
@@ -129,7 +130,7 @@ test.describe('the test selection', () => {
     }
     await selectTest(page, '6.1.2').check()
     await selectTest(page, '6.2.1').check()
-    await runButton(page).click()
+    await startRun(page)
 
     await expectRunCompleted(page)
     const tests = sentTests(service)
@@ -159,7 +160,7 @@ test.describe('a test that may reach external resources', () => {
   test('is sent only after the user confirms', async ({ page, mock }) => {
     const service = await mock(serviceAnswer())
     await setup(page, service.url)
-    await runButton(page).click()
+    await startRun(page)
 
     const dialog = page.getByRole('alertdialog')
     await expect(dialog).toContainText(
@@ -179,7 +180,7 @@ test.describe('a test that may reach external resources', () => {
   test('is not sent when the user declines', async ({ page, mock }) => {
     const service = await mock(serviceAnswer())
     await setup(page, service.url)
-    await runButton(page).click()
+    await startRun(page)
     await page
       .getByRole('alertdialog')
       .getByRole('button', { name: 'Do not run' })

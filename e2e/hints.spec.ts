@@ -3,7 +3,7 @@ import {
   expect,
   expectRunCompleted,
   openWithText,
-  runButton,
+  startRun,
   runState,
   test,
 } from './fixtures.ts'
@@ -52,7 +52,7 @@ test('a hint appears next to the finding it belongs to, labelled as guidance', a
 }) => {
   await hintFile(HINTS)
   await openWithText(page, DOCUMENT_20)
-  await runButton(page).click()
+  await startRun(page)
   await expectRunCompleted(page)
 
   const hints = page
@@ -70,7 +70,7 @@ test('a hint appears next to the finding it belongs to, labelled as guidance', a
 test('a hint never changes a result or a count', async ({ page, hintFile }) => {
   const observe = async () => {
     await openWithText(page, DOCUMENT_20)
-    await runButton(page).click()
+    await startRun(page)
     await expectRunCompleted(page)
     await page.getByRole('tab', { name: 'All messages' }).click()
     await expect(page.getByRole('tabpanel')).toContainText(
@@ -104,7 +104,7 @@ test('a hint for another validator is not shown', async ({
 }) => {
   await hintFile(HINTS)
   await openWithText(page, DOCUMENT_20)
-  await runButton(page).click()
+  await startRun(page)
   await expectRunCompleted(page)
 
   await expect(
@@ -130,7 +130,7 @@ test('an invalid hint file is rejected as a whole and the report still works', a
     text: 'No such section.'
 `)
   await openWithText(page, DOCUMENT_20)
-  await runButton(page).click()
+  await startRun(page)
   await expectRunCompleted(page)
 
   const notice = page
@@ -154,7 +154,7 @@ test('a missing hint file is reported and nothing else changes', async ({
     route.fulfill({ status: 404, body: '' }),
   )
   await openWithText(page, DOCUMENT_20)
-  await runButton(page).click()
+  await startRun(page)
   await expectRunCompleted(page)
 
   await expect(

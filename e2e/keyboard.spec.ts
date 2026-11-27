@@ -4,18 +4,48 @@ import {
   deferred,
   expect,
   minimalDocument,
+  openWithText,
   runState,
+  startRun,
   test,
 } from './fixtures.ts'
 import { serviceAnswer } from './service.ts'
 
-/** Moves the focus with the Tab key until it is on the element. Never clicks. */
-async function tabTo(page: Page, target: Locator, limit = 600) {
-  for (let presses = 0; presses < limit; presses++) {
-    if (await target.evaluate((el) => el === document.activeElement)) return
-    await page.keyboard.press('Tab')
+/**
+ * Moves the focus with Tab, or Shift+Tab when the element comes before the
+ * focused one, until it is on the element. Never clicks. Browsers differ in
+ * whether Tab wraps around the page, so the direction is not left to them.
+ */
+async function tabTo(page: Page, target: Locator, limit = 250) {
+  const focused = (el: Element) => el === document.activeElement
+  const comesBefore = () =>
+    target.evaluate((el) => {
+      const active = document.activeElement
+      return (
+        !!active &&
+        active !== document.body &&
+        !!(
+          active.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_PRECEDING
+        )
+      )
+    })
+  for (const key of (await comesBefore())
+    ? ['Shift+Tab', 'Tab']
+    : ['Tab', 'Shift+Tab']) {
+    for (let presses = 0; presses < limit; presses++) {
+      if (await target.evaluate(focused)) return
+      await page.keyboard.press(key)
+    }
   }
   throw new Error(`The element cannot be reached with the Tab key: ${target}`)
+}
+
+const steps = (page: Page) => page.getByRole('navigation', { name: 'Steps' })
+
+/** Reaches a step with the Continue button of the footer, which is also keyboard-operable. */
+async function continueWithKeyboard(page: Page) {
+  await tabTo(page, page.getByRole('button', { name: 'Continue →' }))
+  await page.keyboard.press('Enter')
 }
 
 test.describe('input', () => {
@@ -28,9 +58,30 @@ test.describe('input', () => {
     await tabTo(page, page.getByRole('button', { name: 'Use text' }))
     await page.keyboard.press('Enter')
 
-    await expect(page.getByRole('region', { name: 'Document' })).toContainText(
-      'Declared CSAF version: 2.0',
-    )
+    await expect(steps(page)).toContainText('Pasted JSON · CSAF 2.0')
+    await expect(
+      page.getByRole('heading', { name: 'Settings for this session' }),
+    ).toBeVisible()
+  })
+
+  test('the arrow keys switch between the sources', async ({ page }) => {
+    await page.goto('./')
+    const source = (name: string) => page.getByRole('tab', { name })
+    await tabTo(page, source('Paste JSON'))
+    await expect(source('Open a file')).toHaveAttribute('tabindex', '-1')
+
+    await page.keyboard.press('ArrowRight')
+    await expect(source('Open a file')).toBeFocused()
+    await expect(source('Open a file')).toHaveAttribute('aria-selected', 'true')
+    await tabTo(page, page.getByLabel('CSAF document file'))
+
+    await source('Open a file').focus()
+    await page.keyboard.press('ArrowRight')
+    await expect(source('Fetch from a URL')).toBeFocused()
+    await page.keyboard.press('ArrowRight')
+    await expect(source('Paste JSON')).toBeFocused()
+    await page.keyboard.press('ArrowLeft')
+    await expect(source('Fetch from a URL')).toBeFocused()
   })
 
   test('a URL is entered and fetched from the keyboard', async ({
@@ -39,19 +90,16 @@ test.describe('input', () => {
   }) => {
     const host = await mock(() => ({ body: JSON.parse(DOCUMENT_20) }))
     await page.goto('./')
+    // The sources are one tab stop. The arrow keys move between them.
+    await tabTo(page, page.getByRole('tab', { name: 'Paste JSON' }))
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.press('ArrowRight')
     await tabTo(page, page.getByLabel('Document URL'))
     await page.keyboard.insertText(`${host.url}/doc.json`)
     await tabTo(page, page.getByRole('button', { name: 'Fetch' }))
     await page.keyboard.press('Space')
 
-    await expect(page.getByRole('region', { name: 'Document' })).toContainText(
-      `Source: ${host.url}/doc.json`,
-    )
-  })
-
-  test('the file chooser can be focused', async ({ page }) => {
-    await page.goto('./')
-    await tabTo(page, page.getByLabel('CSAF document file'))
+    await expect(steps(page)).toContainText(`${host.url}/doc.json · CSAF 2.0`)
   })
 })
 
@@ -59,35 +107,24 @@ test.describe('selection', () => {
   test('the validator and the version are chosen with the arrow keys', async ({
     page,
   }) => {
-    await page.goto('./')
-    await tabTo(
-      page,
-      page.getByRole('radio', { name: 'csaf-validator-lib, in this browser' }),
-    )
+    await openWithText(page, DOCUMENT_20)
+    const validator = page.getByLabel('Validator', { exact: true })
+    await tabTo(page, validator)
+    await expect(validator).toHaveValue('csaf-validator-lib')
     await page.keyboard.press('ArrowDown')
-    await expect(
-      page.getByRole('radio', {
-        name: 'csaf-validator-service (JavaScript service)',
-      }),
-    ).toBeChecked()
+    await expect(validator).toHaveValue('csaf-validator-service')
 
-    await tabTo(
-      page,
-      page.getByRole('radio', {
-        name: 'Use the version declared in the document (default)',
-      }),
-    )
+    const version = page.getByLabel('CSAF version', { exact: true })
+    await tabTo(page, version)
+    await expect(version).toHaveValue('document')
     await page.keyboard.press('ArrowDown')
-    await expect(
-      page.getByRole('radio', { name: 'CSAF 2.0 (OASIS Standard)' }),
-    ).toBeChecked()
+    await expect(version).toHaveValue('2.0')
   })
 
   test('tests and the schema check are toggled with the space bar', async ({
     page,
   }) => {
-    await page.goto('./')
-    await page.getByRole('radio', { name: 'CSAF 2.0 (OASIS Standard)' }).check()
+    await openWithText(page, DOCUMENT_20)
     const schema = page.getByLabel('Validate against the CSAF JSON schema')
     await tabTo(page, schema)
     await expect(schema).toBeChecked()
@@ -102,8 +139,7 @@ test.describe('selection', () => {
   })
 
   test('the selection is reset with the keyboard', async ({ page }) => {
-    await page.goto('./')
-    await page.getByRole('radio', { name: 'CSAF 2.0 (OASIS Standard)' }).check()
+    await openWithText(page, DOCUMENT_20)
     const test = page.getByRole('checkbox', { name: /^Select 6\.1\.1 / })
     await test.uncheck()
 
@@ -113,6 +149,26 @@ test.describe('selection', () => {
     )
     await page.keyboard.press('Enter')
     await expect(test).toBeChecked()
+  })
+
+  test('the steps are changed with the keyboard', async ({ page }) => {
+    await openWithText(page, DOCUMENT_20)
+    await continueWithKeyboard(page)
+    await expect(
+      page.getByRole('button', { name: 'Run selected tests' }),
+    ).toBeVisible()
+
+    await tabTo(page, page.getByRole('button', { name: '← Back' }))
+    await page.keyboard.press('Enter')
+    await expect(
+      page.getByRole('heading', { name: 'Test selection' }),
+    ).toBeVisible()
+
+    await tabTo(page, steps(page).getByRole('button', { name: /^Document/ }))
+    await page.keyboard.press('Space')
+    await expect(
+      page.getByRole('heading', { name: 'Provide a document' }),
+    ).toBeVisible()
   })
 })
 
@@ -133,10 +189,8 @@ test.describe('run and cancel', () => {
       services: { javascript: service.url },
       defaults: { validator: 'csaf-validator-service' },
     })
-    await page.goto('./')
-    await page.getByLabel('CSAF document (JSON)').fill(DOCUMENT_20)
-    await tabTo(page, page.getByRole('button', { name: 'Use text' }))
-    await page.keyboard.press('Enter')
+    await openWithText(page, DOCUMENT_20)
+    await continueWithKeyboard(page)
 
     await tabTo(page, page.getByRole('button', { name: 'Run selected tests' }))
     await page.keyboard.press('Enter')
@@ -160,10 +214,9 @@ test.describe('run and cancel', () => {
       services: { javascript: service.url },
       defaults: { validator: 'csaf-validator-service' },
     })
-    await page.goto('./')
-    await page.getByLabel('CSAF document (JSON)').fill(DOCUMENT_20)
-    await page.getByRole('button', { name: 'Use text' }).click()
+    await openWithText(page, DOCUMENT_20)
     await page.getByRole('checkbox', { name: /^Select 6\.3\.6 / }).check()
+    await continueWithKeyboard(page)
     await tabTo(page, page.getByRole('button', { name: 'Run selected tests' }))
     await page.keyboard.press('Enter')
 
@@ -182,10 +235,8 @@ test.describe('the report tabs', () => {
       services: { javascript: service.url },
       defaults: { validator: 'csaf-validator-service' },
     })
-    await page.goto('./')
-    await page.getByLabel('CSAF document (JSON)').fill(DOCUMENT_20)
-    await page.getByRole('button', { name: 'Use text' }).click()
-    await page.getByRole('button', { name: 'Run selected tests' }).click()
+    await openWithText(page, DOCUMENT_20)
+    await startRun(page)
     await expect(runState(page, 'Run completed')).toBeVisible()
   })
 

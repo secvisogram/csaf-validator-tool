@@ -3,9 +3,10 @@ import {
   DOCUMENT_20,
   chooseValidator,
   expectRunCompleted,
+  minimalDocument,
   openWithText,
-  runButton,
   runState,
+  startRun,
 } from './fixtures.ts'
 import { SITES } from './sites.ts'
 
@@ -43,7 +44,7 @@ for (const site of SITES) {
       ).toBeVisible()
       await expect(page.getByLabel('CSAF document (JSON)')).toBeVisible()
       await expect(
-        page.getByRole('heading', { name: 'Test selection' }),
+        page.getByRole('heading', { name: 'Provide a document' }),
       ).toBeVisible()
 
       const hints = seen.find(
@@ -69,15 +70,15 @@ for (const site of SITES) {
           body: JSON.stringify({
             version: 1,
             services: {},
-            defaults: { reportView: 'detailed' },
+            defaults: { validator: 'csaf-rs-wasm' },
           }),
         })
       })
-      await page.goto('./')
+      await openWithText(page, minimalDocument())
 
-      await expect(
-        page.getByRole('radio', { name: 'Detailed report' }),
-      ).toBeChecked()
+      await expect(page.getByLabel('Validator', { exact: true })).toHaveValue(
+        'csaf-rs-wasm',
+      )
       expect(requested).toEqual([`${site.path}${RUNTIME_CONFIG}`])
     })
 
@@ -104,7 +105,7 @@ for (const site of SITES) {
     }) => {
       const seen = watchRequests(page)
       await openWithText(page, DOCUMENT_20)
-      await runButton(page).click()
+      await startRun(page)
       await expectResults(page, 'csaf-validator-lib, in this browser')
 
       const worker = seen.find((r) =>
@@ -120,7 +121,7 @@ for (const site of SITES) {
       const seen = watchRequests(page)
       await openWithText(page, DOCUMENT_20)
       await chooseValidator(page, 'csaf-rs (WASM), in this browser')
-      await runButton(page).click()
+      await startRun(page)
       await expectResults(page, 'csaf-rs (WASM), in this browser')
 
       const wasm = seen.filter((r) => r.url.pathname.endsWith('.wasm'))
