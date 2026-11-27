@@ -55,7 +55,7 @@ Dependencies are pinned to exact versions (`.npmrc` sets `save-exact=true`).
 - `docs/`: specification
 - `.github/workflows/ci.yml`: CI (install, lint, format check, typecheck, unit tests, build, Compose configuration check, and the browser tests in Chrome and Firefox)
 - `.github/workflows/release.yml`: runs the CI workflow for a published GitHub Release and then deploys to GitHub Pages
-- `docs/release-checklist.md`: the checklist and records of each release, including the manual Safari smoke test
+- `docs/release-checklist.md`: the versioning guideline and the steps of a release
 
 ## Getting started
 
@@ -101,7 +101,7 @@ What they cover, in both browsers:
 
 Chrome runs as the installed stable channel (`channel: 'chrome'`), not as Playwright's bundled Chromium. Playwright cannot drive a stock Firefox, so Firefox is the Firefox build of the Playwright version in `package-lock.json`. CI installs the newest Chrome stable on every run. Updating Playwright updates Firefox. Each run prints and records the exact browser version (the "Browser under test" summary of each CI job). A new browser release that breaks a test is a normal failure to fix, and no browser version is pinned to avoid it.
 
-Safari is a supported browser, but it is a manual gate and has no automated CI coverage. The manual Safari smoke test is part of the [release checklist](docs/release-checklist.md).
+Safari is a supported browser, but it has no automated CI coverage. Maintainers check it informally. There is no documented Safari gate.
 
 ## Release and GitHub Pages
 
@@ -109,7 +109,7 @@ The app is a static site at the project path `https://secvisogram.github.io/csaf
 
 `.github/workflows/release.yml` runs only when a GitHub Release is published. It runs the whole CI workflow for the commit of the release (unit tests, browser tests in Chrome and Firefox, production build), then builds `dist` and deploys it with the GitHub Pages actions. Nothing is deployed for a pull request or for a push to `main`. If any check fails, nothing is deployed.
 
-The setup needs three one-time repository settings: the Pages source `GitHub Actions`, a `github-pages` environment rule that allows the release tags, and required status checks on `main` (`test`, `browser (chrome)`, `browser (firefox)`), without which a failing check does not block merging. They and the steps of a release, including the Safari smoke test, are in [docs/release-checklist.md](docs/release-checklist.md). Publish a release only after the checklist is done, and create it as a draft until then.
+The project uses Semantic Versioning, and the git tag `vMAJOR.MINOR.PATCH` is the only version. To release, tag a commit on `main`, push the tag and publish a GitHub Release for it. The versioning rules, the one-time repository settings (the Pages source `GitHub Actions`, a `github-pages` environment rule that allows the release tags, and required status checks on `main`, without which a failing check does not block merging) and the steps of a release are in [docs/release-checklist.md](docs/release-checklist.md).
 
 ## Test catalogue
 
